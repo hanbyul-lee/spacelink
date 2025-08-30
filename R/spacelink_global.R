@@ -1,13 +1,51 @@
-#################################################
+#' Global Spatial Variability Analysis
+#'
+#' Performs global spatial gene variability analysis across multiple length scales
+#' using kernel-based methods.
+#'
 #' @param Y Normalized count matrix. Rows and columns indicate genes and spots, respectively.
 #' @param spatial_coords Spatial coordinates matrix. Rows indicate spots.
-#' @param X Spatial features expected to include intercept. If null, X = rep(1,N) where N is number of spots.
-#' @param lengthscales If NULL, length-scales are calculated by using our two-step approach.
-#' @param n_lengthscales Number of length-scales (i.e., number of kernels)
-#' @param M It controls the minimum length-scale. Minimum length-scale is set to be the minimum distance multiplied by M.
-#' @param n_workers Number of workers for parallelization.
-#################################################
-
+#' @param X Spatial features expected to include intercept. If NULL, X = rep(1,N) where N is number of spots.
+#' @param lengthscales If NULL, length-scales are calculated using the two-step approach.
+#' @param n_lengthscales Number of length-scales (i.e., number of kernels). Default is 5.
+#' @param M Controls the minimum length-scale. Minimum length-scale is set to be the minimum distance multiplied by M. Default is 1.
+#' @param n_workers Number of workers for parallelization. Default is 1.
+#'
+#' @return A data frame containing:
+#' \describe{
+#'   \item{tau.sq}{Nugget variance component}
+#'   \item{sigma.sq1, sigma.sq2, ...}{Spatial variance components for each kernel}
+#'   \item{ESV}{Effective Spatial Variability score}
+#'   \item{pval}{Combined p-value from score tests}
+#'   \item{padj}{Benjamini-Hochberg adjusted p-values}
+#'   \item{ESV_adj}{ESV adjusted for multiple testing (0 if padj > 0.05)}
+#' }
+#'
+#' @examples
+#' \dontrun{
+#' # Example with simulated data
+#' set.seed(123)
+#' n_spots <- 100
+#' n_genes <- 50
+#'
+#' # Generate spatial coordinates
+#' coords <- matrix(runif(n_spots * 2), ncol = 2)
+#'
+#' # Generate expression data
+#' expr_data <- matrix(rnorm(n_genes * n_spots), nrow = n_genes)
+#'
+#' # Run global analysis
+#' results <- spacelink_global(
+#'   Y = expr_data,
+#'   spatial_coords = coords,
+#'   n_lengthscales = 5
+#' )
+#'
+#' # View top spatially variable genes
+#' head(results[order(results$pval), ])
+#' }
+#'
+#' @export
 
 spacelink_global <- function(Y, spatial_coords, X = NULL, lengthscales = NULL, n_lengthscales = 5, M = 1, n_workers = 1){
   # Create matrix of phi (= 1/lengthscale)

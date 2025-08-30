@@ -1,16 +1,40 @@
-####################################
-#' @param global_test_res Spacelink global SVG test results.
+#' Cell Type-Specific Spatial Variability Analysis
+#'
+#' Performs cell type-specific spatial gene variability analysis using results
+#' from global analysis.
+#'
+#' @param global_test_res Spacelink global SVG test results from \code{\link{spacelink_global}}.
 #' @param ct_idx Index of cell-type to be tested.
 #' @param Y Normalized count matrix. Rows and columns indicate genes and spots, respectively.
 #' @param spatial_coords Spatial coordinates matrix. Rows indicate spots.
 #' @param cell_type_data Cell-type data matrix. Cell-type proportions (e.g., RCTD) or cell-type abundance (e.g., Cell2location).
-#' @param c1 Gating parameter 1.
-#' @param c2 Gating parameter 2.
-#' @param is_phi_reduce If TRUE, kernel bandwidths are restricted to be smaller than the maximum distance among cells within target cell type.
-#' @param n_workers Number of workers for parallelization.
-####################################
-
-
+#' @param c1 Gating parameter 1. Default is 0.25.
+#' @param c2 Gating parameter 2. Default is 0.2.
+#' @param is_phi_reduce If TRUE, kernel bandwidths are restricted to be smaller than the maximum distance among cells within target cell type. Default is TRUE.
+#' @param n_workers Number of workers for parallelization. Default is 1.
+#'
+#' @return A data frame containing:
+#' \describe{
+#'   \item{time}{Computation time}
+#'   \item{pval}{Combined p-value for cell type-specific spatial patterns}
+#' }
+#'
+#' @examples
+#' \dontrun{
+#' # First run global analysis
+#' global_results <- spacelink_global(Y, spatial_coords)
+#'
+#' # Then cell type-specific analysis
+#' ct_results <- spacelink_cell_type(
+#'   global_test_res = global_results,
+#'   ct_idx = 1,  # first cell type
+#'   Y = Y,
+#'   spatial_coords = spatial_coords,
+#'   cell_type_data = cell_proportions
+#' )
+#' }
+#'
+#' @export
 spacelink_cell_type <- function(global_test_res, ct_idx, Y, spatial_coords, cell_type_data, c1 = 0.25, c2 = 0.2,
                                 is_phi_reduce = TRUE, n_workers = 1){
 
