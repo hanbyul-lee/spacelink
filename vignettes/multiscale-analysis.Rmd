@@ -1,4 +1,3 @@
-```rmd
 ---
 title: "Multi-scale Spatial Analysis"
 output: rmarkdown::html_vignette
@@ -8,16 +7,55 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "figures/",
+  out.width = "100%"
+)
+```
+
 # Multi-scale Analysis with spacelink
 
-This vignette demonstrates how to perform multi-scale spatial gene expression analysis.
+This vignette demonstrates how to perform multi-scale spatial gene expression analysis using the spacelink package. We'll explore how spatial patterns manifest at different length scales and how to interpret multi-scale results.
 
-## Length Scale Selection
+## Understanding Length Scales
 
-spacelink automatically selects optimal length scales, but you can also specify custom scales:
+Spatial gene expression patterns can occur at different scales:
 
-```{r, eval=FALSE}
-# Custom length scales
+- **Fine scale**: Local neighborhoods, cell-cell interactions
+- **Medium scale**: Tissue domains, anatomical structures  
+- **Coarse scale**: Global tissue-wide gradients
+
+The `spacelink` package automatically selects optimal length scales for each gene, but you can also specify custom scales.
+
+## Automatic Length Scale Selection
+
+By default, `spacelink_global()` automatically selects optimal length scales:
+
+```{r eval=FALSE}
+library(spacelink)
+
+# Automatic scale selection (recommended)
+results <- spacelink_global(
+  Y = expression_matrix,
+  spatial_coords = coordinates,
+  n_lengthscales = 5  # Number of scales to use
+)
+```
+
+The algorithm uses a two-step approach:
+1. Fits models across a broad range of scales
+2. Identifies gene-specific optimal ranges
+3. Selects final scales within those ranges
+
+## Custom Length Scales
+
+You can specify custom length scales if you have prior knowledge:
+
+```{r eval=FALSE}
+# Define custom length scales (in spatial units)
 custom_scales <- c(10, 50, 100, 200, 500)
 
 results <- spacelink_global(
@@ -26,3 +64,209 @@ results <- spacelink_global(
   lengthscales = custom_scales
 )
 ```
+
+## Manual Length Scale Selection
+
+For more control, use `select_lengthscales()` separately:
+
+```{r eval=FALSE}
+# Select scales manually
+length_scales <- select_lengthscales(
+  Y = expression_matrix,
+  spatial_coords = coordinates,
+  n_lengthscales = 7,
+  M = 0.5  # Controls minimum scale
+)
+
+# Use selected scales in analysis
+results <- spacelink_global(
+  Y = expression_matrix,
+  spatial_coords = coordinates,
+  lengthscales = 1/length_scales$phi_mat  # Convert phi to lengthscales
+)
+```
+
+## Interpreting Multi-scale Results
+
+### Variance Components
+
+Each gene gets variance components at different scales:
+
+```{r eval=FALSE}
+# Example results structure
+head(results[, c("tau.sq", "sigma.sq1", "sigma.sq2", "sigma.sq3", "ESV")])
+```
+
+- **tau.sq**: Non-spatial variance (measurement noise, biological noise)
+- **sigma.sq1, sigma.sq2, ...**: Spatial variance at scales 1, 2, etc.
+- Higher `sigma.sq` values indicate stronger patterns at that scale
+
+### Scale-Specific Patterns
+
+Examine which scales contribute most to spatial variability:
+
+```{r eval=FALSE}
+# Calculate relative contribution of each scale
+spatial_components <- results[, grep("sigma.sq", colnames(results))]
+total_spatial <- rowSums(spatial_components)
+
+# Proportion of variance at each scale
+scale_proportions <- spatial_components / (total_spatial + results$tau.sq)
+
+# Find genes with fine-scale patterns (scale 1 dominant)
+fine_scale_genes <- which(scale_proportions[,1] > 0.5 & results$padj < 0.05)
+
+# Find genes with coarse-scale patterns (last scale dominant)
+n_scales <- ncol(scale_proportions)
+coarse_scale_genes <- which(scale_proportions[,n_scales] > 0.5 & results$padj < 0.05)
+```
+
+### ESV Interpretation by Scale
+
+The ESV score incorporates spatial weighting across scales:
+
+```{r eval=FALSE}
+# Genes with different spatial patterns
+high_esv <- results[results$ESV > 0.6 & results$padj < 0.05, ]
+moderate_esv <- results[results$ESV > 0.3 & results$ESV <= 0.6 & results$padj < 0.05, ]
+
+# Compare variance components
+summary(high_esv[, grep("sigma.sq", colnames(high_esv))])
+summary(moderate_esv[, grep("sigma.sq", colnames(moderate_esv))])
+```
+
+## Advanced Multi-scale Analysis
+
+### Scale-Specific Gene Sets
+
+Identify genes active at specific scales:
+
+```{r eval=FALSE}
+# Function to classify genes by dominant scale
+classify_by_scale <- function(results, threshold = 0.4) {
+  spatial_cols <- grep("sigma.sq", colnames(results))
+  spatial_vars <- results[, spatial_cols]
+  total_var <- rowSums(spatial_vars) + results$tau.sq
+  
+  # Calculate proportions
+  scale_props <- spatial_vars / total_var
+  
+  # Find dominant scale for each gene
+  dominant_scale <- apply(scale_props, 1, which.max)
+  max_proportion <- apply(scale_props, 1, max)
+  
+  # Only classify genes with clear dominance and significance
+  classified <- ifelse(max_proportion > threshold & results$padj < 0.05,
+                      paste0("Scale_", dominant_scale),
+                      "Mixed/Nonspatial")
+  
+  return(data.frame(
+    gene = rownames(results),
+    dominant_scale = classified,
+    max_proportion = max_proportion,
+    ESV = results$ESV,
+    pval = results$pval
+  ))
+}
+
+# Apply classification
+gene_classification <- classify_by_scale(results)
+table(gene_classification$dominant_scale)
+```
+
+### Comparing Scale Patterns
+
+Compare how different genes utilize multiple scales:
+
+```{r eval=FALSE}
+# Heatmap of scale usage
+library(pheatmap)
+
+# Select top spatial genes
+top_spatial <- results[results$padj < 0.01 & results$ESV > 0.3, ]
+scale_matrix <- as.matrix(top_spatial[, grep("sigma.sq", colnames(top_spatial))])
+
+# Normalize by row (gene)
+scale_matrix_norm <- scale_matrix / rowSums(scale_matrix)
+
+# Create heatmap
+pheatmap(scale_matrix_norm,
+         cluster_rows = TRUE,
+         cluster_cols = FALSE,
+         main = "Scale Usage Patterns",
+         color = colorRampPalette(c("white", "blue", "red"))(100))
+```
+
+## Parameter Tuning
+
+### Number of Length Scales
+
+```{r eval=FALSE}
+# Compare different numbers of scales
+for(n_scales in c(3, 5, 7, 10)) {
+  results_n <- spacelink_global(
+    Y = expression_matrix,
+    spatial_coords = coordinates,
+    n_lengthscales = n_scales
+  )
+  
+  cat("n_scales:", n_scales, 
+      "- Spatial genes:", sum(results_n$padj < 0.05),
+      "- Mean ESV:", round(mean(results_n$ESV[results_n$padj < 0.05]), 3), "\n")
+}
+```
+
+### Minimum Scale Parameter
+
+```{r eval=FALSE}
+# Test different minimum scale settings
+for(M in c(0.5, 1, 2)) {
+  length_scales <- select_lengthscales(
+    Y = expression_matrix,
+    spatial_coords = coordinates,
+    M = M
+  )
+  
+  cat("M =", M, "- Scale range:", 
+      round(range(1/length_scales$phi_mat), 2), "\n")
+}
+```
+
+## Visualization Tips
+
+```{r eval=FALSE}
+# Plot ESV distribution
+hist(results$ESV[results$padj < 0.05], 
+     main = "ESV Distribution (Significant Genes)",
+     xlab = "Effective Spatial Variability",
+     breaks = 20)
+
+# Plot scale vs ESV relationship
+plot(results$sigma.sq1 / (rowSums(results[, grep("sigma.sq", colnames(results))]) + results$tau.sq),
+     results$ESV,
+     xlab = "Fine Scale Proportion",
+     ylab = "ESV Score",
+     pch = 16, alpha = 0.6)
+```
+
+## Computational Considerations
+
+For large datasets, consider:
+
+```{r eval=FALSE}
+# Use multiple workers for parallelization
+results <- spacelink_global(
+  Y = expression_matrix,
+  spatial_coords = coordinates,
+  n_workers = 4  # Adjust based on your system
+)
+
+# Monitor computation time
+summary(results$time)
+```
+
+## Next Steps
+
+- For cell type-specific analysis: `vignette("cell-type-analysis")`
+- For detailed function documentation: `?spacelink_global`
+- For advanced examples: Check the package website
