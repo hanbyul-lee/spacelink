@@ -1,0 +1,28 @@
+```rmd
+---
+title: "Multi-scale Spatial Analysis"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Multi-scale Spatial Analysis}
+  %\VignetteEngine{knitr::rmarkdown}  
+  %\VignetteEncoding{UTF-8}
+---
+
+# Multi-scale Analysis with spacelink
+
+This vignette demonstrates how to perform multi-scale spatial gene expression analysis.
+
+## Length Scale Selection
+
+spacelink automatically selects optimal length scales, but you can also specify custom scales:
+
+```{r, eval=FALSE}
+# Custom length scales
+custom_scales <- c(10, 50, 100, 200, 500)
+
+results <- spacelink_global(
+  Y = expression_matrix,
+  spatial_coords = coordinates,
+  lengthscales = custom_scales
+)
+```

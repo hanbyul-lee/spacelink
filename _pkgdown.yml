@@ -1,0 +1,25 @@
+url: https://xueweic.github.io/spacelink/
+template:
+  bootstrap: 5
+  bootswatch: flatly
+home:
+  title: "spacelink: Multi-Scale Spatial Gene Variability Analysis"
+  description: >
+    Statistical methods for analyzing spatial gene expression patterns
+    across multiple scales, with applications to understanding developmental
+    processes and disease mechanisms.
+reference:
+- title: "Main Functions"
+  desc: "Core functions for spatial gene variability analysis"
+- contents:
+  - spacelink_global
+  - spacelink_cell_type
+  - spacelink_cell_type_ESV
+  - select_lengthscales
+- title: "Utility Functions"
+  desc: "Helper functions and utilities"
+- contents:
+  - run_nnls
+authors:
+  Your Name:
+    href: "https://github.com/xueweic"
