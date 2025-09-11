@@ -73,7 +73,7 @@
 </h2>
 <p>The <code>spacelink</code> package provides statistical methods for
 detecting and prioritizing spatially variable genes (SVGs) at both
-global tissue and cell-type resolution.</p>
+global-tissue and cell-type resolution.</p>
 <div class="section level3">
 <h3 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h3>
@@ -102,17 +102,29 @@ global tissue and cell-type resolution.</p>
 <span></span>
 <span><span class="co"># View results</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">global_results</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">global_results</span><span class="op">$</span><span class="va">ESV</span>, decreasing<span class="op">=</span><span class="cn">T</span><span class="op">)</span>, <span class="op">]</span><span class="op">)</span></span></code></pre></div>
-<p>The results include: - <strong>ESV</strong>: Effective Spatial
-Variability score (0-1) - <strong>pval</strong>: Combined p-value for
-spatial significance - <strong>padj</strong>: Benjamini-Hochberg
-adjusted p-values - <strong>tau.sq, sigma.sq1, …</strong>: Variance
-components at different scales</p>
+<p>The results include:</p>
+<ul>
+<li>
+<code>ESV</code>: Effective Spatial Variability score (0-1)</li>
+<li>
+<code>pval</code>: Combined p-value for spatial significance</li>
+<li>
+<code>padj</code>: Benjamini-Hochberg adjusted p-values</li>
+<li>
+<code>tau.sq</code>: Nugget variance component</li>
+<li>
+<code>sigma.sq1</code>, <code>sigma.sq2</code>, …: Spatial variance
+components for each kernel</li>
+<li>
+<code>phi1</code>, <code>phi2</code>, …: Inverse of gene-specific
+length scales</li>
+</ul>
 </div>
 <div class="section level4">
-<h4 id="cell-type-specific-analysis-optional">2. Cell-Type-Specific Analysis (Optional)<a class="anchor" aria-label="anchor" href="#cell-type-specific-analysis-optional"></a>
+<h4 id="cell-type-specific-analysis">2. Cell-Type-Specific Analysis<a class="anchor" aria-label="anchor" href="#cell-type-specific-analysis"></a>
 </h4>
-<p>If you have cell type proportion data, analyze cell-type-specific
-spatial patterns:</p>
+<p>If you have cell type proportion information, analyze
+cell-type-specific spatial patterns:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Cell-type-specific analysis</span></span>
 <span><span class="va">cell_type_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/spacelink_cell_type.html">spacelink_cell_type</a></span><span class="op">(</span></span>
@@ -120,15 +132,24 @@ spatial patterns:</p>
 <span>  spatial_coords <span class="op">=</span> <span class="va">coordinates</span>,  <span class="co"># Spots × 2 (x,y coordinates)</span></span>
 <span>  cell_type_proportions <span class="op">=</span> <span class="va">cell_type_proportions</span>,  <span class="co"># Spots × Cell-types</span></span>
 <span>  focal_cell_type <span class="op">=</span> <span class="va">cell_type_name</span>,  <span class="co"># Cell type name to test</span></span>
-<span>  global_spacelink_results <span class="op">=</span> <span class="va">global_results</span>,</span>
+<span>  global_spacelink_results <span class="op">=</span> <span class="va">global_results</span>,  <span class="co"># Not necessary. Providing global results improves efficiency.</span></span>
 <span>  calculate_ESV <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
+<p>The results include:</p>
+<ul>
+<li>
+<code>pval</code>: Combined p-value for spatial significance</li>
+<li>
+<code>ESV</code>: Cell-type-specific Effective Spatial Variability
+(ct-ESV) score (0-1)</li>
+</ul>
 </div>
 </div>
 <div class="section level3">
 <h3 id="example-with-simulated-data">Example with Simulated Data<a class="anchor" aria-label="anchor" href="#example-with-simulated-data"></a>
 </h3>
-<p>Here’s a complete example using simulated data:</p>
+<p>Here’s an example of global Spacelink analysis using simulated
+data:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Set up simulated data</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span>
@@ -167,25 +188,13 @@ spatial patterns:</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">top_genes</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ESV"</span>, <span class="st">"pval"</span>, <span class="st">"padj"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="interpreting-results">Interpreting Results<a class="anchor" aria-label="anchor" href="#interpreting-results"></a>
-</h3>
-<p><strong>ESV Scores</strong>: - ESV (between 0 and 1): Spatial pattern
-is stronger as ESV is closer to 1.</p>
-<p><strong>P-values</strong>: Test for statistical significance of
-spatial patterns. Use adjusted p-values (padj) for multiple testing
-correction.</p>
-<p><strong>Variance Components</strong>: - <code>tau.sq</code>:
-Non-spatial (nugget) variance - <code>sigma.sq1, sigma.sq2, ...</code>:
-Spatial variance at different length scales</p>
-</div>
-<div class="section level3">
 <h3 id="next-steps">Next Steps<a class="anchor" aria-label="anchor" href="#next-steps"></a>
 </h3>
 <ul>
-<li>See <code><a href="../articles/multiscale-analysis.html">vignette("multiscale-analysis")</a></code> for advanced
-multi-scale analysis</li>
-<li>See <code><a href="../articles/cell-type-analysis.html">vignette("cell-type-analysis")</a></code> for cell
-type-specific workflows</li>
+<li>See <code><a href="../articles/multiscale-analysis.html">vignette("multiscale-analysis")</a></code> for advanced global
+analysis</li>
+<li>See <code><a href="../articles/cell-type-analysis.html">vignette("cell-type-analysis")</a></code> for
+cell-type-specific workflows</li>
 <li>Check function documentation with
 <code><a href="../reference/spacelink_global.html">?spacelink_global</a></code>
 </li>
