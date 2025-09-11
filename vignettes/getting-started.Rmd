@@ -1,5 +1,5 @@
 ---
-title: "Getting Started with spacelink"
+title: "Getting Started with Spacelink"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Getting Started with spacelink}
@@ -18,15 +18,7 @@ knitr::opts_chunk$set(
 
 # Introduction
 
-The `spacelink` package provides statistical methods for analyzing spatial gene expression patterns across multiple scales. It helps identify genes with significant spatial variability and understand how this variability manifests at different length scales.
-
-## Key Concepts
-
-**Spatial Gene Variability (SGV)**: Measures how gene expression varies across spatial locations in tissue samples.
-
-**Multi-scale Analysis**: Examines spatial patterns at different length scales, from local neighborhoods to global tissue-wide patterns.
-
-**Effective Spatial Variability (ESV)**: A summary score between 0 and 1 that quantifies the overall spatial variability of a gene, with higher values indicating stronger spatial patterns.
+The `spacelink` package provides statistical methods for detecting and prioritizing spatially variable genes (SVGs) at both global tissue and cell-type resolution.
 
 ## Installation
 
@@ -43,7 +35,7 @@ library(spacelink)
 
 ## Basic Workflow
 
-The typical analysis workflow involves three main steps:
+The typical analysis workflow involves two main steps:
 
 ### 1. Global Spatial Analysis
 
@@ -52,13 +44,13 @@ Start with global analysis to identify spatially variable genes:
 ```{r eval=FALSE}
 # Run global spatial variability analysis
 global_results <- spacelink_global(
-  Y = expression_matrix,          # Genes × Spots
-  spatial_coords = coordinates,   # Spots × 2 (x,y coordinates)
-  n_lengthscales = 5             # Number of spatial scales
+  normalized_counts = normalized_expression_matrix,  # Genes × Spots
+  spatial_coords = coordinates,  # Spots × 2 (x,y coordinates)
+  n_lengthscales = 5  # Number of spatial bandwidths
 )
 
 # View results
-head(global_results[order(global_results$pval), ])
+head(global_results[order(global_results$ESV, decreasing=T), ])
 ```
 
 The results include:
@@ -67,33 +59,19 @@ The results include:
 - **padj**: Benjamini-Hochberg adjusted p-values
 - **tau.sq, sigma.sq1, ...**: Variance components at different scales
 
-### 2. Cell Type-Specific Analysis (Optional)
+### 2. Cell-Type-Specific Analysis (Optional)
 
-If you have cell type data, analyze cell type-specific spatial patterns:
-
-```{r eval=FALSE}
-# Cell type-specific analysis
-ct_results <- spacelink_cell_type(
-  global_test_res = global_results,
-  ct_idx = 1,                    # Cell type index to test
-  Y = expression_matrix,
-  spatial_coords = coordinates,
-  cell_type_data = cell_proportions
-)
-```
-
-### 3. Calculate Cell Type ESV (Optional)
-
-Calculate ESV scores specific to individual cell types:
+If you have cell type proportion data, analyze cell-type-specific spatial patterns:
 
 ```{r eval=FALSE}
-# Cell type-specific ESV
-esv_results <- spacelink_cell_type_ESV(
-  global_test_res = global_results,
-  ct_idx = 1,
-  Y = expression_matrix,
-  spatial_coords = coordinates,
-  cell_type_data = cell_proportions
+# Cell-type-specific analysis
+cell_type_results <- spacelink_cell_type(
+  normalized_counts = normalized_expression_matrix,  # Genes × Spots
+  spatial_coords = coordinates,  # Spots × 2 (x,y coordinates)
+  cell_type_proportions = cell_type_proportions,  # Spots × Cell-types
+  focal_cell_type = cell_type_name,  # Cell type name to test
+  global_spacelink_results = global_results,
+  calculate_ESV = TRUE
 )
 ```
 
@@ -129,22 +107,20 @@ for(i in 1:10) {
 
 # Run analysis
 results <- spacelink_global(
-  Y = expr_data,
+  normalized_counts = expr_data,
   spatial_coords = as.matrix(coords),
   n_lengthscales = 5
 )
 
 # View top spatially variable genes
-top_genes <- head(results[order(results$pval), ], 10)
+top_genes <- head(results[order(results$ESV, decreasing=TRUE), ], 10)
 print(top_genes[, c("ESV", "pval", "padj")])
 ```
 
 ## Interpreting Results
 
 **ESV Scores**:
-- ESV > 0.5: Strong spatial patterns
-- ESV 0.2-0.5: Moderate spatial patterns  
-- ESV < 0.2: Weak spatial patterns
+- ESV (between 0 and 1): Spatial pattern is stronger as ESV is closer to 1.
 
 **P-values**: Test for statistical significance of spatial patterns. Use adjusted p-values (padj) for multiple testing correction.
 
