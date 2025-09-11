@@ -2,7 +2,7 @@
 title: "Example: Visium Human DLPFC"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Multi-scale Spatial Analysis}
+  %\VignetteIndexEntry{Example: Visium Human DLPFC}
   %\VignetteEngine{knitr::rmarkdown}  
   %\VignetteEncoding{UTF-8}
 ---
@@ -41,7 +41,7 @@ dim(counts)
 ## [1] 33538  3639
 ```
 
-``{r eval=FALSE}
+```{r eval=FALSE}
 dim(spatial_coords)
 ```
 
@@ -62,6 +62,9 @@ dim(counts)
 ## [1] 3309  3639
 ```
 
+## Normalization
+
+```{r eval=FALSE}
 # Normalize expression counts using sctransform package
 seurat_obj <- CreateSeuratObject(counts = counts)
 seurat_norm = SCTransform(seurat_obj, vst.flavor = "v2", verbose = FALSE)
@@ -77,13 +80,13 @@ global_results <- spacelink_global(normalized_counts = counts[1:5,], spatial_coo
 
 ## Interpret results
 
-The result will be a DataFrame with p-values, ESV, and other relevant values for each gene.
+The result will be a data frame with p-value, ESV, and other relevant values for each gene.
 
 The most important columns are
 
-- `pval`: The combined p-values for statistical significance of spatial patterns
-- `padj`: Benjamini-Hochberg adjusted p-values
-- `ESV`: Effective Spatial Variability. Spatial pattern is stronger as ESV is closer to 1.
-- `tau.sq`: Non-spatial (nugget) variance
-- `sigma.sq1`, `sigma.sq2`, ...: Spatial variance at different length scales
-- `phi1`, `phi2`, ...: Inverse of gene-specific length scales.
+- `pval` : The combined p-values for statistical significance of spatial patterns.
+- `padj` : Benjamini-Hochberg adjusted p-values.
+- `ESV` : Effective Spatial Variability. Spatial pattern is stronger as ESV is closer to 1.
+- `tau.sq` : Non-spatial (nugget) variance.
+- `sigma.sq1`, `sigma.sq2`, ... : Spatial variance at different length scales.
+- `phi1`, `phi2`, ... : Inverse of gene-specific length scales.
