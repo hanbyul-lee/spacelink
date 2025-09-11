@@ -3,9 +3,9 @@
 #' Performs global spatial gene variability analysis across multiple length scales
 #' using kernel-based methods.
 #'
-#' @param Y Normalized count matrix. Rows and columns indicate genes and spots, respectively.
+#' @param normalized_counts Normalized count matrix. Rows and columns indicate genes and spots, respectively.
 #' @param spatial_coords Spatial coordinates matrix. Rows indicate spots.
-#' @param X Spatial features expected to include intercept. If NULL, X = rep(1,N) where N is number of spots.
+#' @param covariates Spatial features expected to include intercept. If NULL, X = rep(1,N) where N is number of spots.
 #' @param lengthscales If NULL, length-scales are calculated using the two-step approach.
 #' @param n_lengthscales Number of length-scales (i.e., number of kernels). Default is 5.
 #' @param M Controls the minimum length-scale. Minimum length-scale is set to be the minimum distance multiplied by M. Default is 1.
@@ -15,10 +15,10 @@
 #' \describe{
 #'   \item{tau.sq}{Nugget variance component}
 #'   \item{sigma.sq1, sigma.sq2, ...}{Spatial variance components for each kernel}
-#'   \item{ESV}{Effective Spatial Variability score}
+#'   \item{raw_ESV}{Effective Spatial Variability score}
 #'   \item{pval}{Combined p-value from score tests}
 #'   \item{padj}{Benjamini-Hochberg adjusted p-values}
-#'   \item{ESV_adj}{ESV adjusted for multiple testing (0 if padj > 0.05)}
+#'   \item{ESV}{ESV adjusted for multiple testing (0 if padj > 0.05)}
 #' }
 #'
 #' @examples
@@ -36,7 +36,7 @@
 #'
 #' # Run global analysis
 #' results <- spacelink_global(
-#'   Y = expr_data,
+#'   normalized_counts = expr_data,
 #'   spatial_coords = coords,
 #'   n_lengthscales = 5
 #' )
@@ -47,14 +47,21 @@
 #'
 #' @export
 
-spacelink_global <- function(Y, spatial_coords, X = NULL, lengthscales = NULL, n_lengthscales = 5, M = 1, n_workers = 1){
+spacelink_global <- function(normalized_counts, spatial_coords, covariates = NULL, lengthscales = NULL, n_lengthscales = 5, M = 1, n_workers = 1){
+  Y <- normalized_counts
+  X <- covariates
+  if(ncol(Y)!=nrow(spatial_coords)){
+      stop("The column dimension of normalized_counts and the row dimension of spatial_coords should be the same.")
+  }
+  if(nrow(spatial_coords)!=nrow(X)){
+      stop("The row dimensions of spatial_coords and covariates should be the same.")
+  }
   # Create matrix of phi (= 1/lengthscale)
   if(!is.null(lengthscales)){
-    if(is.matrix(lengthscales)){
-      phi_mat <- 1/lengthscales
-    }else{
-      phi_mat <- t(matrix(1/lengthscales, length(lengthscales), nrow(Y)))
+    if(nrow(lengthscales)!=nrow(Y)){
+        stop("The row dimensions of normalized counts and lengthscales should be the same.")
     }
+    phi_mat <- 1/lengthscales
     n_lengthscales <- ncol(phi_mat)
   }else{
     out <- select_lengthscales(Y, spatial_coords, n_lengthscales, M = M, is.inverse = TRUE, n_workers)
@@ -79,7 +86,7 @@ spacelink_global <- function(Y, spatial_coords, X = NULL, lengthscales = NULL, n
 
       sigma.sq_vec <- nnls_res[,grep("sigma", colnames(nnls_res))]
       tau.sq <- nnls_res[,grep("tau",colnames(nnls_res))]
-      nnls_res$ESV <- calculate_ESV(sigma.sq_vec, tau.sq, spatial_coords, phi_seq = phi_seq)
+      nnls_res$raw_ESV <- calculate_ESV(sigma.sq_vec, tau.sq, spatial_coords, phi_seq = phi_seq)
 
       test_res <- score_test(y, spatial_coords, phi_seq = phi_seq)
     })
@@ -98,8 +105,8 @@ spacelink_global <- function(Y, spatial_coords, X = NULL, lengthscales = NULL, n
   suppressWarnings({results$pval <- apply(pval_mat,1,ACAT)})
   results$padj <- p.adjust(results$pval, method = "BH")
 
-  results$ESV_adj <- results$ESV
-  results$ESV_adj[results$padj > 0.05] <- 0
+  results$ESV <- results$raw_ESV
+  results$ESV[results$padj > 0.05] <- 0
 
   if(!is.null(rownames(Y))){
     rownames(results) <- make.unique(rownames(Y))
