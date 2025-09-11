@@ -5,12 +5,12 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Getting Started with spacelink • spacelink</title>
+<title>Getting Started with Spacelink • spacelink</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Getting Started with spacelink">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Getting Started with Spacelink">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -59,7 +59,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
 
-      <h1>Getting Started with spacelink</h1>
+      <h1>Getting Started with Spacelink</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/xueweic/spacelink/blob/main/vignettes/getting-started.Rmd" class="external-link"><code>vignettes/getting-started.Rmd</code></a></small>
@@ -72,21 +72,8 @@
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
 <p>The <code>spacelink</code> package provides statistical methods for
-analyzing spatial gene expression patterns across multiple scales. It
-helps identify genes with significant spatial variability and understand
-how this variability manifests at different length scales.</p>
-<div class="section level3">
-<h3 id="key-concepts">Key Concepts<a class="anchor" aria-label="anchor" href="#key-concepts"></a>
-</h3>
-<p><strong>Spatial Gene Variability (SGV)</strong>: Measures how gene
-expression varies across spatial locations in tissue samples.</p>
-<p><strong>Multi-scale Analysis</strong>: Examines spatial patterns at
-different length scales, from local neighborhoods to global tissue-wide
-patterns.</p>
-<p><strong>Effective Spatial Variability (ESV)</strong>: A summary score
-between 0 and 1 that quantifies the overall spatial variability of a
-gene, with higher values indicating stronger spatial patterns.</p>
-</div>
+detecting and prioritizing spatially variable genes (SVGs) at both
+global tissue and cell-type resolution.</p>
 <div class="section level3">
 <h3 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h3>
@@ -100,7 +87,7 @@ gene, with higher values indicating stronger spatial patterns.</p>
 <div class="section level3">
 <h3 id="basic-workflow">Basic Workflow<a class="anchor" aria-label="anchor" href="#basic-workflow"></a>
 </h3>
-<p>The typical analysis workflow involves three main steps:</p>
+<p>The typical analysis workflow involves two main steps:</p>
 <div class="section level4">
 <h4 id="global-spatial-analysis">1. Global Spatial Analysis<a class="anchor" aria-label="anchor" href="#global-spatial-analysis"></a>
 </h4>
@@ -108,13 +95,13 @@ gene, with higher values indicating stronger spatial patterns.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Run global spatial variability analysis</span></span>
 <span><span class="va">global_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/spacelink_global.html">spacelink_global</a></span><span class="op">(</span></span>
-<span>  Y <span class="op">=</span> <span class="va">expression_matrix</span>,          <span class="co"># Genes × Spots</span></span>
-<span>  spatial_coords <span class="op">=</span> <span class="va">coordinates</span>,   <span class="co"># Spots × 2 (x,y coordinates)</span></span>
-<span>  n_lengthscales <span class="op">=</span> <span class="fl">5</span>             <span class="co"># Number of spatial scales</span></span>
+<span>  normalized_counts <span class="op">=</span> <span class="va">normalized_expression_matrix</span>,  <span class="co"># Genes × Spots</span></span>
+<span>  spatial_coords <span class="op">=</span> <span class="va">coordinates</span>,  <span class="co"># Spots × 2 (x,y coordinates)</span></span>
+<span>  n_lengthscales <span class="op">=</span> <span class="fl">5</span>  <span class="co"># Number of spatial bandwidths</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># View results</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">global_results</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">global_results</span><span class="op">$</span><span class="va">pval</span><span class="op">)</span>, <span class="op">]</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">global_results</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">global_results</span><span class="op">$</span><span class="va">ESV</span>, decreasing<span class="op">=</span><span class="cn">T</span><span class="op">)</span>, <span class="op">]</span><span class="op">)</span></span></code></pre></div>
 <p>The results include: - <strong>ESV</strong>: Effective Spatial
 Variability score (0-1) - <strong>pval</strong>: Combined p-value for
 spatial significance - <strong>padj</strong>: Benjamini-Hochberg
@@ -122,32 +109,19 @@ adjusted p-values - <strong>tau.sq, sigma.sq1, …</strong>: Variance
 components at different scales</p>
 </div>
 <div class="section level4">
-<h4 id="cell-type-specific-analysis-optional">2. Cell Type-Specific Analysis (Optional)<a class="anchor" aria-label="anchor" href="#cell-type-specific-analysis-optional"></a>
+<h4 id="cell-type-specific-analysis-optional">2. Cell-Type-Specific Analysis (Optional)<a class="anchor" aria-label="anchor" href="#cell-type-specific-analysis-optional"></a>
 </h4>
-<p>If you have cell type data, analyze cell type-specific spatial
-patterns:</p>
+<p>If you have cell type proportion data, analyze cell-type-specific
+spatial patterns:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Cell type-specific analysis</span></span>
-<span><span class="va">ct_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/spacelink_cell_type.html">spacelink_cell_type</a></span><span class="op">(</span></span>
-<span>  global_test_res <span class="op">=</span> <span class="va">global_results</span>,</span>
-<span>  ct_idx <span class="op">=</span> <span class="fl">1</span>,                    <span class="co"># Cell type index to test</span></span>
-<span>  Y <span class="op">=</span> <span class="va">expression_matrix</span>,</span>
-<span>  spatial_coords <span class="op">=</span> <span class="va">coordinates</span>,</span>
-<span>  cell_type_data <span class="op">=</span> <span class="va">cell_proportions</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level4">
-<h4 id="calculate-cell-type-esv-optional">3. Calculate Cell Type ESV (Optional)<a class="anchor" aria-label="anchor" href="#calculate-cell-type-esv-optional"></a>
-</h4>
-<p>Calculate ESV scores specific to individual cell types:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Cell type-specific ESV</span></span>
-<span><span class="va">esv_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/spacelink_cell_type_ESV.html">spacelink_cell_type_ESV</a></span><span class="op">(</span></span>
-<span>  global_test_res <span class="op">=</span> <span class="va">global_results</span>,</span>
-<span>  ct_idx <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>  Y <span class="op">=</span> <span class="va">expression_matrix</span>,</span>
-<span>  spatial_coords <span class="op">=</span> <span class="va">coordinates</span>,</span>
-<span>  cell_type_data <span class="op">=</span> <span class="va">cell_proportions</span></span>
+<code class="sourceCode R"><span><span class="co"># Cell-type-specific analysis</span></span>
+<span><span class="va">cell_type_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/spacelink_cell_type.html">spacelink_cell_type</a></span><span class="op">(</span></span>
+<span>  normalized_counts <span class="op">=</span> <span class="va">normalized_expression_matrix</span>,  <span class="co"># Genes × Spots</span></span>
+<span>  spatial_coords <span class="op">=</span> <span class="va">coordinates</span>,  <span class="co"># Spots × 2 (x,y coordinates)</span></span>
+<span>  cell_type_proportions <span class="op">=</span> <span class="va">cell_type_proportions</span>,  <span class="co"># Spots × Cell-types</span></span>
+<span>  focal_cell_type <span class="op">=</span> <span class="va">cell_type_name</span>,  <span class="co"># Cell type name to test</span></span>
+<span>  global_spacelink_results <span class="op">=</span> <span class="va">global_results</span>,</span>
+<span>  calculate_ESV <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
@@ -155,7 +129,7 @@ patterns:</p>
 <h3 id="example-with-simulated-data">Example with Simulated Data<a class="anchor" aria-label="anchor" href="#example-with-simulated-data"></a>
 </h3>
 <p>Here’s a complete example using simulated data:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Set up simulated data</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span>
 <span><span class="va">n_spots</span> <span class="op">&lt;-</span> <span class="fl">200</span></span>
@@ -183,21 +157,20 @@ patterns:</p>
 <span></span>
 <span><span class="co"># Run analysis</span></span>
 <span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/spacelink_global.html">spacelink_global</a></span><span class="op">(</span></span>
-<span>  Y <span class="op">=</span> <span class="va">expr_data</span>,</span>
+<span>  normalized_counts <span class="op">=</span> <span class="va">expr_data</span>,</span>
 <span>  spatial_coords <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">coords</span><span class="op">)</span>,</span>
 <span>  n_lengthscales <span class="op">=</span> <span class="fl">5</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># View top spatially variable genes</span></span>
-<span><span class="va">top_genes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">results</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">results</span><span class="op">$</span><span class="va">pval</span><span class="op">)</span>, <span class="op">]</span>, <span class="fl">10</span><span class="op">)</span></span>
+<span><span class="va">top_genes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">results</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">results</span><span class="op">$</span><span class="va">ESV</span>, decreasing<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span>, <span class="op">]</span>, <span class="fl">10</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">top_genes</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ESV"</span>, <span class="st">"pval"</span>, <span class="st">"padj"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="interpreting-results">Interpreting Results<a class="anchor" aria-label="anchor" href="#interpreting-results"></a>
 </h3>
-<p><strong>ESV Scores</strong>: - ESV &gt; 0.5: Strong spatial patterns
-- ESV 0.2-0.5: Moderate spatial patterns<br>
-- ESV &lt; 0.2: Weak spatial patterns</p>
+<p><strong>ESV Scores</strong>: - ESV (between 0 and 1): Spatial pattern
+is stronger as ESV is closer to 1.</p>
 <p><strong>P-values</strong>: Test for statistical significance of
 spatial patterns. Use adjusted p-values (padj) for multiple testing
 correction.</p>
