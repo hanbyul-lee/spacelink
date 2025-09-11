@@ -16,8 +16,6 @@ knitr::opts_chunk$set(
 )
 ```
 
-# Introduction
-
 The `spacelink` package provides statistical methods for detecting and prioritizing spatially variable genes (SVGs) at both global-tissue and cell-type resolution.
 
 ## Installation
@@ -124,9 +122,3 @@ results <- spacelink_global(
 top_genes <- head(results[order(results$ESV, decreasing=TRUE), ], 10)
 print(top_genes[, c("ESV", "pval", "padj")])
 ```
-
-## Next Steps
-
-- See `vignette("multiscale-analysis")` for advanced global analysis
-- See `vignette("cell-type-analysis")` for cell-type-specific workflows
-- Check function documentation with `?spacelink_global`
