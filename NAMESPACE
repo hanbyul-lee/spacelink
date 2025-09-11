@@ -3,6 +3,5 @@
 export(run_nnls)
 export(select_lengthscales)
 export(spacelink_cell_type)
-export(spacelink_cell_type_ESV)
 export(spacelink_global)
 importFrom(RcppML,nnls)
