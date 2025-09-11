@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 
 # Introduction
 
-The `spacelink` package provides statistical methods for detecting and prioritizing spatially variable genes (SVGs) at both global tissue and cell-type resolution.
+The `spacelink` package provides statistical methods for detecting and prioritizing spatially variable genes (SVGs) at both global-tissue and cell-type resolution.
 
 ## Installation
 
@@ -54,14 +54,17 @@ head(global_results[order(global_results$ESV, decreasing=T), ])
 ```
 
 The results include:
-- **ESV**: Effective Spatial Variability score (0-1)
-- **pval**: Combined p-value for spatial significance
-- **padj**: Benjamini-Hochberg adjusted p-values
-- **tau.sq, sigma.sq1, ...**: Variance components at different scales
 
-### 2. Cell-Type-Specific Analysis (Optional)
+- `ESV`: Effective Spatial Variability score (0-1)
+- `pval`: Combined p-value for spatial significance
+- `padj`: Benjamini-Hochberg adjusted p-values
+- `tau.sq`: Nugget variance component
+- `sigma.sq1`, `sigma.sq2`, ...: Spatial variance components for each kernel
+- `phi1`, `phi2`, ...: Inverse of gene-specific length scales
 
-If you have cell type proportion data, analyze cell-type-specific spatial patterns:
+### 2. Cell-Type-Specific Analysis
+
+If you have cell type proportion information, analyze cell-type-specific spatial patterns:
 
 ```{r eval=FALSE}
 # Cell-type-specific analysis
@@ -70,14 +73,19 @@ cell_type_results <- spacelink_cell_type(
   spatial_coords = coordinates,  # Spots × 2 (x,y coordinates)
   cell_type_proportions = cell_type_proportions,  # Spots × Cell-types
   focal_cell_type = cell_type_name,  # Cell type name to test
-  global_spacelink_results = global_results,
+  global_spacelink_results = global_results,  # Not necessary. Providing global results improves efficiency.
   calculate_ESV = TRUE
 )
 ```
 
+The results include:
+
+- `pval`: Combined p-value for spatial significance
+- `ESV`: Cell-type-specific Effective Spatial Variability (ct-ESV) score (0-1)
+
 ## Example with Simulated Data
 
-Here's a complete example using simulated data:
+Here's an example of global Spacelink analysis using simulated data:
 
 ```{r eval=FALSE}
 # Set up simulated data
@@ -117,19 +125,8 @@ top_genes <- head(results[order(results$ESV, decreasing=TRUE), ], 10)
 print(top_genes[, c("ESV", "pval", "padj")])
 ```
 
-## Interpreting Results
-
-**ESV Scores**:
-- ESV (between 0 and 1): Spatial pattern is stronger as ESV is closer to 1.
-
-**P-values**: Test for statistical significance of spatial patterns. Use adjusted p-values (padj) for multiple testing correction.
-
-**Variance Components**: 
-- `tau.sq`: Non-spatial (nugget) variance
-- `sigma.sq1, sigma.sq2, ...`: Spatial variance at different length scales
-
 ## Next Steps
 
-- See `vignette("multiscale-analysis")` for advanced multi-scale analysis
-- See `vignette("cell-type-analysis")` for cell type-specific workflows
+- See `vignette("multiscale-analysis")` for advanced global analysis
+- See `vignette("cell-type-analysis")` for cell-type-specific workflows
 - Check function documentation with `?spacelink_global`
