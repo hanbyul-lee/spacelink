@@ -49,6 +49,11 @@ reference:
   - select_lengthscales
   - run_nnls
 
+- title: "Example data"
+  desc: "Visium human DLPFC data as example data"
+  contents:
+  - Visium_human_DLPFC
+
 articles:
 - title: "Getting Started"
   navbar: ~

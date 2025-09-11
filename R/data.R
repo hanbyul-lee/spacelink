@@ -10,6 +10,4 @@
 #'   \item{cell_type_proportions}{****}
 #' }
 #' @source The Visium_human_DLPFC dataset contains
-#'
-#' @family spacelink_data
 "Visium_human_DLPFC"

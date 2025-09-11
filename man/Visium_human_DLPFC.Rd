@@ -24,5 +24,4 @@ Visium_human_DLPFC
 \description{
 An example dataset
 }
-\concept{spacelink_data}
 \keyword{datasets}
