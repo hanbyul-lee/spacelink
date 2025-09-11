@@ -5,12 +5,12 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Multi-scale Spatial Analysis • spacelink</title>
+<title>Example: Visium Human DLPFC • spacelink</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Multi-scale Spatial Analysis">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Example: Visium Human DLPFC">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -59,7 +59,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
 
-      <h1>Multi-scale Spatial Analysis</h1>
+      <h1>Example: Visium Human DLPFC</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/xueweic/spacelink/blob/main/vignettes/multiscale-analysis.Rmd" class="external-link"><code>vignettes/multiscale-analysis.Rmd</code></a></small>
@@ -69,279 +69,83 @@
     
     
 <div class="section level2">
-<h2 id="multi-scale-analysis-with-spacelink">Multi-scale Analysis with spacelink<a class="anchor" aria-label="anchor" href="#multi-scale-analysis-with-spacelink"></a>
+<h2 id="application-of-spacelink-to-visium-human-dlpfc-dataset">Application of Spacelink to Visium Human DLPFC Dataset<a class="anchor" aria-label="anchor" href="#application-of-spacelink-to-visium-human-dlpfc-dataset"></a>
 </h2>
-<p>This vignette demonstrates how to perform multi-scale spatial gene
-expression analysis using the spacelink package. We’ll explore how
-spatial patterns manifest at different length scales and how to
-interpret multi-scale results.</p>
+<p>This vignette demonstrates how to perform spatial gene expression
+analysis using the <code>spacelink</code> package with Visium human
+dorsolateral prefrontal cortex (DLPFC) dataset.</p>
 <div class="section level3">
-<h3 id="understanding-length-scales">Understanding Length Scales<a class="anchor" aria-label="anchor" href="#understanding-length-scales"></a>
+<h3 id="load-packages">Load packages<a class="anchor" aria-label="anchor" href="#load-packages"></a>
 </h3>
-<p>Spatial gene expression patterns can occur at different scales:</p>
-<ul>
-<li>
-<strong>Fine scale</strong>: Local neighborhoods, cell-cell
-interactions</li>
-<li>
-<strong>Medium scale</strong>: Tissue domains, anatomical
-structures<br>
-</li>
-<li>
-<strong>Coarse scale</strong>: Global tissue-wide gradients</li>
-</ul>
-<p>The <code>spacelink</code> package automatically selects optimal
-length scales for each gene, but you can also specify custom scales.</p>
-</div>
-<div class="section level3">
-<h3 id="automatic-length-scale-selection">Automatic Length Scale Selection<a class="anchor" aria-label="anchor" href="#automatic-length-scale-selection"></a>
-</h3>
-<p>By default, <code><a href="../reference/spacelink_global.html">spacelink_global()</a></code> automatically selects
-optimal length scales:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://xueweic.github.io/spacelink/">spacelink</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Automatic scale selection (recommended)</span></span>
-<span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/spacelink_global.html">spacelink_global</a></span><span class="op">(</span></span>
-<span>  Y <span class="op">=</span> <span class="va">expression_matrix</span>,</span>
-<span>  spatial_coords <span class="op">=</span> <span class="va">coordinates</span>,</span>
-<span>  n_lengthscales <span class="op">=</span> <span class="fl">5</span>  <span class="co"># Number of scales to use</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<p>The algorithm uses a two-step approach: 1. Fits models across a broad
-range of scales 2. Identifies gene-specific optimal ranges 3. Selects
-final scales within those ranges</p>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://satijalab.org/seurat" class="external-link">Seurat</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/satijalab/sctransform" class="external-link">sctransform</a></span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="custom-length-scales">Custom Length Scales<a class="anchor" aria-label="anchor" href="#custom-length-scales"></a>
+<h3 id="load-example-dataset">Load example dataset<a class="anchor" aria-label="anchor" href="#load-example-dataset"></a>
 </h3>
-<p>You can specify custom length scales if you have prior knowledge:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Define custom length scales (in spatial units)</span></span>
-<span><span class="va">custom_scales</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">50</span>, <span class="fl">100</span>, <span class="fl">200</span>, <span class="fl">500</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/spacelink_global.html">spacelink_global</a></span><span class="op">(</span></span>
-<span>  Y <span class="op">=</span> <span class="va">expression_matrix</span>,</span>
-<span>  spatial_coords <span class="op">=</span> <span class="va">coordinates</span>,</span>
-<span>  lengthscales <span class="op">=</span> <span class="va">custom_scales</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="manual-length-scale-selection">Manual Length Scale Selection<a class="anchor" aria-label="anchor" href="#manual-length-scale-selection"></a>
-</h3>
-<p>For more control, use <code><a href="../reference/select_lengthscales.html">select_lengthscales()</a></code>
-separately:</p>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">Visium_human_DLPFC</span><span class="op">)</span></span>
+<span><span class="va">counts</span> <span class="op">&lt;-</span> <span class="va">Visium_human_DLPFC</span><span class="op">$</span><span class="va">counts</span></span>
+<span><span class="va">spatial_coords</span> <span class="op">&lt;-</span> <span class="va">Visium_human_DLPFC</span><span class="op">$</span><span class="va">spatial_coords</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">counts</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Select scales manually</span></span>
-<span><span class="va">length_scales</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/select_lengthscales.html">select_lengthscales</a></span><span class="op">(</span></span>
-<span>  Y <span class="op">=</span> <span class="va">expression_matrix</span>,</span>
-<span>  spatial_coords <span class="op">=</span> <span class="va">coordinates</span>,</span>
-<span>  n_lengthscales <span class="op">=</span> <span class="fl">7</span>,</span>
-<span>  M <span class="op">=</span> <span class="fl">0.5</span>  <span class="co"># Controls minimum scale</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Use selected scales in analysis</span></span>
-<span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/spacelink_global.html">spacelink_global</a></span><span class="op">(</span></span>
-<span>  Y <span class="op">=</span> <span class="va">expression_matrix</span>,</span>
-<span>  spatial_coords <span class="op">=</span> <span class="va">coordinates</span>,</span>
-<span>  lengthscales <span class="op">=</span> <span class="fl">1</span><span class="op">/</span><span class="va">length_scales</span><span class="op">$</span><span class="va">phi_mat</span>  <span class="co"># Convert phi to lengthscales</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="co">## [1] 33538  3639</span></span></code></pre></div>
+<p>``{r eval=FALSE} dim(spatial_coords)</p>
+<pre><code>
+
+``` r
+## [1] 3639  2</code></pre>
 </div>
 <div class="section level3">
-<h3 id="interpreting-multi-scale-results">Interpreting Multi-scale Results<a class="anchor" aria-label="anchor" href="#interpreting-multi-scale-results"></a>
+<h3 id="preprocessing">Preprocessing<a class="anchor" aria-label="anchor" href="#preprocessing"></a>
 </h3>
-<div class="section level4">
-<h4 id="variance-components">Variance Components<a class="anchor" aria-label="anchor" href="#variance-components"></a>
-</h4>
-<p>Each gene gets variance components at different scales:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Example results structure</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">results</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tau.sq"</span>, <span class="st">"sigma.sq1"</span>, <span class="st">"sigma.sq2"</span>, <span class="st">"sigma.sq3"</span>, <span class="st">"ESV"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
-<ul>
-<li>
-<strong>tau.sq</strong>: Non-spatial variance (measurement noise,
-biological noise)</li>
-<li>
-<strong>sigma.sq1, sigma.sq2, …</strong>: Spatial variance at scales
-1, 2, etc.</li>
-<li>Higher <code>sigma.sq</code> values indicate stronger patterns at
-that scale</li>
-</ul>
-</div>
-<div class="section level4">
-<h4 id="scale-specific-patterns">Scale-Specific Patterns<a class="anchor" aria-label="anchor" href="#scale-specific-patterns"></a>
-</h4>
-<p>Examine which scales contribute most to spatial variability:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Calculate relative contribution of each scale</span></span>
-<span><span class="va">spatial_components</span> <span class="op">&lt;-</span> <span class="va">results</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grep</a></span><span class="op">(</span><span class="st">"sigma.sq"</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">results</span><span class="op">)</span><span class="op">)</span><span class="op">]</span></span>
-<span><span class="va">total_spatial</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="va">spatial_components</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Proportion of variance at each scale</span></span>
-<span><span class="va">scale_proportions</span> <span class="op">&lt;-</span> <span class="va">spatial_components</span> <span class="op">/</span> <span class="op">(</span><span class="va">total_spatial</span> <span class="op">+</span> <span class="va">results</span><span class="op">$</span><span class="va">tau.sq</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Find genes with fine-scale patterns (scale 1 dominant)</span></span>
-<span><span class="va">fine_scale_genes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="va">scale_proportions</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span> <span class="op">&gt;</span> <span class="fl">0.5</span> <span class="op">&amp;</span> <span class="va">results</span><span class="op">$</span><span class="va">padj</span> <span class="op">&lt;</span> <span class="fl">0.05</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Find genes with coarse-scale patterns (last scale dominant)</span></span>
-<span><span class="va">n_scales</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">scale_proportions</span><span class="op">)</span></span>
-<span><span class="va">coarse_scale_genes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="va">scale_proportions</span><span class="op">[</span>,<span class="va">n_scales</span><span class="op">]</span> <span class="op">&gt;</span> <span class="fl">0.5</span> <span class="op">&amp;</span> <span class="va">results</span><span class="op">$</span><span class="va">padj</span> <span class="op">&lt;</span> <span class="fl">0.05</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level4">
-<h4 id="esv-interpretation-by-scale">ESV Interpretation by Scale<a class="anchor" aria-label="anchor" href="#esv-interpretation-by-scale"></a>
-</h4>
-<p>The ESV score incorporates spatial weighting across scales:</p>
+<code class="sourceCode R"><span><span class="co"># Filter mitochondrial and low-expressed genes</span></span>
+<span><span class="va">counts</span> <span class="op">&lt;-</span> <span class="va">counts</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"(^MT-)|(^mt-)"</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">counts</span><span class="op">)</span><span class="op">)</span>,<span class="op">]</span></span>
+<span><span class="va">counts</span> <span class="op">&lt;-</span> <span class="va">counts</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="va">counts</span> <span class="op">&gt;=</span> <span class="fl">3</span><span class="op">)</span> <span class="op">&gt;=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">counts</span><span class="op">)</span><span class="op">*</span><span class="fl">0.005</span>,<span class="op">]</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">counts</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Genes with different spatial patterns</span></span>
-<span><span class="va">high_esv</span> <span class="op">&lt;-</span> <span class="va">results</span><span class="op">[</span><span class="va">results</span><span class="op">$</span><span class="va">ESV</span> <span class="op">&gt;</span> <span class="fl">0.6</span> <span class="op">&amp;</span> <span class="va">results</span><span class="op">$</span><span class="va">padj</span> <span class="op">&lt;</span> <span class="fl">0.05</span>, <span class="op">]</span></span>
-<span><span class="va">moderate_esv</span> <span class="op">&lt;-</span> <span class="va">results</span><span class="op">[</span><span class="va">results</span><span class="op">$</span><span class="va">ESV</span> <span class="op">&gt;</span> <span class="fl">0.3</span> <span class="op">&amp;</span> <span class="va">results</span><span class="op">$</span><span class="va">ESV</span> <span class="op">&lt;=</span> <span class="fl">0.6</span> <span class="op">&amp;</span> <span class="va">results</span><span class="op">$</span><span class="va">padj</span> <span class="op">&lt;</span> <span class="fl">0.05</span>, <span class="op">]</span></span>
-<span></span>
-<span><span class="co"># Compare variance components</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">high_esv</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grep</a></span><span class="op">(</span><span class="st">"sigma.sq"</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">high_esv</span><span class="op">)</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">moderate_esv</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grep</a></span><span class="op">(</span><span class="st">"sigma.sq"</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">moderate_esv</span><span class="op">)</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="co">## [1] 3309  3639</span></span></code></pre></div>
 </div>
 </div>
+<div class="section level2">
+<h2 id="normalize-expression-counts-using-sctransform-package">Normalize expression counts using sctransform package<a class="anchor" aria-label="anchor" href="#normalize-expression-counts-using-sctransform-package"></a>
+</h2>
+<p>seurat_obj &lt;- CreateSeuratObject(counts = counts) seurat_norm =
+SCTransform(seurat_obj, vst.flavor = “v2”, verbose = FALSE) counts &lt;-
+<a href="mailto:seurat_norm@assays" class="email">seurat_norm@assays</a><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mi>C</mi><mi>T</mi></mrow><annotation encoding="application/x-tex">SCT</annotation></semantics></math>data</p>
+<pre><code>
+## Run global Spacelink
+
+
+``` r
+# In this example, the first five genes are used.
+global_results &lt;- spacelink_global(normalized_counts = counts[1:5,], spatial_coords = spatial_coords)</code></pre>
 <div class="section level3">
-<h3 id="advanced-multi-scale-analysis">Advanced Multi-scale Analysis<a class="anchor" aria-label="anchor" href="#advanced-multi-scale-analysis"></a>
+<h3 id="interpret-results">Interpret results<a class="anchor" aria-label="anchor" href="#interpret-results"></a>
 </h3>
-<div class="section level4">
-<h4 id="scale-specific-gene-sets">Scale-Specific Gene Sets<a class="anchor" aria-label="anchor" href="#scale-specific-gene-sets"></a>
-</h4>
-<p>Identify genes active at specific scales:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Function to classify genes by dominant scale</span></span>
-<span><span class="va">classify_by_scale</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">results</span>, <span class="va">threshold</span> <span class="op">=</span> <span class="fl">0.4</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">spatial_cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grep</a></span><span class="op">(</span><span class="st">"sigma.sq"</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">results</span><span class="op">)</span><span class="op">)</span></span>
-<span>  <span class="va">spatial_vars</span> <span class="op">&lt;-</span> <span class="va">results</span><span class="op">[</span>, <span class="va">spatial_cols</span><span class="op">]</span></span>
-<span>  <span class="va">total_var</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="va">spatial_vars</span><span class="op">)</span> <span class="op">+</span> <span class="va">results</span><span class="op">$</span><span class="va">tau.sq</span></span>
-<span>  </span>
-<span>  <span class="co"># Calculate proportions</span></span>
-<span>  <span class="va">scale_props</span> <span class="op">&lt;-</span> <span class="va">spatial_vars</span> <span class="op">/</span> <span class="va">total_var</span></span>
-<span>  </span>
-<span>  <span class="co"># Find dominant scale for each gene</span></span>
-<span>  <span class="va">dominant_scale</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">scale_props</span>, <span class="fl">1</span>, <span class="va">which.max</span><span class="op">)</span></span>
-<span>  <span class="va">max_proportion</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">scale_props</span>, <span class="fl">1</span>, <span class="va">max</span><span class="op">)</span></span>
-<span>  </span>
-<span>  <span class="co"># Only classify genes with clear dominance and significance</span></span>
-<span>  <span class="va">classified</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">max_proportion</span> <span class="op">&gt;</span> <span class="va">threshold</span> <span class="op">&amp;</span> <span class="va">results</span><span class="op">$</span><span class="va">padj</span> <span class="op">&lt;</span> <span class="fl">0.05</span>,</span>
-<span>                      <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Scale_"</span>, <span class="va">dominant_scale</span><span class="op">)</span>,</span>
-<span>                      <span class="st">"Mixed/Nonspatial"</span><span class="op">)</span></span>
-<span>  </span>
-<span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>    gene <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">results</span><span class="op">)</span>,</span>
-<span>    dominant_scale <span class="op">=</span> <span class="va">classified</span>,</span>
-<span>    max_proportion <span class="op">=</span> <span class="va">max_proportion</span>,</span>
-<span>    ESV <span class="op">=</span> <span class="va">results</span><span class="op">$</span><span class="va">ESV</span>,</span>
-<span>    pval <span class="op">=</span> <span class="va">results</span><span class="op">$</span><span class="va">pval</span></span>
-<span>  <span class="op">)</span><span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span></span>
-<span><span class="co"># Apply classification</span></span>
-<span><span class="va">gene_classification</span> <span class="op">&lt;-</span> <span class="fu">classify_by_scale</span><span class="op">(</span><span class="va">results</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">gene_classification</span><span class="op">$</span><span class="va">dominant_scale</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level4">
-<h4 id="comparing-scale-patterns">Comparing Scale Patterns<a class="anchor" aria-label="anchor" href="#comparing-scale-patterns"></a>
-</h4>
-<p>Compare how different genes utilize multiple scales:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Heatmap of scale usage</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">pheatmap</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Select top spatial genes</span></span>
-<span><span class="va">top_spatial</span> <span class="op">&lt;-</span> <span class="va">results</span><span class="op">[</span><span class="va">results</span><span class="op">$</span><span class="va">padj</span> <span class="op">&lt;</span> <span class="fl">0.01</span> <span class="op">&amp;</span> <span class="va">results</span><span class="op">$</span><span class="va">ESV</span> <span class="op">&gt;</span> <span class="fl">0.3</span>, <span class="op">]</span></span>
-<span><span class="va">scale_matrix</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">top_spatial</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grep</a></span><span class="op">(</span><span class="st">"sigma.sq"</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">top_spatial</span><span class="op">)</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Normalize by row (gene)</span></span>
-<span><span class="va">scale_matrix_norm</span> <span class="op">&lt;-</span> <span class="va">scale_matrix</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="va">scale_matrix</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Create heatmap</span></span>
-<span><span class="fu">pheatmap</span><span class="op">(</span><span class="va">scale_matrix_norm</span>,</span>
-<span>         cluster_rows <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>         cluster_cols <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>         main <span class="op">=</span> <span class="st">"Scale Usage Patterns"</span>,</span>
-<span>         color <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/grDevices/colorRamp.html" class="external-link">colorRampPalette</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"white"</span>, <span class="st">"blue"</span>, <span class="st">"red"</span><span class="op">)</span><span class="op">)</span><span class="op">(</span><span class="fl">100</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-</div>
-</div>
-<div class="section level3">
-<h3 id="parameter-tuning">Parameter Tuning<a class="anchor" aria-label="anchor" href="#parameter-tuning"></a>
-</h3>
-<div class="section level4">
-<h4 id="number-of-length-scales">Number of Length Scales<a class="anchor" aria-label="anchor" href="#number-of-length-scales"></a>
-</h4>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Compare different numbers of scales</span></span>
-<span><span class="kw">for</span><span class="op">(</span><span class="va">n_scales</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">5</span>, <span class="fl">7</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">results_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/spacelink_global.html">spacelink_global</a></span><span class="op">(</span></span>
-<span>    Y <span class="op">=</span> <span class="va">expression_matrix</span>,</span>
-<span>    spatial_coords <span class="op">=</span> <span class="va">coordinates</span>,</span>
-<span>    n_lengthscales <span class="op">=</span> <span class="va">n_scales</span></span>
-<span>  <span class="op">)</span></span>
-<span>  </span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"n_scales:"</span>, <span class="va">n_scales</span>, </span>
-<span>      <span class="st">"- Spatial genes:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">results_n</span><span class="op">$</span><span class="va">padj</span> <span class="op">&lt;</span> <span class="fl">0.05</span><span class="op">)</span>,</span>
-<span>      <span class="st">"- Mean ESV:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">results_n</span><span class="op">$</span><span class="va">ESV</span><span class="op">[</span><span class="va">results_n</span><span class="op">$</span><span class="va">padj</span> <span class="op">&lt;</span> <span class="fl">0.05</span><span class="op">]</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="op">}</span></span></code></pre></div>
-</div>
-<div class="section level4">
-<h4 id="minimum-scale-parameter">Minimum Scale Parameter<a class="anchor" aria-label="anchor" href="#minimum-scale-parameter"></a>
-</h4>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Test different minimum scale settings</span></span>
-<span><span class="kw">for</span><span class="op">(</span><span class="va">M</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">length_scales</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/select_lengthscales.html">select_lengthscales</a></span><span class="op">(</span></span>
-<span>    Y <span class="op">=</span> <span class="va">expression_matrix</span>,</span>
-<span>    spatial_coords <span class="op">=</span> <span class="va">coordinates</span>,</span>
-<span>    M <span class="op">=</span> <span class="va">M</span></span>
-<span>  <span class="op">)</span></span>
-<span>  </span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"M ="</span>, <span class="va">M</span>, <span class="st">"- Scale range:"</span>, </span>
-<span>      <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/range.html" class="external-link">range</a></span><span class="op">(</span><span class="fl">1</span><span class="op">/</span><span class="va">length_scales</span><span class="op">$</span><span class="va">phi_mat</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>
-<span><span class="op">}</span></span></code></pre></div>
-</div>
-</div>
-<div class="section level3">
-<h3 id="visualization-tips">Visualization Tips<a class="anchor" aria-label="anchor" href="#visualization-tips"></a>
-</h3>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Plot ESV distribution</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">results</span><span class="op">$</span><span class="va">ESV</span><span class="op">[</span><span class="va">results</span><span class="op">$</span><span class="va">padj</span> <span class="op">&lt;</span> <span class="fl">0.05</span><span class="op">]</span>, </span>
-<span>     main <span class="op">=</span> <span class="st">"ESV Distribution (Significant Genes)"</span>,</span>
-<span>     xlab <span class="op">=</span> <span class="st">"Effective Spatial Variability"</span>,</span>
-<span>     breaks <span class="op">=</span> <span class="fl">20</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Plot scale vs ESV relationship</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">results</span><span class="op">$</span><span class="va">sigma.sq1</span> <span class="op">/</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="va">results</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grep</a></span><span class="op">(</span><span class="st">"sigma.sq"</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">results</span><span class="op">)</span><span class="op">)</span><span class="op">]</span><span class="op">)</span> <span class="op">+</span> <span class="va">results</span><span class="op">$</span><span class="va">tau.sq</span><span class="op">)</span>,</span>
-<span>     <span class="va">results</span><span class="op">$</span><span class="va">ESV</span>,</span>
-<span>     xlab <span class="op">=</span> <span class="st">"Fine Scale Proportion"</span>,</span>
-<span>     ylab <span class="op">=</span> <span class="st">"ESV Score"</span>,</span>
-<span>     pch <span class="op">=</span> <span class="fl">16</span>, alpha <span class="op">=</span> <span class="fl">0.6</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="computational-considerations">Computational Considerations<a class="anchor" aria-label="anchor" href="#computational-considerations"></a>
-</h3>
-<p>For large datasets, consider:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Use multiple workers for parallelization</span></span>
-<span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/spacelink_global.html">spacelink_global</a></span><span class="op">(</span></span>
-<span>  Y <span class="op">=</span> <span class="va">expression_matrix</span>,</span>
-<span>  spatial_coords <span class="op">=</span> <span class="va">coordinates</span>,</span>
-<span>  n_workers <span class="op">=</span> <span class="fl">4</span>  <span class="co"># Adjust based on your system</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Monitor computation time</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">results</span><span class="op">$</span><span class="va">time</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="next-steps">Next Steps<a class="anchor" aria-label="anchor" href="#next-steps"></a>
-</h3>
+<p>The result will be a DataFrame with p-values, ESV, and other relevant
+values for each gene.</p>
+<p>The most important columns are</p>
 <ul>
-<li>For cell type-specific analysis:
-<code><a href="../articles/cell-type-analysis.html">vignette("cell-type-analysis")</a></code>
-</li>
-<li>For detailed function documentation:
-<code><a href="../reference/spacelink_global.html">?spacelink_global</a></code>
-</li>
-<li>For advanced examples: Check the package website</li>
+<li>
+<code>pval</code>: The combined p-values for statistical
+significance of spatial patterns</li>
+<li>
+<code>padj</code>: Benjamini-Hochberg adjusted p-values</li>
+<li>
+<code>ESV</code>: Effective Spatial Variability. Spatial pattern is
+stronger as ESV is closer to 1.</li>
+<li>
+<code>tau.sq</code>: Non-spatial (nugget) variance</li>
+<li>
+<code>sigma.sq1</code>, <code>sigma.sq2</code>, …: Spatial variance
+at different length scales</li>
+<li>
+<code>phi1</code>, <code>phi2</code>, …: Inverse of gene-specific
+length scales.</li>
 </ul>
 </div>
 </div>
