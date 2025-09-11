@@ -20,4 +20,4 @@ devtools::install_github("xueweic/spacelink")
 
 ## Tutorial
 
-A detailed tutorial is available ...
+A detailed tutorial is available [here](https://xueweic.github.io/spacelink/index.html).
