@@ -68,15 +68,12 @@
 
     
     
-<div class="section level2">
-<h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
-</h2>
 <p>The <code>spacelink</code> package provides statistical methods for
 detecting and prioritizing spatially variable genes (SVGs) at both
 global-tissue and cell-type resolution.</p>
-<div class="section level3">
-<h3 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
-</h3>
+<div class="section level2">
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h2>
 <p>Install the development version from GitHub:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
@@ -84,13 +81,13 @@ global-tissue and cell-type resolution.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://xueweic.github.io/spacelink/">spacelink</a></span><span class="op">)</span></span></code></pre></div>
 </div>
-<div class="section level3">
-<h3 id="basic-workflow">Basic Workflow<a class="anchor" aria-label="anchor" href="#basic-workflow"></a>
-</h3>
+<div class="section level2">
+<h2 id="basic-workflow">Basic Workflow<a class="anchor" aria-label="anchor" href="#basic-workflow"></a>
+</h2>
 <p>The typical analysis workflow involves two main steps:</p>
-<div class="section level4">
-<h4 id="global-spatial-analysis">1. Global Spatial Analysis<a class="anchor" aria-label="anchor" href="#global-spatial-analysis"></a>
-</h4>
+<div class="section level3">
+<h3 id="global-spatial-analysis">1. Global Spatial Analysis<a class="anchor" aria-label="anchor" href="#global-spatial-analysis"></a>
+</h3>
 <p>Start with global analysis to identify spatially variable genes:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Run global spatial variability analysis</span></span>
@@ -105,24 +102,24 @@ global-tissue and cell-type resolution.</p>
 <p>The results include:</p>
 <ul>
 <li>
-<code>ESV</code>: Effective Spatial Variability score (0-1)</li>
+<code>pval</code> : Combined p-value for spatial significance</li>
 <li>
-<code>pval</code>: Combined p-value for spatial significance</li>
+<code>padj</code> : Benjamini-Hochberg adjusted p-values</li>
 <li>
-<code>padj</code>: Benjamini-Hochberg adjusted p-values</li>
+<code>ESV</code> : Effective Spatial Variability score (0-1)</li>
 <li>
-<code>tau.sq</code>: Nugget variance component</li>
+<code>tau.sq</code> : Nugget variance component</li>
 <li>
-<code>sigma.sq1</code>, <code>sigma.sq2</code>, …: Spatial variance
+<code>sigma.sq1</code>, <code>sigma.sq2</code>, … : Spatial variance
 components for each kernel</li>
 <li>
-<code>phi1</code>, <code>phi2</code>, …: Inverse of gene-specific
+<code>phi1</code>, <code>phi2</code>, … : Inverse of gene-specific
 length scales</li>
 </ul>
 </div>
-<div class="section level4">
-<h4 id="cell-type-specific-analysis">2. Cell-Type-Specific Analysis<a class="anchor" aria-label="anchor" href="#cell-type-specific-analysis"></a>
-</h4>
+<div class="section level3">
+<h3 id="cell-type-specific-analysis">2. Cell-Type-Specific Analysis<a class="anchor" aria-label="anchor" href="#cell-type-specific-analysis"></a>
+</h3>
 <p>If you have cell type proportion information, analyze
 cell-type-specific spatial patterns:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
@@ -138,16 +135,16 @@ cell-type-specific spatial patterns:</p>
 <p>The results include:</p>
 <ul>
 <li>
-<code>pval</code>: Combined p-value for spatial significance</li>
+<code>pval</code> : Combined p-value for spatial significance</li>
 <li>
-<code>ESV</code>: Cell-type-specific Effective Spatial Variability
+<code>ESV</code> : Cell-type-specific Effective Spatial Variability
 (ct-ESV) score (0-1)</li>
 </ul>
 </div>
 </div>
-<div class="section level3">
-<h3 id="example-with-simulated-data">Example with Simulated Data<a class="anchor" aria-label="anchor" href="#example-with-simulated-data"></a>
-</h3>
+<div class="section level2">
+<h2 id="example-with-simulated-data">Example with Simulated Data<a class="anchor" aria-label="anchor" href="#example-with-simulated-data"></a>
+</h2>
 <p>Here’s an example of global Spacelink analysis using simulated
 data:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
@@ -186,20 +183,6 @@ data:</p>
 <span><span class="co"># View top spatially variable genes</span></span>
 <span><span class="va">top_genes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">results</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">results</span><span class="op">$</span><span class="va">ESV</span>, decreasing<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span>, <span class="op">]</span>, <span class="fl">10</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">top_genes</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ESV"</span>, <span class="st">"pval"</span>, <span class="st">"padj"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="next-steps">Next Steps<a class="anchor" aria-label="anchor" href="#next-steps"></a>
-</h3>
-<ul>
-<li>See <code><a href="../articles/multiscale-analysis.html">vignette("multiscale-analysis")</a></code> for advanced global
-analysis</li>
-<li>See <code><a href="../articles/cell-type-analysis.html">vignette("cell-type-analysis")</a></code> for
-cell-type-specific workflows</li>
-<li>Check function documentation with
-<code><a href="../reference/spacelink_global.html">?spacelink_global</a></code>
-</li>
-</ul>
-</div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
