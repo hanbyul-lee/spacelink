@@ -22,19 +22,21 @@
 #' }
 #'
 #' @examples
-#' data(Visium_human_DLPFC)
-#' counts <- Visium_human_DLPFC$counts
-#' spatial_coords <- Visium_human_DLPFC$spatial_coords
-#' # Filter mitochondrial and low-expressed genes
-#' counts <- counts[!grepl("(^MT-)|(^mt-)", rownames(counts)),]
-#' counts <- counts[rowSums(counts >= 3) >= ncol(counts)*0.005,]
-#' # Normalize expression counts using sctransform package
-#' library(Seurat)
-#' library(sctransform)
-#' seurat_obj <- CreateSeuratObject(counts = counts)
-#' seurat_norm = SCTransform(seurat_obj, vst.flavor = "v2", verbose = FALSE)
-#' counts <- seurat_norm@assays$SCT$data
-#' global_results <- spacelink_global(normalized_counts = counts[1:5,], spatial_coords = spatial_coords)
+#' # Simulate 50x50 spot coordinates
+#' dim1 = 50
+#' dim2 = 50
+#' N = dim1*dim2
+#' spatial_coords <- cbind(kronecker(rep(1,dim1), 1:dim2), kronecker(1:dim1, rep(1,dim2)))
+#' # Simulate 10 spatially variable expressions
+#' n = 10
+#' D <- as.matrix(dist(spatial_coords))
+#' K <- exp(-D) # spatial autocorrelation kernel
+#' normal_expr <- matrix(rnorm(n*N, 0, 1), n, N) + matrix(rnorm(n*N, 0, 1), n, N)%*%chol(K)
+#' normal_expr <- exp(normal_expr)
+#' expr <- apply(normal_expr, 1:2, function(x)rpois(1,x))
+#' # Simple normalization (We recommend to try other normalization methods.)
+#' normalized_expr <- log1p(expr)/log(2)
+#' global_results <- spacelink_global(normalized_counts = normalized_expr, spatial_coords = spatial_coords)
 #'
 #' @export
 
