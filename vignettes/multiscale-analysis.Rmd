@@ -19,6 +19,9 @@ knitr::opts_chunk$set(
 # Application of Spacelink to Visium Human DLPFC Dataset
 
 This vignette demonstrates how to perform spatial gene expression analysis using the `spacelink` package with Visium human dorsolateral prefrontal cortex (DLPFC) dataset.
+The dataset is available [here](https://research.libd.org/spatialLIBD/), where we used sample 151673. 
+Cell-type proportions were estimated using [RCTD](https://github.com/dmcable/spacexr) with the [CosMx Human Frontal Cortex dataset](https://nanostring.com/products/cosmx-spatial-molecular-imager/ffpe-dataset/human-frontal-cortex-ffpe-dataset/) as the reference. 
+The processed example data, saved as `Visium_human_DLPFC`, includes gene expression, spot coordinates, and the estimated cell type proportions.
 
 ## Load packages
 
@@ -73,7 +76,8 @@ counts <- seurat_norm@assays$SCT$data
 
 ```{r eval=FALSE}
 # In this example, we use only the first five genes.
-global_results <- spacelink_global(normalized_counts = counts[1:5,], spatial_coords = spatial_coords)
+global_results <- spacelink_global(normalized_counts = counts[1:5,],
+                                   spatial_coords = spatial_coords)
 ```
 
 ### Interpret results
@@ -106,13 +110,20 @@ colnames(cell_type_proportions)
 ```
 
 ```{r eval=FALSE}
-## [1] "endothelial"  "L2_3"  "L4"  "L6"  "oligodendrocyte"  "OPC"  "astro"  "Inh"  "microglia"
+## [1] "endothelial"  "L2_3"  "L4"  "L6"  "oligodendrocyte"  
+## [6] "OPC"  "astro"  "Inh"  "microglia"
 ```
 
 ```{r eval=FALSE}
-cell_type_spacelink_results <- spacelink_cell_type(normalized_counts = counts[1:5,], spatial_coords = spatial_coords, cell_type_proportions = cell_type_proportions, focal_cell_type = "oligodendrocyte",
-  global_spacelink_results = global_results, # This is not required, though providing global results can slightly improve efficiency.
-  calculate_ESV = TRUE)
+# In this example, we examine the oligodendrocyte-specific spatial variability.
+cell_type_spacelink_results <- 
+  spacelink_cell_type(normalized_counts = counts[1:5,], 
+                      spatial_coords = spatial_coords, 
+                      cell_type_proportions = cell_type_proportions, 
+                      focal_cell_type = "oligodendrocyte",
+                      global_spacelink_results = global_results, 
+                      # The above is not required, though providing global results can slightly improve efficiency.
+                      calculate_ESV = TRUE)
 ```
 
 ### Interpret results
