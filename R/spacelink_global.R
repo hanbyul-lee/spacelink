@@ -25,6 +25,15 @@
 #' data(Visium_human_DLPFC)
 #' counts <- Visium_human_DLPFC$counts
 #' spatial_coords <- Visium_human_DLPFC$spatial_coords
+#' # Filter mitochondrial and low-expressed genes
+#' counts <- counts[!grepl("(^MT-)|(^mt-)", rownames(counts)),]
+#' counts <- counts[rowSums(counts >= 3) >= ncol(counts)*0.005,]
+#' # Normalize expression counts using sctransform package
+#' library(Seurat)
+#' library(sctransform)
+#' seurat_obj <- CreateSeuratObject(counts = counts)
+#' seurat_norm = SCTransform(seurat_obj, vst.flavor = "v2", verbose = FALSE)
+#' counts <- seurat_norm@assays$SCT$data
 #' global_results <- spacelink_global(normalized_counts = counts[1:5,], spatial_coords = spatial_coords)
 #'
 #' @export
@@ -35,8 +44,10 @@ spacelink_global <- function(normalized_counts, spatial_coords, covariates = NUL
   if(ncol(Y)!=nrow(spatial_coords)){
       stop("The column dimension of normalized_counts and the row dimension of spatial_coords should be the same.")
   }
-  if((!is.null(X)) & (nrow(spatial_coords)!=nrow(X))){
+  if(!is.null(X)){
+    if(nrow(spatial_coords)!=nrow(X)){
       stop("The row dimensions of spatial_coords and covariates should be the same.")
+    }
   }
   # Create matrix of phi (= 1/lengthscale)
   if(!is.null(lengthscales)){
