@@ -54,7 +54,7 @@ select_lengthscales <- function(Y, spatial_coords, n_lengthscales = 5, M = 1, is
   D <- as.matrix(dist(spatial_coords))
   diag(D) <- NA
   D <- D[!is.na(D)]
-  phi_seq <- 1/logspace(log10(M*min(D)), log10(max(D)), 2*n_lengthscales)
+  phi_seq <- 1/pracma::logspace(log10(M*min(D)), log10(max(D)), 2*n_lengthscales)
 
   Y <- Y - rowMeans(Y)
   D <- as.matrix(dist(spatial_coords))
@@ -85,7 +85,7 @@ select_lengthscales <- function(Y, spatial_coords, n_lengthscales = 5, M = 1, is
                    }else{c(idx[1], idx[length(idx)])}})
 
   phi_mat <- t(apply(phi_idx, 2,
-                     function(x)logspace(log10(phi_seq[x[1]]), log10(phi_seq[x[2]]), n_lengthscales)))
+                     function(x)pracma::logspace(log10(phi_seq[x[1]]), log10(phi_seq[x[2]]), n_lengthscales)))
 
   if(is.inverse){
     return(list(phi_mat=phi_mat, time=nnls_res$time))
