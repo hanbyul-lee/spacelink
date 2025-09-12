@@ -1,9 +1,8 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
 <url><loc>https://xueweic.github.io/spacelink/404.html</loc></url>
-<url><loc>https://xueweic.github.io/spacelink/articles/cell-type-analysis.html</loc></url>
+<url><loc>https://xueweic.github.io/spacelink/articles/example_visium_human_DLPFC.html</loc></url>
 <url><loc>https://xueweic.github.io/spacelink/articles/getting-started.html</loc></url>
 <url><loc>https://xueweic.github.io/spacelink/articles/index.html</loc></url>
-<url><loc>https://xueweic.github.io/spacelink/articles/multiscale-analysis.html</loc></url>
 <url><loc>https://xueweic.github.io/spacelink/authors.html</loc></url>
 <url><loc>https://xueweic.github.io/spacelink/index.html</loc></url>
 <url><loc>https://xueweic.github.io/spacelink/news/index.html</loc></url>
@@ -14,7 +13,6 @@
 <url><loc>https://xueweic.github.io/spacelink/reference/score_test.html</loc></url>
 <url><loc>https://xueweic.github.io/spacelink/reference/select_lengthscales.html</loc></url>
 <url><loc>https://xueweic.github.io/spacelink/reference/spacelink_cell_type.html</loc></url>
-<url><loc>https://xueweic.github.io/spacelink/reference/spacelink_cell_type_ESV.html</loc></url>
 <url><loc>https://xueweic.github.io/spacelink/reference/spacelink_global.html</loc></url>
 </urlset>
 

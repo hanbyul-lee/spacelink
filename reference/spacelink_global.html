@@ -22,8 +22,7 @@ using kernel-based methods."></head><body>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/getting-started.html">Getting Started</a></li>
-    <li><a class="dropdown-item" href="../articles/multiscale-analysis.html">Multi-scale Analysis</a></li>
-    <li><a class="dropdown-item" href="../articles/cell-type-analysis.html">Cell Type-Specific Analysis</a></li>
+    <li><a class="dropdown-item" href="../articles/example_visium_human_DLPFC.html">Example Visium Human DLPFC</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -50,9 +49,9 @@ using kernel-based methods.</p>
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">spacelink_global</span><span class="op">(</span></span>
-<span>  <span class="va">Y</span>,</span>
+<span>  <span class="va">normalized_counts</span>,</span>
 <span>  <span class="va">spatial_coords</span>,</span>
-<span>  X <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  covariates <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  lengthscales <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  n_lengthscales <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>  M <span class="op">=</span> <span class="fl">1</span>,</span>
@@ -64,7 +63,7 @@ using kernel-based methods.</p>
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-y">Y<a class="anchor" aria-label="anchor" href="#arg-y"></a></dt>
+<dl><dt id="arg-normalized-counts">normalized_counts<a class="anchor" aria-label="anchor" href="#arg-normalized-counts"></a></dt>
 <dd><p>Normalized count matrix. Rows and columns indicate genes and spots, respectively.</p></dd>
 
 
@@ -72,8 +71,8 @@ using kernel-based methods.</p>
 <dd><p>Spatial coordinates matrix. Rows indicate spots.</p></dd>
 
 
-<dt id="arg-x">X<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
-<dd><p>Spatial features expected to include intercept. If NULL, X = rep(1,N) where N is number of spots.</p></dd>
+<dt id="arg-covariates">covariates<a class="anchor" aria-label="anchor" href="#arg-covariates"></a></dt>
+<dd><p>Spatial features (without intercept). Rows indicate spots.</p></dd>
 
 
 <dt id="arg-lengthscales">lengthscales<a class="anchor" aria-label="anchor" href="#arg-lengthscales"></a></dt>
@@ -100,7 +99,7 @@ using kernel-based methods.</p>
 <dt>sigma.sq1, sigma.sq2, ...</dt>
 <dd><p>Spatial variance components for each kernel</p></dd>
 
-<dt>ESV</dt>
+<dt>raw_ESV</dt>
 <dd><p>Effective Spatial Variability score</p></dd>
 
 <dt>pval</dt>
@@ -109,7 +108,7 @@ using kernel-based methods.</p>
 <dt>padj</dt>
 <dd><p>Benjamini-Hochberg adjusted p-values</p></dd>
 
-<dt>ESV_adj</dt>
+<dt>ESV</dt>
 <dd><p>ESV adjusted for multiple testing (0 if padj &gt; 0.05)</p></dd>
 
 
@@ -131,7 +130,7 @@ using kernel-based methods.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Run global analysis</span></span></span>
 <span class="r-in"><span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu">spacelink_global</span><span class="op">(</span></span></span>
-<span class="r-in"><span>  Y <span class="op">=</span> <span class="va">expr_data</span>,</span></span>
+<span class="r-in"><span>  normalized_counts <span class="op">=</span> <span class="va">expr_data</span>,</span></span>
 <span class="r-in"><span>  spatial_coords <span class="op">=</span> <span class="va">coords</span>,</span></span>
 <span class="r-in"><span>  n_lengthscales <span class="op">=</span> <span class="fl">5</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
