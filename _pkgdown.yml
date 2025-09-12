@@ -62,10 +62,7 @@ footer:
     right: built_with
   components:
     developed_by: |
-      Developed by [Your Name](https://github.com/xueweic).
+      Developed by Hanbyul Lee, Haochen Sun, Xuewei Cao, Kushal Dey.
     built_with: |
-      Built with [pkgdown](https://pkgdown.r-lib.org/) and ❤️.
+      Built with [pkgdown](https://pkgdown.r-lib.org/).
 
-authors:
-  Your Name:
-    href: "https://github.com/xueweic"
