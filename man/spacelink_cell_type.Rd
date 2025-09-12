@@ -62,6 +62,15 @@ Performs cell type-specific spatial gene variability analysis
 data(Visium_human_DLPFC)
 counts <- Visium_human_DLPFC$counts
 spatial_coords <- Visium_human_DLPFC$spatial_coords
+# Filter mitochondrial and low-expressed genes
+counts <- counts[!grepl("(^MT-)|(^mt-)", rownames(counts)),]
+counts <- counts[rowSums(counts >= 3) >= ncol(counts)*0.005,]
+# Normalize expression counts using sctransform package
+library(Seurat)
+library(sctransform)
+seurat_obj <- CreateSeuratObject(counts = counts)
+seurat_norm = SCTransform(seurat_obj, vst.flavor = "v2", verbose = FALSE)
+counts <- seurat_norm@assays$SCT$data
 cell_type_proportions <- Visium_human_DLPFC$cell_type_proportions
 cell_type_spacelink_results <- spacelink_cell_type(
   normalized_counts = counts[1:5,],

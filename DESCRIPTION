@@ -13,8 +13,8 @@ Description: Multi-scale spatial gene variability shapes development, degenerati
     gene expression patterns across multiple scales, with applications to 
     understanding developmental processes and disease mechanisms.
 License: MIT + file LICENSE
-URL: https://xueweic.github.io/spacelink/, https://github.com/xueweic/spacelink
-BugReports: https://github.com/xueweic/spacelink/issues
+URL: https://hanbyul-lee.github.io/spacelink/, https://github.com/hanbyul-lee/spacelink
+BugReports: https://github.com/hanbyul-lee/spacelink/issues
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)

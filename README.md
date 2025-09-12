@@ -27,10 +27,10 @@ You can install the development version of spacelink from
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("xueweic/spacelink")
+devtools::install_github("hanbyul-lee/spacelink")
 ```
 
 ## Tutorial
 
 A detailed tutorial is available
-[here](https://xueweic.github.io/spacelink/index.html).
+[here](https://hanbyul-lee.github.io/spacelink/index.html).
