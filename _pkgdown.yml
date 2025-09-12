@@ -1,4 +1,4 @@
-url: https://xueweic.github.io/spacelink/
+url: https://hanbyul-lee.github.io/spacelink/
 template:
   bootstrap: 5
   bootswatch: flatly
@@ -30,7 +30,7 @@ navbar:
         href: articles/example_visium_human_DLPFC.html
     github:
       icon: fab fa-github fa-lg
-      href: https://github.com/xueweic/spacelink
+      href: https://github.com/hanbyul-lee/spacelink
       aria-label: GitHub
 
 reference:
