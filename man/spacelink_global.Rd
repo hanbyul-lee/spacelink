@@ -45,27 +45,9 @@ Performs global spatial gene variability analysis across multiple length scales
 using kernel-based methods.
 }
 \examples{
-\dontrun{
-# Example with simulated data
-set.seed(123)
-n_spots <- 100
-n_genes <- 50
-
-# Generate spatial coordinates
-coords <- matrix(runif(n_spots * 2), ncol = 2)
-
-# Generate expression data
-expr_data <- matrix(rnorm(n_genes * n_spots), nrow = n_genes)
-
-# Run global analysis
-results <- spacelink_global(
-  normalized_counts = expr_data,
-  spatial_coords = coords,
-  n_lengthscales = 5
-)
-
-# View top spatially variable genes
-head(results[order(results$pval), ])
-}
+data(Visium_human_DLPFC)
+counts <- Visium_human_DLPFC$counts
+spatial_coords <- Visium_human_DLPFC$spatial_coords
+global_results <- spacelink_global(normalized_counts = counts[1:5,], spatial_coords = spatial_coords)
 
 }

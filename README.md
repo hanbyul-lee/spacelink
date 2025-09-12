@@ -6,8 +6,6 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-![](man/figures/spacelink_schematic.png)
-
 `spacelink` is a unified statistical framework for detecting and
 prioritizing SVGs at both global tissue and cell-type resolution.
 Spacelink employs an adaptive multi-kernel model to capture spatial
@@ -19,6 +17,8 @@ colocalizing cell types. To summarize spatial variability, we define
 Effective Spatial Variability (ESV), a metric which integrates variance
 magnitude of each component kernel and its corresponding spatial scale
 into a single interpretable score directly suited for genetic analyses.
+
+![](man/figures/spacelink_schematic.png)
 
 ## Installation
 
