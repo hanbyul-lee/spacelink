@@ -120,7 +120,7 @@ using kernel-based methods.</p>
 <span class="r-in"><span><span class="va">counts</span> <span class="op">&lt;-</span> <span class="va">Visium_human_DLPFC</span><span class="op">$</span><span class="va">counts</span></span></span>
 <span class="r-in"><span><span class="va">spatial_coords</span> <span class="op">&lt;-</span> <span class="va">Visium_human_DLPFC</span><span class="op">$</span><span class="va">spatial_coords</span></span></span>
 <span class="r-in"><span><span class="va">global_results</span> <span class="op">&lt;-</span> <span class="fu">spacelink_global</span><span class="op">(</span>normalized_counts <span class="op">=</span> <span class="va">counts</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>,<span class="op">]</span>, spatial_coords <span class="op">=</span> <span class="va">spatial_coords</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in if ((!is.null(X)) &amp; (nrow(spatial_coords) != nrow(X))) {    stop("The row dimensions of spatial_coords and covariates should be the same.")}:</span> argument is of length zero</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in rowMeans(Y):</span> 'x' must be an array of at least two dimensions</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
