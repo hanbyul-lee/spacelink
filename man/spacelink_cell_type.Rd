@@ -59,18 +59,16 @@ A data frame containing:
 Performs cell type-specific spatial gene variability analysis
 }
 \examples{
-\dontrun{
-# First run global analysis
-global_results <- spacelink_global(normalized_counts, spatial_coords)
-
-# Then cell type-specific analysis
-ct_results <- spacelink_cell_type(
-  normalized_counts = normalized_counts,
+data(Visium_human_DLPFC)
+counts <- Visium_human_DLPFC$counts
+spatial_coords <- Visium_human_DLPFC$spatial_coords
+cell_type_proportions <- Visium_human_DLPFC$cell_type_proportions
+cell_type_spacelink_results <- spacelink_cell_type(
+  normalized_counts = counts[1:5,],
   spatial_coords = spatial_coords,
-  cell_proportions = cell_proportions,
-  focal_cell_type = 'cell type name',
-  global_spacelink_results = global_results
+  cell_type_proportions = cell_type_proportions,
+  focal_cell_type = "oligodendrocyte",
+  calculate_ESV = TRUE
 )
-}
 
 }

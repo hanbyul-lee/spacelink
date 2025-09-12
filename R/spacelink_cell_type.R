@@ -24,29 +24,27 @@
 #' }
 #'
 #' @examples
-#' \dontrun{
-#' # First run global analysis
-#' global_results <- spacelink_global(normalized_counts, spatial_coords)
-#'
-#' # Then cell type-specific analysis
-#' ct_results <- spacelink_cell_type(
-#'   normalized_counts = normalized_counts,
+#' data(Visium_human_DLPFC)
+#' counts <- Visium_human_DLPFC$counts
+#' spatial_coords <- Visium_human_DLPFC$spatial_coords
+#' cell_type_proportions <- Visium_human_DLPFC$cell_type_proportions
+#' cell_type_spacelink_results <- spacelink_cell_type(
+#'   normalized_counts = counts[1:5,],
 #'   spatial_coords = spatial_coords,
-#'   cell_proportions = cell_proportions,
-#'   focal_cell_type = 'cell type name',
-#'   global_spacelink_results = global_results
+#'   cell_type_proportions = cell_type_proportions,
+#'   focal_cell_type = "oligodendrocyte",
+#'   calculate_ESV = TRUE
 #' )
-#' }
 #'
 #' @export
-spacelink_cell_type <- function(normalized_counts, spatial_coords, cell_type_proportions, focal_cell_type, covariates = NULL, 
+spacelink_cell_type <- function(normalized_counts, spatial_coords, cell_type_proportions, focal_cell_type, covariates = NULL,
                                 global_spacelink_results = NULL, lengthscales = NULL, n_lengthscales = 5, M = 1,
                                 calculate_ESV = TRUE,
                                 c1 = 0.25, c2 = 0.2, n_workers = 1){
-  
+
   Y <- normalized_counts
   X <- covariates
-  
+
   if(!is.null(global_spacelink_results)){
     if(nrow(Y)!=nrow(global_results)){
       stop("The row dimensions of normalized_counts and global_spacelink_results should be the same.")
@@ -67,7 +65,7 @@ spacelink_cell_type <- function(normalized_counts, spatial_coords, cell_type_pro
   }
   colnames(phi_mat) <- paste0("phi", 1:n_lengthscales)
   phi_mat <- as.data.frame(phi_mat)
-  
+
   ct_idx <- which(colnames(cell_type_proportions) == focal_cell_type)
   cell_type_prop = as.matrix(cell_type_proportions/apply(cell_type_proportions,1,sum))
   if(sum((cell_type_prop > 1e-7)*(cell_type_prop < 1-(1e-7)))==0){
@@ -78,12 +76,12 @@ spacelink_cell_type <- function(normalized_counts, spatial_coords, cell_type_pro
   }else{
     coloc <- which(colSums(cell_type_prop[cell_type_prop[,ct_idx] > 0.05,]-cell_type_prop[cell_type_prop[,ct_idx] > 0.05,ct_idx] > 0.05)/colSums(cell_type_prop > 0.05) > c2)
   }
-  
+
   out <- bplapply(1:nrow(Y), function(gene_idx) {
     runtime <- system.time({
       y <- Y[gene_idx,]
       phi_seq <- as.numeric(phi_mat[gene_idx,])
-      
+
       phi_list <- NULL
       for(i in 1:ncol(cell_type_prop)){
         ct_D <- as.matrix(dist(spatial_coords[cell_type_prop[,i]>0.05,]))
@@ -95,7 +93,7 @@ spacelink_cell_type <- function(normalized_counts, spatial_coords, cell_type_pro
         }
       }
       suppressWarnings(rm(ct_D, phi_lower))
-      
+
       if(length(phi_list[[ct_idx]])==0){
         if(calculate_ESV){
           return(list(time=0, pval_vec=1, ESV=0))
@@ -103,7 +101,7 @@ spacelink_cell_type <- function(normalized_counts, spatial_coords, cell_type_pro
           return(list(time=0, pval_vec=1))
         }
       }
-      
+
       # REML Estimation
       D <- as.matrix(dist(spatial_coords))
       Sigma.list <- NULL
@@ -128,19 +126,19 @@ spacelink_cell_type <- function(normalized_counts, spatial_coords, cell_type_pro
         mu_hat <- X %*% solve(t(X) %*% X, t(X) %*% y)
         null_res <- mean((y - mu_hat)^2)
       }else{
-        reml_model <- gaston::lmm.aireml(Y = y, X = cbind(rep(1,nrow(cell_type_prop)),X,cell_type_prop), 
+        reml_model <- gaston::lmm.aireml(Y = y, X = cbind(rep(1,nrow(cell_type_prop)),X,cell_type_prop),
                                          K = Sigma.list, min_s2 = 0, verbose = FALSE)
         null_res <- c(reml_model$sigma2, reml_model$tau)
         mu_hat <- cbind(rep(1,nrow(cell_type_prop)),cell_type_prop) %*% reml_model$BLUP_beta
       }
       rm(Sigma.list)
-      
+
       test_res <- score_test_cell_type(ct_idx, null_res, y-mu_hat, spatial_coords, cell_type_prop, phi_list = phi_list, c1 = c1, c2 = c2)
-      
+
       if(calculate_ESV){
         N <- nrow(spatial_coords)
         weight_vec <- sapply(phi_list[[ct_idx]], function(x)sqrt(1 - (N/sum(exp(-2*x*D)))))
-        
+
         # REML Estimation
         Sigma.list <- NULL
         temp_idx <- 1
@@ -160,12 +158,12 @@ spacelink_cell_type <- function(normalized_counts, spatial_coords, cell_type_pro
             }
           }
         }
-        reml_model <- gaston::lmm.aireml(Y = y, X = cbind(rep(1,nrow(cell_type_prop)),X,cell_type_prop), 
+        reml_model <- gaston::lmm.aireml(Y = y, X = cbind(rep(1,nrow(cell_type_prop)),X,cell_type_prop),
                                          K = Sigma.list, min_s2 = 0, verbose = FALSE)
-        
+
         numerator <- sum(reml_model$tau[1:length(phi_list[[ct_idx]])]*weight_vec)
         denominator <- sum(reml_model$tau[1:length(phi_list[[ct_idx]])]) + reml_model$sigma2
-        
+
         if(denominator < 1e-5){
           ESV <- 0
         }else{
@@ -179,12 +177,12 @@ spacelink_cell_type <- function(normalized_counts, spatial_coords, cell_type_pro
       return(list(time=runtime[["elapsed"]], pval_vec=test_res$pval_vec))
     }
   }, BPPARAM = MulticoreParam(workers = n_workers))
-  
+
   results <- data.frame(time=do.call("rbind", lapply(out, function(x)x$time)))
-  
+
   pval_mat <- do.call("rbind", lapply(out, function(x)x$pval_vec))
   suppressWarnings({results$pval <- apply(pval_mat,1,ACAT)})
-  
+
   if(calculate_ESV){
     ESV <- do.call("rbind", lapply(out, function(x)x$ESV))
     results$ESV <- ESV
