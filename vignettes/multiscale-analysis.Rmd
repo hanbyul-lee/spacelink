@@ -62,8 +62,6 @@ dim(counts)
 ## [1] 3309  3639
 ```
 
-## Normalization
-
 ```{r eval=FALSE}
 # Normalize expression counts using sctransform package
 seurat_obj <- CreateSeuratObject(counts = counts)
@@ -74,11 +72,11 @@ counts <- seurat_norm@assays$SCT$data
 ## Run global Spacelink
 
 ```{r eval=FALSE}
-# In this example, the first five genes are used.
+# In this example, we use only the first five genes.
 global_results <- spacelink_global(normalized_counts = counts[1:5,], spatial_coords = spatial_coords)
 ```
 
-## Interpret results
+### Interpret results
 
 The result will be a data frame with p-value, ESV, and other relevant values for each gene.
 
@@ -90,3 +88,36 @@ The most important columns are
 - `tau.sq` : Non-spatial (nugget) variance.
 - `sigma.sq1`, `sigma.sq2`, ... : Spatial variance at different length scales.
 - `phi1`, `phi2`, ... : Inverse of gene-specific length scales.
+
+## Run cell-type-specific Spacelink
+
+```{r eval=FALSE}
+# Load cell type proportions
+cell_type_proportions <- Visium_human_DLPFC$cell_type_proportions
+dim(cell_type_proportions)
+```
+
+```{r eval=FALSE}
+## [1] 3639  9
+```
+
+```{r eval=FALSE}
+colnames(cell_type_proportions)
+```
+
+```{r eval=FALSE}
+## [1] "endothelial"  "L2_3"  "L4"  "L6"  "oligodendrocyte"  "OPC"  "astro"  "Inh"  "microglia"
+```
+
+```{r eval=FALSE}
+cell_type_spacelink_results <- spacelink_cell_type(normalized_counts = counts[1:5,], spatial_coords = spatial_coords, cell_type_proportions = cell_type_proportions, focal_cell_type = "oligodendrocyte",
+  global_spacelink_results = global_results, # This is not required, though providing global results can slightly improve efficiency.
+  calculate_ESV = TRUE)
+```
+
+### Interpret results
+
+The result will be a data frame with p-value and ct-ESV for each gene.
+
+- `pval` : The combined p-values for statistical significance of cell-type-specific spatial patterns.
+- `ESV` : Cell-type-specific Effective Spatial Variability (ct-ESV).
