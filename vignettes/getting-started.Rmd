@@ -35,7 +35,7 @@ library(spacelink)
 
 The typical analysis workflow involves two main steps:
 
-### 1. Global Spatial Analysis
+### 1. Global Analysis
 
 Start with global analysis to identify spatially variable genes:
 
