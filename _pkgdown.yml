@@ -26,10 +26,8 @@ navbar:
       menu:
       - text: Getting Started
         href: articles/getting-started.html
-      - text: Multi-scale Analysis
-        href: articles/multiscale-analysis.html
-      - text: Cell Type-Specific Analysis
-        href: articles/cell-type-analysis.html
+      - text: Example Visium Human DLPFC
+        href: articles/example_visium_human_DLPFC.html
     github:
       icon: fab fa-github fa-lg
       href: https://github.com/xueweic/spacelink
@@ -41,13 +39,6 @@ reference:
   contents:
   - spacelink_global
   - spacelink_cell_type
-  - spacelink_cell_type_ESV
-
-- title: "Utility Functions"
-  desc: "Helper functions for length scale selection and optimization"
-  contents:
-  - select_lengthscales
-  - run_nnls
 
 - title: "Example data"
   desc: "Visium human DLPFC data as example data"
@@ -63,8 +54,7 @@ articles:
 - title: "Advanced Usage"
   desc: "Detailed guides for specific use cases"
   contents:
-  - multiscale-analysis
-  - cell-type-analysis
+  - example_visium_human_DLPFC
 
 footer:
   structure:

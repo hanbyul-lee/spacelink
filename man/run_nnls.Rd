@@ -32,3 +32,4 @@ Data frame with variance components and optional objective value.
 \description{
 Performs non-negative least squares fitting for spatial kernel regression.
 }
+\keyword{internal}

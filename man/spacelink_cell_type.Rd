@@ -5,33 +5,45 @@
 \title{Cell Type-Specific Spatial Variability Analysis}
 \usage{
 spacelink_cell_type(
-  global_test_res,
-  ct_idx,
-  Y,
+  normalized_counts,
   spatial_coords,
-  cell_type_data,
+  cell_type_proportions,
+  focal_cell_type,
+  covariates = NULL,
+  global_spacelink_results = NULL,
+  lengthscales = NULL,
+  n_lengthscales = 5,
+  M = 1,
+  calculate_ESV = TRUE,
   c1 = 0.25,
   c2 = 0.2,
-  is_phi_reduce = TRUE,
   n_workers = 1
 )
 }
 \arguments{
-\item{global_test_res}{Spacelink global SVG test results from \code{\link{spacelink_global}}.}
-
-\item{ct_idx}{Index of cell-type to be tested.}
-
-\item{Y}{Normalized count matrix. Rows and columns indicate genes and spots, respectively.}
+\item{normalized_counts}{Normalized count matrix. Rows and columns indicate genes and spots, respectively.}
 
 \item{spatial_coords}{Spatial coordinates matrix. Rows indicate spots.}
 
-\item{cell_type_data}{Cell-type data matrix. Cell-type proportions (e.g., RCTD) or cell-type abundance (e.g., Cell2location).}
+\item{cell_type_proportions}{Cell type proportion matrix (e.g., estimated by RCTD).}
+
+\item{focal_cell_type}{Name of cell-type to be tested.}
+
+\item{covariates}{Spatial features (without intercept)}
+
+\item{global_spacelink_results}{Spacelink global SVG test results from \code{\link{spacelink_global}}.}
+
+\item{lengthscales}{If NULL, length-scales are calculated by using our two-step approach.}
+
+\item{n_lengthscales}{Number of length-scales (i.e., number of kernels)}
+
+\item{M}{It controls the minimum length-scale. Minimum length-scale is set to be the minimum distance multiplied by M.}
+
+\item{calculate_ESV}{If TRUE, ct-ESV is returned.}
 
 \item{c1}{Gating parameter 1. Default is 0.25.}
 
 \item{c2}{Gating parameter 2. Default is 0.2.}
-
-\item{is_phi_reduce}{If TRUE, kernel bandwidths are restricted to be smaller than the maximum distance among cells within target cell type. Default is TRUE.}
 
 \item{n_workers}{Number of workers for parallelization. Default is 1.}
 }
@@ -40,24 +52,24 @@ A data frame containing:
 \describe{
 \item{time}{Computation time}
 \item{pval}{Combined p-value for cell type-specific spatial patterns}
+\item{ESV}{ct-ESV for cell type-specific spatial patterns}
 }
 }
 \description{
-Performs cell type-specific spatial gene variability analysis using results
-from global analysis.
+Performs cell type-specific spatial gene variability analysis
 }
 \examples{
 \dontrun{
 # First run global analysis
-global_results <- spacelink_global(Y, spatial_coords)
+global_results <- spacelink_global(normalized_counts, spatial_coords)
 
 # Then cell type-specific analysis
 ct_results <- spacelink_cell_type(
-  global_test_res = global_results,
-  ct_idx = 1,  # first cell type
-  Y = Y,
+  normalized_counts = normalized_counts,
   spatial_coords = spatial_coords,
-  cell_type_data = cell_proportions
+  cell_proportions = cell_proportions,
+  focal_cell_type = 'cell type name',
+  global_spacelink_results = global_results
 )
 }
 

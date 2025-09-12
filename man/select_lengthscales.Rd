@@ -75,3 +75,4 @@ head(length_scales$phi_mat)
 \seealso{
 \code{\link{run_nnls}}, \code{\link{spacelink_global}}
 }
+\keyword{internal}
