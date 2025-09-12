@@ -5,9 +5,9 @@
 \title{Global Spatial Variability Analysis}
 \usage{
 spacelink_global(
-  Y,
+  normalized_counts,
   spatial_coords,
-  X = NULL,
+  covariates = NULL,
   lengthscales = NULL,
   n_lengthscales = 5,
   M = 1,
@@ -15,11 +15,11 @@ spacelink_global(
 )
 }
 \arguments{
-\item{Y}{Normalized count matrix. Rows and columns indicate genes and spots, respectively.}
+\item{normalized_counts}{Normalized count matrix. Rows and columns indicate genes and spots, respectively.}
 
 \item{spatial_coords}{Spatial coordinates matrix. Rows indicate spots.}
 
-\item{X}{Spatial features expected to include intercept. If NULL, X = rep(1,N) where N is number of spots.}
+\item{covariates}{Spatial features (without intercept). Rows indicate spots.}
 
 \item{lengthscales}{If NULL, length-scales are calculated using the two-step approach.}
 
@@ -34,10 +34,10 @@ A data frame containing:
 \describe{
 \item{tau.sq}{Nugget variance component}
 \item{sigma.sq1, sigma.sq2, ...}{Spatial variance components for each kernel}
-\item{ESV}{Effective Spatial Variability score}
+\item{raw_ESV}{Effective Spatial Variability score}
 \item{pval}{Combined p-value from score tests}
 \item{padj}{Benjamini-Hochberg adjusted p-values}
-\item{ESV_adj}{ESV adjusted for multiple testing (0 if padj > 0.05)}
+\item{ESV}{ESV adjusted for multiple testing (0 if padj > 0.05)}
 }
 }
 \description{
@@ -59,7 +59,7 @@ expr_data <- matrix(rnorm(n_genes * n_spots), nrow = n_genes)
 
 # Run global analysis
 results <- spacelink_global(
-  Y = expr_data,
+  normalized_counts = expr_data,
   spatial_coords = coords,
   n_lengthscales = 5
 )

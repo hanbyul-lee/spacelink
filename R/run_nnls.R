@@ -12,7 +12,7 @@
 #' @return Data frame with variance components and optional objective value.
 #'
 #' @importFrom RcppML nnls
-#' @export
+#' @keywords internal
 # lambda: tuning parameter for L1 constraint, used only if is.sparse = TRUE
 run_nnls <- function(y, spatial_coords, phi_seq, is.sparse = FALSE, lambda = 0, is.obj = FALSE){
 

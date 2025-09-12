@@ -3,8 +3,10 @@ Type: Package
 Title: Multi-Scale Spatial Gene Variability Analysis
 Version: 0.1.0
 Authors@R: c(
-    person("Your", "Name", email = "your.email@example.com", role = c("aut", "cre"),
-           comment = c(ORCID = "0000-0000-0000-0000"))
+    person(given = "Hanbyul", family = "Lee", email = "leeh16@mskcc.org", role = c("cre", "aut", "cph")),
+    person(given = "Haochen", family = "Sun", email = "hs3393@cumc.columbia.edu", role = c("aut", "cph")),
+    person(given = "Xuewei", family = "Cao", email = "xc2270@cumc.columbia.edu", role = c("aut", "cph")),
+    person(given = "Kushal", family = "Dey", email = "deyk@mskcc.org", role = c("aut", "cph"))
     )
 Description: Multi-scale spatial gene variability shapes development, degeneration, 
     and disease. This package provides statistical methods for analyzing spatial 
