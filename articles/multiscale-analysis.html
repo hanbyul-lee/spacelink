@@ -107,10 +107,6 @@ dorsolateral prefrontal cortex (DLPFC) dataset.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">counts</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## [1] 3309  3639</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="normalization">Normalization<a class="anchor" aria-label="anchor" href="#normalization"></a>
-</h3>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Normalize expression counts using sctransform package</span></span>
 <span><span class="va">seurat_obj</span> <span class="op">&lt;-</span> <span class="fu">CreateSeuratObject</span><span class="op">(</span>counts <span class="op">=</span> <span class="va">counts</span><span class="op">)</span></span>
@@ -121,12 +117,11 @@ dorsolateral prefrontal cortex (DLPFC) dataset.</p>
 <h3 id="run-global-spacelink">Run global Spacelink<a class="anchor" aria-label="anchor" href="#run-global-spacelink"></a>
 </h3>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># In this example, the first five genes are used.</span></span>
+<code class="sourceCode R"><span><span class="co"># In this example, we use only the first five genes.</span></span>
 <span><span class="va">global_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/spacelink_global.html">spacelink_global</a></span><span class="op">(</span>normalized_counts <span class="op">=</span> <span class="va">counts</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>,<span class="op">]</span>, spatial_coords <span class="op">=</span> <span class="va">spatial_coords</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="interpret-results">Interpret results<a class="anchor" aria-label="anchor" href="#interpret-results"></a>
-</h3>
+<div class="section level4">
+<h4 id="interpret-results">Interpret results<a class="anchor" aria-label="anchor" href="#interpret-results"></a>
+</h4>
 <p>The result will be a data frame with p-value, ESV, and other relevant
 values for each gene.</p>
 <p>The most important columns are</p>
@@ -148,6 +143,39 @@ at different length scales.</li>
 <code>phi1</code>, <code>phi2</code>, … : Inverse of gene-specific
 length scales.</li>
 </ul>
+</div>
+</div>
+<div class="section level3">
+<h3 id="run-cell-type-specific-spacelink">Run cell-type-specific Spacelink<a class="anchor" aria-label="anchor" href="#run-cell-type-specific-spacelink"></a>
+</h3>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Load cell type proportions</span></span>
+<span><span class="va">cell_type_proportions</span> <span class="op">&lt;-</span> <span class="va">Visium_human_DLPFC</span><span class="op">$</span><span class="va">cell_type_proportions</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">cell_type_proportions</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">## [1] 3639  9</span></span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">cell_type_proportions</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">## [1] "endothelial"  "L2_3"  "L4"  "L6"  "oligodendrocyte"  "OPC"  "astro"  "Inh"  "microglia"</span></span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">cell_type_spacelink_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/spacelink_cell_type.html">spacelink_cell_type</a></span><span class="op">(</span>normalized_counts <span class="op">=</span> <span class="va">counts</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>,<span class="op">]</span>, spatial_coords <span class="op">=</span> <span class="va">spatial_coords</span>, cell_type_proportions <span class="op">=</span> <span class="va">cell_type_proportions</span>, focal_cell_type <span class="op">=</span> <span class="st">"oligodendrocyte"</span>,</span>
+<span>  global_spacelink_results <span class="op">=</span> <span class="va">global_results</span>, <span class="co"># This is not required, though providing global results can slightly improve efficiency.</span></span>
+<span>  calculate_ESV <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<div class="section level4">
+<h4 id="interpret-results-1">Interpret results<a class="anchor" aria-label="anchor" href="#interpret-results-1"></a>
+</h4>
+<p>The result will be a data frame with p-value and ct-ESV for each
+gene.</p>
+<ul>
+<li>
+<code>pval</code> : The combined p-values for statistical
+significance of cell-type-specific spatial patterns.</li>
+<li>
+<code>ESV</code> : Cell-type-specific Effective Spatial Variability
+(ct-ESV).</li>
+</ul>
+</div>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
