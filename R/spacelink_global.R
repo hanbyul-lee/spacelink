@@ -5,7 +5,7 @@
 #'
 #' @param normalized_counts Normalized count matrix. Rows and columns indicate genes and spots, respectively.
 #' @param spatial_coords Spatial coordinates matrix. Rows indicate spots.
-#' @param covariates Spatial features expected to include intercept. If NULL, X = rep(1,N) where N is number of spots.
+#' @param covariates Spatial features (without intercept). Rows indicate spots.
 #' @param lengthscales If NULL, length-scales are calculated using the two-step approach.
 #' @param n_lengthscales Number of length-scales (i.e., number of kernels). Default is 5.
 #' @param M Controls the minimum length-scale. Minimum length-scale is set to be the minimum distance multiplied by M. Default is 1.
@@ -53,7 +53,7 @@ spacelink_global <- function(normalized_counts, spatial_coords, covariates = NUL
   if(ncol(Y)!=nrow(spatial_coords)){
       stop("The column dimension of normalized_counts and the row dimension of spatial_coords should be the same.")
   }
-  if(nrow(spatial_coords)!=nrow(X)){
+  if((!is.null(X)) & (nrow(spatial_coords)!=nrow(X))){
       stop("The row dimensions of spatial_coords and covariates should be the same.")
   }
   # Create matrix of phi (= 1/lengthscale)
@@ -74,6 +74,7 @@ spacelink_global <- function(normalized_counts, spatial_coords, covariates = NUL
   if(is.null(X)){
     Y <- Y - rowMeans(Y)
   }else{
+    X <- cbind(rep(1,nrow(X)), X)
     Y <- Y - t(X %*% solve(crossprod(X), crossprod(X,t(Y))))
   }
 
