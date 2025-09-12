@@ -92,59 +92,60 @@ dorsolateral prefrontal cortex (DLPFC) dataset.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">counts</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## [1] 33538  3639</span></span></code></pre></div>
-<p>``{r eval=FALSE} dim(spatial_coords)</p>
-<pre><code>
-
-``` r
-## [1] 3639  2</code></pre>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">spatial_coords</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">## [1] 3639  2</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="preprocessing">Preprocessing<a class="anchor" aria-label="anchor" href="#preprocessing"></a>
 </h3>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Filter mitochondrial and low-expressed genes</span></span>
 <span><span class="va">counts</span> <span class="op">&lt;-</span> <span class="va">counts</span><span class="op">[</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"(^MT-)|(^mt-)"</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">counts</span><span class="op">)</span><span class="op">)</span>,<span class="op">]</span></span>
 <span><span class="va">counts</span> <span class="op">&lt;-</span> <span class="va">counts</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="va">counts</span> <span class="op">&gt;=</span> <span class="fl">3</span><span class="op">)</span> <span class="op">&gt;=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">counts</span><span class="op">)</span><span class="op">*</span><span class="fl">0.005</span>,<span class="op">]</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">counts</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## [1] 3309  3639</span></span></code></pre></div>
 </div>
+<div class="section level3">
+<h3 id="normalization">Normalization<a class="anchor" aria-label="anchor" href="#normalization"></a>
+</h3>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Normalize expression counts using sctransform package</span></span>
+<span><span class="va">seurat_obj</span> <span class="op">&lt;-</span> <span class="fu">CreateSeuratObject</span><span class="op">(</span>counts <span class="op">=</span> <span class="va">counts</span><span class="op">)</span></span>
+<span><span class="va">seurat_norm</span> <span class="op">=</span> <span class="fu">SCTransform</span><span class="op">(</span><span class="va">seurat_obj</span>, vst.flavor <span class="op">=</span> <span class="st">"v2"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">counts</span> <span class="op">&lt;-</span> <span class="va">seurat_norm</span><span class="op">@</span><span class="va">assays</span><span class="op">$</span><span class="va">SCT</span><span class="op">$</span><span class="va">data</span></span></code></pre></div>
 </div>
-<div class="section level2">
-<h2 id="normalize-expression-counts-using-sctransform-package">Normalize expression counts using sctransform package<a class="anchor" aria-label="anchor" href="#normalize-expression-counts-using-sctransform-package"></a>
-</h2>
-<p>seurat_obj &lt;- CreateSeuratObject(counts = counts) seurat_norm =
-SCTransform(seurat_obj, vst.flavor = “v2”, verbose = FALSE) counts &lt;-
-<a href="mailto:seurat_norm@assays" class="email">seurat_norm@assays</a><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mi>C</mi><mi>T</mi></mrow><annotation encoding="application/x-tex">SCT</annotation></semantics></math>data</p>
-<pre><code>
-## Run global Spacelink
-
-
-``` r
-# In this example, the first five genes are used.
-global_results &lt;- spacelink_global(normalized_counts = counts[1:5,], spatial_coords = spatial_coords)</code></pre>
+<div class="section level3">
+<h3 id="run-global-spacelink">Run global Spacelink<a class="anchor" aria-label="anchor" href="#run-global-spacelink"></a>
+</h3>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># In this example, the first five genes are used.</span></span>
+<span><span class="va">global_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/spacelink_global.html">spacelink_global</a></span><span class="op">(</span>normalized_counts <span class="op">=</span> <span class="va">counts</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>,<span class="op">]</span>, spatial_coords <span class="op">=</span> <span class="va">spatial_coords</span><span class="op">)</span></span></code></pre></div>
+</div>
 <div class="section level3">
 <h3 id="interpret-results">Interpret results<a class="anchor" aria-label="anchor" href="#interpret-results"></a>
 </h3>
-<p>The result will be a DataFrame with p-values, ESV, and other relevant
+<p>The result will be a data frame with p-value, ESV, and other relevant
 values for each gene.</p>
 <p>The most important columns are</p>
 <ul>
 <li>
-<code>pval</code>: The combined p-values for statistical
-significance of spatial patterns</li>
+<code>pval</code> : The combined p-values for statistical
+significance of spatial patterns.</li>
 <li>
-<code>padj</code>: Benjamini-Hochberg adjusted p-values</li>
+<code>padj</code> : Benjamini-Hochberg adjusted p-values.</li>
 <li>
-<code>ESV</code>: Effective Spatial Variability. Spatial pattern is
+<code>ESV</code> : Effective Spatial Variability. Spatial pattern is
 stronger as ESV is closer to 1.</li>
 <li>
-<code>tau.sq</code>: Non-spatial (nugget) variance</li>
+<code>tau.sq</code> : Non-spatial (nugget) variance.</li>
 <li>
-<code>sigma.sq1</code>, <code>sigma.sq2</code>, …: Spatial variance
-at different length scales</li>
+<code>sigma.sq1</code>, <code>sigma.sq2</code>, … : Spatial variance
+at different length scales.</li>
 <li>
-<code>phi1</code>, <code>phi2</code>, …: Inverse of gene-specific
+<code>phi1</code>, <code>phi2</code>, … : Inverse of gene-specific
 length scales.</li>
 </ul>
 </div>
