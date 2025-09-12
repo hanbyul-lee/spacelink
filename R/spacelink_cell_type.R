@@ -4,7 +4,7 @@
 #'
 #' @param normalized_counts Normalized count matrix. Rows and columns indicate genes and spots, respectively.
 #' @param spatial_coords Spatial coordinates matrix. Rows indicate spots.
-#' @param cell_type_proportions Cell-type data matrix. Cell-type proportions (e.g., RCTD) or cell-type abundance (e.g., Cell2location).
+#' @param cell_type_proportions Cell type proportion matrix (e.g., estimated by RCTD).
 #' @param focal_cell_type Name of cell-type to be tested.
 #' @param covariates Spatial features (without intercept)
 #' @param global_spacelink_results Spacelink global SVG test results from \code{\link{spacelink_global}}.
