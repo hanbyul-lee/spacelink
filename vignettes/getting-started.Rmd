@@ -53,12 +53,12 @@ head(global_results[order(global_results$ESV, decreasing=T), ])
 
 The results include:
 
-- `pval`: Combined p-value for spatial significance
-- `padj`: Benjamini-Hochberg adjusted p-values
-- `ESV`: Effective Spatial Variability score (0-1)
-- `tau.sq`: Nugget variance component
-- `sigma.sq1`, `sigma.sq2`, ...: Spatial variance components for each kernel
-- `phi1`, `phi2`, ...: Inverse of gene-specific length scales
+- `pval` : Combined p-value for spatial significance
+- `padj` : Benjamini-Hochberg adjusted p-values
+- `ESV` : Effective Spatial Variability score (0-1)
+- `tau.sq` : Nugget variance component
+- `sigma.sq1`, `sigma.sq2`, ... : Spatial variance components for each kernel
+- `phi1`, `phi2`, ... : Inverse of gene-specific length scales
 
 ### 2. Cell-Type-Specific Analysis
 
@@ -78,8 +78,8 @@ cell_type_results <- spacelink_cell_type(
 
 The results include:
 
-- `pval`: Combined p-value for spatial significance
-- `ESV`: Cell-type-specific Effective Spatial Variability (ct-ESV) score (0-1)
+- `pval` : Combined p-value for spatial significance
+- `ESV` : Cell-type-specific Effective Spatial Variability (ct-ESV) score (0-1)
 
 ## Example with Simulated Data
 
