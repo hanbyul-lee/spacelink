@@ -24,26 +24,48 @@
 #' }
 #'
 #' @examples
-#' data(Visium_human_DLPFC)
-#' counts <- Visium_human_DLPFC$counts
-#' spatial_coords <- Visium_human_DLPFC$spatial_coords
-#' # Filter mitochondrial and low-expressed genes
-#' counts <- counts[!grepl("(^MT-)|(^mt-)", rownames(counts)),]
-#' counts <- counts[rowSums(counts >= 3) >= ncol(counts)*0.005,]
-#' # Normalize expression counts using sctransform package
-#' library(Seurat)
-#' library(sctransform)
-#' seurat_obj <- CreateSeuratObject(counts = counts)
-#' seurat_norm = SCTransform(seurat_obj, vst.flavor = "v2", verbose = FALSE)
-#' counts <- seurat_norm@assays$SCT$data
-#' cell_type_proportions <- Visium_human_DLPFC$cell_type_proportions
-#' cell_type_spacelink_results <- spacelink_cell_type(
-#'   normalized_counts = counts[1:5,],
-#'   spatial_coords = spatial_coords,
-#'   cell_type_proportions = cell_type_proportions,
-#'   focal_cell_type = "oligodendrocyte",
-#'   calculate_ESV = TRUE
+#' # Set up simulated data
+#' set.seed(123)
+#' n_spots <- 100
+#' n_genes <- 10
+#' n_cell_types <- 2
+#' 
+#' # Generate spatial coordinates (2D grid)
+#' coords <- expand.grid(
+#'   x = seq(0, 10, length.out = sqrt(n_spots)),
+#'   y = seq(0, 10, length.out = sqrt(n_spots))
 #' )
+#' 
+#' # Generate cell type proportions for 2 cell types
+#' cell_type_props <- matrix(nrow = n_spots, ncol = n_cell_types)
+#' cell_type_props[1:(n_spots/2),1] <- runif(n_spots/2,0,0.5)
+#' cell_type_props[(n_spots/2+1):n_spots,1] <- runif(n_spots/2,0.5,1)
+#' cell_type_props[,2] <- 1-cell_type_props[,1]
+#' colnames(cell_type_props) <- paste0("Cell_type_", 1:n_cell_types)
+#' 
+#' # Simulate (normalized) expression data with spatial autocorrelation for cell type 1
+#' expr_data <- matrix(nrow=n_genes, ncol=n_spots)
+#' rownames(expr_data) <- paste0("Gene_", 1:n_genes)
+#' D <- as.matrix(dist(coords))
+#' K <- exp(-D)
+#' Sigma <- chol(K)%*%diag(cell_type_props[,'Cell_type_1'])
+#' for(i in 1:(n_genes/2)){
+#'   expr_data[i,] <- matrix(rnorm(n_spots, 0, 1), nrow=1, ncol=n_spots)
+#'   expr_data[i,] <- expr_data[i,] + i*matrix(rnorm(n_spots, 0, 1), nrow=1, ncol=n_spots)%*%Sigma
+#' }
+#' # Simulate (normalized) expression data with spatial autocorrelation for cell type 2
+#' Sigma <- chol(K)%*%diag(cell_type_props[,'Cell_type_2'])
+#' for(i in (n_genes/2+1):n_genes){
+#'   expr_data[i,] <- matrix(rnorm(n_spots, 0, 1), nrow=1, ncol=n_spots)
+#'   expr_data[i,] <- expr_data[i,] + matrix(rnorm(n_spots, 0, 1), nrow=1, ncol=n_spots)%*%Sigma
+#' }
+#' 
+#' # Test cell-type-1 specific SVG
+#' cell_type_results <- spacelink_cell_type(normalized_counts = expr_data, 
+#'                                          spatial_coords = coords,
+#'                                          cell_type_proportions = cell_type_props,
+#'                                          focal_cell_type = "Cell_type_1")
+#' print(cell_type_results[, c("pval", "ESV")])
 #'
 #' @export
 spacelink_cell_type <- function(normalized_counts, spatial_coords, cell_type_proportions, focal_cell_type, covariates = NULL,
@@ -87,30 +109,30 @@ spacelink_cell_type <- function(normalized_counts, spatial_coords, cell_type_pro
   }
 
   out <- bplapply(1:nrow(Y), function(gene_idx) {
+    y <- Y[gene_idx,]
+    phi_seq <- as.numeric(phi_mat[gene_idx,])
+
+    phi_list <- NULL
+    for(i in 1:ncol(cell_type_prop)){
+      ct_D <- as.matrix(dist(spatial_coords[cell_type_prop[,i]>0.05,]))
+      phi_lower <- quantile(1/ct_D[upper.tri(ct_D)], 0.1)
+      if(i == ct_idx){
+        phi_list[[i]] <- phi_seq[phi_seq > phi_lower]
+      }else{
+        phi_list[[i]] <- median(phi_seq[phi_seq > phi_lower])
+      }
+    }
+    suppressWarnings(rm(ct_D, phi_lower))
+
+    if(length(phi_list[[ct_idx]])==0){
+      if(calculate_ESV){
+        return(list(time=0, pval_vec=1, ESV=0))
+      }else{
+        return(list(time=0, pval_vec=1))
+      }
+    }
+
     runtime <- system.time({
-      y <- Y[gene_idx,]
-      phi_seq <- as.numeric(phi_mat[gene_idx,])
-
-      phi_list <- NULL
-      for(i in 1:ncol(cell_type_prop)){
-        ct_D <- as.matrix(dist(spatial_coords[cell_type_prop[,i]>0.05,]))
-        phi_lower <- quantile(1/ct_D[upper.tri(ct_D)], 0.1)
-        if(i == ct_idx){
-          phi_list[[i]] <- phi_seq[phi_seq > phi_lower]
-        }else{
-          phi_list[[i]] <- median(phi_seq[phi_seq > phi_lower])
-        }
-      }
-      suppressWarnings(rm(ct_D, phi_lower))
-
-      if(length(phi_list[[ct_idx]])==0){
-        if(calculate_ESV){
-          return(list(time=0, pval_vec=1, ESV=0))
-        }else{
-          return(list(time=0, pval_vec=1))
-        }
-      }
-
       # REML Estimation
       D <- as.matrix(dist(spatial_coords))
       Sigma.list <- NULL
