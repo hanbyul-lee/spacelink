@@ -176,7 +176,12 @@
 <span class="r-in"><span>                                         spatial_coords <span class="op">=</span> <span class="va">coords</span>,</span></span>
 <span class="r-in"><span>                                         cell_type_proportions <span class="op">=</span> <span class="va">cell_type_props</span>,</span></span>
 <span class="r-in"><span>                                         focal_cell_type <span class="op">=</span> <span class="st">"Cell_type_1"</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in bplapply(1:nrow(Y), function(gene_idx) {    runtime &lt;- system.time({        y &lt;- as.numeric(Y[gene_idx, ])        res &lt;- run_nnls(y, spatial_coords, phi_seq = phi_seq)    })    res$time &lt;- runtime[["elapsed"]]    return(res)}, BPPARAM = MulticoreParam(workers = n_workers)):</span> could not find function "bplapply"</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Timing stopped at: 0.002 0 0.003</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> BiocParallel errors</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span>   1 remote errors, element index: 1</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span>   9 unevaluated and other errors</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span>   first remote error:</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> Error in .Call("_spacelink_invM_arma", PACKAGE = "spacelink", mat): "_spacelink_invM_arma" not available for .Call() for package "spacelink"</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">cell_type_results</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"pval"</span>, <span class="st">"ESV"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'cell_type_results' not found</span>
 <span class="r-in"><span></span></span>

@@ -143,7 +143,12 @@ using kernel-based methods.</p>
 <span class="r-in"><span><span class="op">}</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">global_results</span> <span class="op">&lt;-</span> <span class="fu">spacelink_global</span><span class="op">(</span>normalized_counts <span class="op">=</span> <span class="va">expr_data</span>, spatial_coords <span class="op">=</span> <span class="va">coords</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in bplapply(1:nrow(Y), function(gene_idx) {    runtime &lt;- system.time({        y &lt;- as.numeric(Y[gene_idx, ])        res &lt;- run_nnls(y, spatial_coords, phi_seq = phi_seq)    })    res$time &lt;- runtime[["elapsed"]]    return(res)}, BPPARAM = MulticoreParam(workers = n_workers)):</span> could not find function "bplapply"</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Timing stopped at: 0.004 0.003 0.004</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> BiocParallel errors</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span>   1 remote errors, element index: 1</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span>   9 unevaluated and other errors</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span>   first remote error:</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> Error in .Call("_spacelink_vMv_arma", PACKAGE = "spacelink", x, A, y): "_spacelink_vMv_arma" not available for .Call() for package "spacelink"</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">global_results</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"raw_ESV"</span>, <span class="st">"pval"</span>, <span class="st">"ESV"</span>, <span class="st">"padj"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'global_results' not found</span>
 <span class="r-in"><span></span></span>
