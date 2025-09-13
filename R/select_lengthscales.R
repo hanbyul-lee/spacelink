@@ -49,6 +49,8 @@
 #' }
 #'
 #' @seealso \code{\link{run_nnls}}, \code{\link{spacelink_global}}
+#' @importFrom BiocParallel bplapply MulticoreParam
+#' @importFrom pracma logspace
 #' @keywords internal
 select_lengthscales <- function(Y, spatial_coords, n_lengthscales = 5, M = 1, is.inverse = TRUE, n_workers = 1){
   D <- as.matrix(dist(spatial_coords))

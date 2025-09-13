@@ -22,7 +22,8 @@ RoxygenNote: 7.3.3
 Depends: 
     R (>= 4.0.0)
 Imports:
-    Rcpp,
+    Rcpp (>= 1.0.0),
+    RcppArmadillo (>= 0.9.900.0.0),
     RcppML,
     BiocParallel,
     gaston,
