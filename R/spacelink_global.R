@@ -22,21 +22,33 @@
 #' }
 #'
 #' @examples
-#' # Simulate 50x50 spot coordinates
-#' dim1 = 50
-#' dim2 = 50
-#' N = dim1*dim2
-#' spatial_coords <- cbind(kronecker(rep(1,dim1), 1:dim2), kronecker(1:dim1, rep(1,dim2)))
-#' # Simulate 10 spatially variable expressions
-#' n = 10
-#' D <- as.matrix(dist(spatial_coords))
-#' K <- exp(-D) # spatial autocorrelation kernel
-#' normal_expr <- matrix(rnorm(n*N, 0, 1), n, N) + matrix(rnorm(n*N, 0, 1), n, N)%*%chol(K)
-#' normal_expr <- exp(normal_expr)
-#' expr <- apply(normal_expr, 1:2, function(x)rpois(1,x))
-#' # Simple normalization (We recommend to try other normalization methods.)
-#' normalized_expr <- log1p(expr)/log(2)
-#' global_results <- spacelink_global(normalized_counts = normalized_expr, spatial_coords = spatial_coords)
+#' # Set up simulated data
+#' set.seed(123)
+#' n_spots <- 100
+#' n_genes <- 10
+#' 
+#' # Generate spatial coordinates (2D grid)
+#' coords <- expand.grid(
+#'   x = seq(0, 10, length.out = sqrt(n_spots)),
+#'   y = seq(0, 10, length.out = sqrt(n_spots))
+#' )
+#' 
+#' # Simulate (normalized) expression data with spatial autocorrelation
+#' expr_data <- matrix(nrow=n_genes, ncol=n_spots)
+#' rownames(expr_data) <- paste0("Gene_", 1:n_genes)
+#' D <- as.matrix(dist(coords))
+#' K <- exp(-D); chol_K <- chol(K)
+#' for(i in 1:(n_genes/2)){
+#'   expr_data[i,] <- matrix(rnorm(n_spots, 0, 1), nrow=1, ncol=n_spots)
+#'   expr_data[i,] <- expr_data[i,] + i*matrix(rnorm(n_spots, 0, 1), 1, n_spots)%*%chol_K
+#' }
+#' # Simulate (normalized) expression data without spatial autocorrelation
+#' for(i in (n_genes/2+1):n_genes){
+#'   expr_data[i,] <- i*matrix(rnorm(n_spots, 0, 1), nrow=1, ncol=n_spots)
+#' }
+#' 
+#' global_results <- spacelink_global(normalized_counts = expr_data, spatial_coords = coords)
+#' print(global_results[, c("raw_ESV", "pval", "ESV", "padj")])
 #'
 #' @export
 

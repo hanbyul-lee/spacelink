@@ -24,7 +24,7 @@ Install the development version from GitHub:
 
 ```{r eval=FALSE}
 # install.packages("devtools")
-devtools::install_github("xueweic/spacelink")
+devtools::install_github("hanbyul-lee/spacelink")
 ```
 
 ```{r}
@@ -65,7 +65,7 @@ The results include:
 If you have cell type proportion information, analyze cell-type-specific spatial patterns:
 
 ```{r eval=FALSE}
-# Cell-type-specific analysis
+# Run cell-type-specific spatial variability analysis
 cell_type_results <- spacelink_cell_type(
   normalized_counts = normalized_expression_matrix,  # Genes × Spots
   spatial_coords = coordinates,  # Spots × 2 (x,y coordinates)
@@ -74,6 +74,9 @@ cell_type_results <- spacelink_cell_type(
   global_spacelink_results = global_results,  # Not necessary. Providing global results improves efficiency.
   calculate_ESV = TRUE
 )
+
+# View results
+head(cell_type_results[order(cell_type_results$ESV, decreasing=T), ])
 ```
 
 The results include:
@@ -88,8 +91,8 @@ Here's an example of global Spacelink analysis using simulated data:
 ```{r eval=FALSE}
 # Set up simulated data
 set.seed(123)
-n_spots <- 200
-n_genes <- 100
+n_spots <- 100
+n_genes <- 10
 
 # Generate spatial coordinates (2D grid)
 coords <- expand.grid(
@@ -97,28 +100,96 @@ coords <- expand.grid(
   y = seq(0, 10, length.out = sqrt(n_spots))
 )
 
-# Generate expression data with spatial patterns
-expr_data <- matrix(rnorm(n_genes * n_spots), nrow = n_genes)
+# Simulate (normalized) expression data with spatial autocorrelation
+expr_data <- matrix(nrow=n_genes, ncol=n_spots)
 rownames(expr_data) <- paste0("Gene_", 1:n_genes)
-
-# Add spatial pattern to some genes
-for(i in 1:10) {
-  # Create distance-based pattern
-  center_x <- runif(1, 2, 8)
-  center_y <- runif(1, 2, 8)
-  distances <- sqrt((coords$x - center_x)^2 + (coords$y - center_y)^2)
-  spatial_effect <- exp(-distances/2)
-  expr_data[i, ] <- expr_data[i, ] + 2 * spatial_effect
+D <- as.matrix(dist(coords))
+K <- exp(-D); chol_K <- chol(K)
+for(i in 1:(n_genes/2)){
+  expr_data[i,] <- matrix(rnorm(n_spots, 0, 1), nrow=1, ncol=n_spots)
+  expr_data[i,] <- expr_data[i,] + i*matrix(rnorm(n_spots, 0, 1), 1, n_spots)%*%chol_K
+}
+# Simulate (normalized) expression data without spatial autocorrelation
+for(i in (n_genes/2+1):n_genes){
+  expr_data[i,] <- i*matrix(rnorm(n_spots, 0, 1), nrow=1, ncol=n_spots)
 }
 
-# Run analysis
-results <- spacelink_global(
-  normalized_counts = expr_data,
-  spatial_coords = as.matrix(coords),
-  n_lengthscales = 5
+global_results <- spacelink_global(normalized_counts = expr_data, spatial_coords = coords)
+print(global_results[, c("raw_ESV", "pval", "ESV", "padj")])
+```
+
+```{r}
+#            raw_ESV        pval       ESV       padj
+# Gene_1  0.15061194 0.158662165 0.0000000 0.31732433
+# Gene_2  0.36958214 0.013996958 0.3695821 0.04665653
+# Gene_3  0.24545260 0.063870746 0.0000000 0.15967687
+# Gene_4  0.42172756 0.007834405 0.4217276 0.03917202
+# Gene_5  0.43943594 0.004087093 0.4394359 0.03917202
+# Gene_6  0.00000000 0.748318133 0.0000000 0.86450152
+# Gene_7  0.00000000 0.805014384 0.0000000 0.86450152
+# Gene_8  0.06886313 0.326967744 0.0000000 0.54494624
+# Gene_9  0.00000000 0.835162432 0.0000000 0.86450152
+# Gene_10 0.00000000 0.864501520 0.0000000 0.86450152
+```
+
+Here is an example of cell-type-specific Spacelink analysis using simulated data:
+
+```{r eval=FALSE}
+# Set up simulated data
+set.seed(123)
+n_spots <- 100
+n_genes <- 10
+n_cell_types <- 2
+
+# Generate spatial coordinates (2D grid)
+coords <- expand.grid(
+  x = seq(0, 10, length.out = sqrt(n_spots)),
+  y = seq(0, 10, length.out = sqrt(n_spots))
 )
 
-# View top spatially variable genes
-top_genes <- head(results[order(results$ESV, decreasing=TRUE), ], 10)
-print(top_genes[, c("ESV", "pval", "padj")])
+# Generate cell type proportions for 2 cell types
+cell_type_props <- matrix(nrow = n_spots, ncol = n_cell_types)
+cell_type_props[1:(n_spots/2),1] <- runif(n_spots/2,0,0.5)
+cell_type_props[(n_spots/2+1):n_spots,1] <- runif(n_spots/2,0.5,1)
+cell_type_props[,2] <- 1-cell_type_props[,1]
+colnames(cell_type_props) <- paste0("Cell_type_", 1:n_cell_types)
+
+# Simulate (normalized) expression data with spatial autocorrelation for cell type 1
+expr_data <- matrix(nrow = n_genes, ncol = n_spots)
+rownames(expr_data) <- paste0("Gene_", 1:n_genes)
+D <- as.matrix(dist(coords))
+K <- exp(-D)
+Sigma <- chol(K)%*%diag(cell_type_props[,'Cell_type_1'])
+for(i in 1:(n_genes/2)){
+  expr_data[i,] <- matrix(rnorm(n_spots, 0, 1), 1, n_spots)
+  expr_data[i,] <- expr_data[i,] + i*matrix(rnorm(n_spots, 0, 1), 1, n_spots)%*%Sigma
+}
+# Simulate (normalized) expression data with spatial autocorrelation for cell type 2
+Sigma <- chol(K)%*%diag(cell_type_props[,'Cell_type_2'])
+for(i in (n_genes/2+1):n_genes){
+  expr_data[i,] <- matrix(rnorm(n_spots, 0, 1), 1, n_spots)
+  expr_data[i,] <- expr_data[i,] + matrix(rnorm(n_spots, 0, 1), 1, n_spots)%*%Sigma
+}
+
+# Test cell-type-1 specific SVG
+cell_type_results <- spacelink_cell_type(normalized_counts = expr_data, 
+                                         spatial_coords = coords,
+                                         cell_type_proportions = cell_type_props,
+                                         focal_cell_type = "Cell_type_1")
+
+print(cell_type_results[, c("pval", "ESV")])
+```
+
+```{r}
+#                 pval          ESV
+# Gene_1  6.975021e-02 4.167041e-01
+# Gene_2  3.853336e-03 5.590444e-01
+# Gene_3  3.952311e-04 6.964892e-01
+# Gene_4  3.027289e-06 6.672739e-01
+# Gene_5  1.246179e-04 6.579634e-01
+# Gene_6  1.000000e+00 0.000000e+00
+# Gene_7  6.681283e-01 3.128719e-06
+# Gene_8  9.629749e-01 3.459269e-06
+# Gene_9  1.000000e+00 0.000000e+00
+# Gene_10 1.000000e+00 0.000000e+00
 ```
