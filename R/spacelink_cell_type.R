@@ -24,6 +24,7 @@
 #' }
 #'
 #' @examples
+#' library(spacelink)
 #' # Set up simulated data
 #' set.seed(123)
 #' n_spots <- 100

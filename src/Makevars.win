@@ -1,0 +1,2 @@
+# src/Makevars.win  
+PKG_CPPFLAGS += -DARMA_USE_CURRENT
