@@ -98,6 +98,12 @@ print(global_results)
 
 ## Investigate global Spacelink result
 
+The primary results are as follows:
+
+- `pval` : Combined p-value for spatial significance
+- `padj` : Benjamini-Hochberg adjusted p-values
+- `ESV` : Effective Spatial Variability score (0-1)
+
 ```{r eval=FALSE}
 # Number of significant SVGs
 table(global_results$padj <= 0.05)
@@ -107,6 +113,9 @@ table(global_results$padj <= 0.05)
 ## FALSE  TRUE 
 ##     2     6
 ```
+
+Top-ranked SVGs can be identified using the ESV score. 
+Shown here is an example plotting the SVG with the highest ESV and a non-SVG with the lowest ESV score.
 
 ```{r eval=FALSE}
 # Plot of the top SVG (highest ESV) and a non-SVG (lowest ESV)
@@ -184,6 +193,11 @@ print(cell_type_results)
 
 ## Investigate cell-type-specific Spacelink result
 
+The key results are as follows:
+
+- `pval` : Combined p-value for spatial significance
+- `ESV` : Cell-type-specific Effective Spatial Variability (ct-ESV) score (0-1)
+
 ```{r eval=FALSE}
 # Number of significant ct-SVGs within oligodendrocyte
 table(cell_type_results$pval <= 0.05)
@@ -193,6 +207,8 @@ table(cell_type_results$pval <= 0.05)
 ## FALSE  TRUE 
 ##     5     3 
 ```
+
+The following illustrates the ct-SVG with the highest ct-ESV and a non-ct-SVG with the lowest ct-ESV among significant global SVGs identified by the global Spacelink analysis.
 
 ```{r eval=FALSE}
 # Plot of the top ct-SVG (highest ct-ESV) and a non-ct-SVG (lowest ct-ESV) among significant global SVGs
