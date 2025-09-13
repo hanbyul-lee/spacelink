@@ -9,5 +9,5 @@
 #'   \item{spatial_coords}{Spatial coordinates matrix. Rows indicate spots.}
 #'   \item{cell_type_proportions}{Cell type proportion matrix estimated by RCTD. Rows and columns indicate spots and cell types, respectively.}
 #' }
-#' @source The Visium_human_DLPFC dataset contains Visium human dorsolateral prefrontal cortex (DLPFC) dataset (ID: 151673) which is available at https://research.libd.org/spatialLIBD/.
+#' @source The Visium_human_DLPFC dataset contains Visium human dorsolateral prefrontal cortex (DLPFC) dataset (ID: 151673) which is available at \url{https://research.libd.org/spatialLIBD/}.
 "Visium_human_DLPFC"

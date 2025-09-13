@@ -23,6 +23,7 @@
 #'
 #' @examples
 #' # Set up simulated data
+#' library(spacelink)
 #' set.seed(123)
 #' n_spots <- 100
 #' n_genes <- 10
@@ -51,7 +52,6 @@
 #' print(global_results[, c("raw_ESV", "pval", "ESV", "padj")])
 #'
 #' @export
-
 spacelink_global <- function(normalized_counts, spatial_coords, covariates = NULL, lengthscales = NULL, n_lengthscales = 5, M = 1, n_workers = 1){
   Y <- normalized_counts
   X <- covariates

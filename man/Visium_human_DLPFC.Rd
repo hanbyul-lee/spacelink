@@ -16,7 +16,7 @@ A list with 3 elements
 }
 }
 \source{
-The Visium_human_DLPFC dataset contains
+The Visium_human_DLPFC dataset contains Visium human dorsolateral prefrontal cortex (DLPFC) dataset (ID: 151673) which is available at \url{https://research.libd.org/spatialLIBD/}.
 }
 \usage{
 Visium_human_DLPFC

@@ -12,28 +12,28 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // vMMv_arma
-arma::vec vMMv_arma(arma::vec& x, arma::mat& A, arma::mat& B, arma::vec& y);
+double vMMv_arma(const arma::vec& x, const arma::mat& A, const arma::mat& B, const arma::vec& y);
 RcppExport SEXP _spacelink_vMMv_arma(SEXP xSEXP, SEXP ASEXP, SEXP BSEXP, SEXP ySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::vec& >::type x(xSEXP);
-    Rcpp::traits::input_parameter< arma::mat& >::type A(ASEXP);
-    Rcpp::traits::input_parameter< arma::mat& >::type B(BSEXP);
-    Rcpp::traits::input_parameter< arma::vec& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type A(ASEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type B(BSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type y(ySEXP);
     rcpp_result_gen = Rcpp::wrap(vMMv_arma(x, A, B, y));
     return rcpp_result_gen;
 END_RCPP
 }
 // vMv_arma
-arma::vec vMv_arma(arma::vec& x, arma::mat& A, arma::vec& y);
+double vMv_arma(const arma::vec& x, const arma::mat& A, const arma::vec& y);
 RcppExport SEXP _spacelink_vMv_arma(SEXP xSEXP, SEXP ASEXP, SEXP ySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::vec& >::type x(xSEXP);
-    Rcpp::traits::input_parameter< arma::mat& >::type A(ASEXP);
-    Rcpp::traits::input_parameter< arma::vec& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type A(ASEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type y(ySEXP);
     rcpp_result_gen = Rcpp::wrap(vMv_arma(x, A, y));
     return rcpp_result_gen;
 END_RCPP
