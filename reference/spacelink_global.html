@@ -143,14 +143,18 @@ using kernel-based methods.</p>
 <span class="r-in"><span><span class="op">}</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">global_results</span> <span class="op">&lt;-</span> <span class="fu">spacelink_global</span><span class="op">(</span>normalized_counts <span class="op">=</span> <span class="va">expr_data</span>, spatial_coords <span class="op">=</span> <span class="va">coords</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Timing stopped at: 0.004 0.003 0.004</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> BiocParallel errors</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span>   1 remote errors, element index: 1</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span>   9 unevaluated and other errors</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span>   first remote error:</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> Error in .Call("_spacelink_vMv_arma", PACKAGE = "spacelink", x, A, y): "_spacelink_vMv_arma" not available for .Call() for package "spacelink"</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">global_results</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"raw_ESV"</span>, <span class="st">"pval"</span>, <span class="st">"ESV"</span>, <span class="st">"padj"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'global_results' not found</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            raw_ESV        pval       ESV       padj</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Gene_1  0.15061194 0.158662165 0.0000000 0.31732433</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Gene_2  0.36958214 0.013996958 0.3695821 0.04665653</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Gene_3  0.24545260 0.063870746 0.0000000 0.15967687</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Gene_4  0.42172756 0.007834405 0.4217276 0.03917202</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Gene_5  0.43943594 0.004087093 0.4394359 0.03917202</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Gene_6  0.00000000 0.748318133 0.0000000 0.86450152</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Gene_7  0.00000000 0.805014384 0.0000000 0.86450152</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Gene_8  0.06886313 0.326967744 0.0000000 0.54494624</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Gene_9  0.00000000 0.835162432 0.0000000 0.86450152</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Gene_10 0.00000000 0.864501520 0.0000000 0.86450152</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
