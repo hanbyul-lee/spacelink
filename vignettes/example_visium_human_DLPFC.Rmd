@@ -30,6 +30,7 @@ library(spacelink)
 library(Seurat)
 library(sctransform)
 library(ggplot2)
+library(viridis)
 ```
 
 ## Load example dataset
@@ -206,6 +207,16 @@ print(gene_names)
 ```
 
 ```{r eval=FALSE}
+# Plot oligodendrocyte cell type proportions
+df <- as.data.frame(cbind(spatial_coords, expr = cell_type_proportions[,'oligodendrocyte']))
+colnames(df) <- c('X0', 'X1', 'prop')
+print(ggplot(df, aes(x = X0, y = X1, color = prop)) + 
+        geom_point(size = 1) + 
+        ggtitle("Oligodendrocyte proportions") + theme_void() + scale_y_reverse() + 
+        scale_color_viridis(option="magma",direction=-1,limits=c(0,1)) + 
+        theme(plot.title = element_text(face = "italic", size = 20)))
+
+# Plot gene expressions
 for(gene_name in gene_names){
   df <- as.data.frame(cbind(spatial_coords, expr = counts[gene_name,]))
   colnames(df) <- c('X0', 'X1', 'expr')
@@ -217,6 +228,8 @@ for(gene_name in gene_names){
           theme(plot.title = element_text(face = "italic", size = 20)))
 }
 ```
+
+![](../man/figures/oligodendrocyte.png){#id .class width=50% height=50%}
 
 ![](../man/figures/SCGB2A2.png){#id .class width=50% height=50%}
 
