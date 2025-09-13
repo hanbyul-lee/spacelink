@@ -137,7 +137,7 @@ for(gene_name in gene_names){
     geom_point(size = 1) + 
     ggtitle(title) + theme_void() + scale_y_reverse() + 
     scale_color_gradient(low = "grey97", high = "red", trans = "log1p", name = "counts") + 
-    theme(plot.title = element_text(face = "italic", size = 20)))
+    theme(plot.title = element_text(face = "italic", size = 16)))
 }
 ```
 
@@ -230,18 +230,19 @@ print(ggplot(df, aes(x = X0, y = X1, color = prop)) +
         geom_point(size = 1) + 
         ggtitle("Oligodendrocyte proportions") + theme_void() + scale_y_reverse() + 
         scale_color_viridis(option="magma",direction=-1,limits=c(0,1)) + 
-        theme(plot.title = element_text(face = "italic", size = 20)))
+        theme(plot.title = element_text(face = "italic", size = 16)))
 
 # Plot gene expressions
 for(gene_name in gene_names){
   df <- as.data.frame(cbind(spatial_coords, expr = counts[gene_name,]))
   colnames(df) <- c('X0', 'X1', 'expr')
-  title <- paste0(gene_name, ", ESV:", round(global_results[gene_name,'ESV'],3))
+  title <- paste0(gene_name, ", ESV:", round(global_results[gene_name,'ESV'],3), 
+                  ", ct-ESV:", round(cell_type_results[gene_name,'ESV'],3))
   print(ggplot(df, aes(x = X0, y = X1, color = expr)) + 
           geom_point(size = 1) + 
           ggtitle(title) + theme_void() + scale_y_reverse() + 
           scale_color_gradient(low = "grey97", high = "red", trans = "log1p", name = "counts") + 
-          theme(plot.title = element_text(face = "italic", size = 20)))
+          theme(plot.title = element_text(face = "italic", size = 16)))
 }
 ```
 
