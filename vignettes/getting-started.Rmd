@@ -113,6 +113,8 @@ for(i in 1:(n_genes/2)){
 for(i in (n_genes/2+1):n_genes){
   expr_data[i,] <- i*matrix(rnorm(n_spots, 0, 1), nrow=1, ncol=n_spots)
 }
+# Gene_1, Gene_2, ..., Gene_5: true SVGs
+# Gene_6, Gene_7, ..., Gene_10: true non-SVGs
 
 global_results <- spacelink_global(normalized_counts = expr_data, spatial_coords = coords)
 print(global_results[, c("raw_ESV", "pval", "ESV", "padj")])
@@ -170,6 +172,8 @@ for(i in (n_genes/2+1):n_genes){
   expr_data[i,] <- matrix(rnorm(n_spots, 0, 1), 1, n_spots)
   expr_data[i,] <- expr_data[i,] + matrix(rnorm(n_spots, 0, 1), 1, n_spots)%*%Sigma
 }
+# Gene_1, Gene_2, ..., Gene_5: true cell-type-1-specific ct-SVGs
+# Gene_6, Gene_7, ..., Gene_10: true cell-type-2-specific ct-SVGs
 
 # Test cell-type-1 specific SVG
 cell_type_results <- spacelink_cell_type(normalized_counts = expr_data, 

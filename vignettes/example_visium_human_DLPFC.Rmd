@@ -70,7 +70,7 @@ dim(counts)
 # Normalize expression counts using sctransform package
 seurat_obj <- CreateSeuratObject(counts = counts)
 seurat_norm = SCTransform(seurat_obj, vst.flavor = "v2", verbose = FALSE)
-counts <- seurat_norm@assays$SCT$data
+normalized_counts <- seurat_norm@assays$SCT$data
 ```
 
 ## Run global Spacelink
@@ -78,7 +78,7 @@ counts <- seurat_norm@assays$SCT$data
 ```{r eval=FALSE}
 # Here, we investigate eight example genes.
 gene_list = c("CNP","SHISA5","PHB","HOPX","MOBP","EIF5B","SCGB2A2","YWHAE")
-global_results <- spacelink_global(normalized_counts = counts[gene_list,],
+global_results <- spacelink_global(normalized_counts = normalized_counts[gene_list,],
                                    spatial_coords = spatial_coords)
 print(global_results)
 ```
@@ -109,7 +109,8 @@ table(global_results$padj <= 0.05)
 
 ```{r eval=FALSE}
 # Plot of the top SVG (highest ESV) and a non-SVG (lowest ESV)
-gene_names = rownames(global_results)[c(which.max(global_results$ESV),which.min(global_results$ESV))]
+gene_names = rownames(global_results)[c(which.max(global_results$ESV),
+                                        which.min(global_results$ESV))]
 print(gene_names)
 ```
 
@@ -158,18 +159,65 @@ colnames(cell_type_proportions)
 ```{r eval=FALSE}
 # In this example, we examine the oligodendrocyte-specific spatial variability.
 cell_type_results <- 
-  spacelink_cell_type(normalized_counts = counts[1:5,], 
+  spacelink_cell_type(normalized_counts = normalized_counts[gene_list,], 
                       spatial_coords = spatial_coords, 
                       cell_type_proportions = cell_type_proportions, 
                       focal_cell_type = "oligodendrocyte",
                       global_spacelink_results = global_results, 
                       # The above is not required, though providing global results can improve efficiency.
                       calculate_ESV = TRUE)
+print(cell_type_results)
 ```
 
-### Interpret results
+```{r eval=FALSE}
+##            time         pval          ESV
+## CNP      89.171 2.198766e-11 6.739803e-01
+## SHISA5   98.919 6.202876e-01 1.447781e-02
+## PHB     119.905 3.490079e-01 3.660781e-02
+## HOPX     83.524 7.563056e-01 1.991051e-05
+## MOBP    135.633 4.283413e-02 6.835911e-01
+## EIF5B   104.500 4.050604e-01 1.065050e-01
+## SCGB2A2  86.259 1.338166e-08 9.615069e-01
+## YWHAE    84.141 8.624388e-01 1.844341e-05
+```
 
-The result will be a data frame with p-value and ct-ESV for each gene.
+## Investigate cell-type-specific Spacelink result
 
-- `pval` : The combined p-values for statistical significance of cell-type-specific spatial patterns.
-- `ESV` : Cell-type-specific Effective Spatial Variability (ct-ESV).
+```{r eval=FALSE}
+# Number of significant ct-SVGs within oligodendrocyte
+table(cell_type_results$pval <= 0.05)
+```
+
+```{r eval=FALSE}
+## FALSE  TRUE 
+##     5     3 
+```
+
+```{r eval=FALSE}
+# Plot of the top ct-SVG (highest ct-ESV) and a non-ct-SVG (lowest ct-ESV) among significant global SVGs
+global_svg_names = rownames(global_results)[global_results$padj <= 0.05]
+gene_names = global_svg_names[c(which.max(cell_type_results[global_svg_names,'ESV']),
+                                which.min(cell_type_results[global_svg_names,'ESV']))]
+print(gene_names)
+```
+
+```{r eval=FALSE}
+## [1] "SCGB2A2" "HOPX" 
+```
+
+```{r eval=FALSE}
+for(gene_name in gene_names){
+  df <- as.data.frame(cbind(spatial_coords, expr = counts[gene_name,]))
+  colnames(df) <- c('X0', 'X1', 'expr')
+  title <- paste0(gene_name, ", ESV:", round(global_results[gene_name,'ESV'],3))
+  print(ggplot(df, aes(x = X0, y = X1, color = expr)) + 
+          geom_point(size = 1) + 
+          ggtitle(title) + theme_void() + scale_y_reverse() + 
+          scale_color_gradient(low = "grey97", high = "red", trans = "log1p", name = "counts") + 
+          theme(plot.title = element_text(face = "italic", size = 20)))
+}
+```
+
+![](../man/figures/SCGB2A2.png){#id .class width=50% height=50%}
+
+![](../man/figures/HOPX.png){#id .class width=50% height=50%}
