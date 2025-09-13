@@ -123,30 +123,25 @@ proportions.</p>
 <h3 id="run-global-spacelink">Run global Spacelink<a class="anchor" aria-label="anchor" href="#run-global-spacelink"></a>
 </h3>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Here, we investigate five example genes.</span></span>
+<code class="sourceCode R"><span><span class="co"># Here, we investigate eight example genes.</span></span>
 <span><span class="va">gene_list</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CNP"</span>,<span class="st">"SHISA5"</span>,<span class="st">"PHB"</span>,<span class="st">"HOPX"</span>,<span class="st">"MOBP"</span>,<span class="st">"EIF5B"</span>,<span class="st">"SCGB2A2"</span>,<span class="st">"YWHAE"</span><span class="op">)</span></span>
 <span><span class="va">global_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/spacelink_global.html">spacelink_global</a></span><span class="op">(</span>normalized_counts <span class="op">=</span> <span class="va">counts</span><span class="op">[</span><span class="va">gene_list</span>,<span class="op">]</span>,</span>
 <span>                                   spatial_coords <span class="op">=</span> <span class="va">spatial_coords</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">global_results</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co">##            tau.sq  sigma.sq1    sigma.sq2    sigma.sq3    sigma.sq4 sigma.sq5        phi1         phi2         phi3         phi4         phi5</span></span>
-<span><span class="co">## CNP     0.0000000 0.00000000 0.7015934749 0.2179618252 0.000000e+00         0 0.001048406 0.0009286621 0.0008225946 0.0007286417 0.0006454196</span></span>
-<span><span class="co">## SHISA5  0.1500294 0.00000000 0.0004149912 0.0006837337 0.000000e+00         0 0.001703009 0.0013362057 0.0010484062 0.0008225946 0.0006454196</span></span>
-<span><span class="co">## PHB     0.1369763 0.00508862 0.0000000000 0.0000000000 0.000000e+00         0 0.007299270 0.0064655812 0.0057271124 0.0050729880 0.0044935748</span></span>
-<span><span class="co">## HOPX    0.1844922 0.00000000 0.0720213108 0.0766421489 2.561652e-03         0 0.001048406 0.0009286621 0.0008225946 0.0007286417 0.0006454196</span></span>
-<span><span class="co">## MOBP    0.0000000 0.00000000 0.4831314048 0.1345105327 0.000000e+00         0 0.001048406 0.0009286621 0.0008225946 0.0007286417 0.0006454196</span></span>
-<span><span class="co">## EIF5B   0.1113762 0.00000000 0.0000000000 0.0016466986 0.000000e+00         0 0.002766333 0.0021705050 0.0017030094 0.0013362057 0.0010484062</span></span>
-<span><span class="co">## SCGB2A2 0.0000000 0.13916786 0.7402986887 0.1394122051 0.000000e+00         0 0.001048406 0.0009286621 0.0008225946 0.0007286417 0.0006454196</span></span>
-<span><span class="co">## YWHAE   0.2485001 0.00000000 0.0011635764 0.0012691117 9.102338e-05         0 0.004493575 0.0039803394 0.0035257234 0.0031230316 0.0027663334</span></span>
-<span><span class="co">##             raw_ESV  time       pval1       pval2         pval3         pval4         pval5        pval        padj         ESV</span></span>
-<span><span class="co">## CNP     0.994768081 4.999 0.000000000 0.000000000  0.000000e+00  0.000000e+00  0.000000e+00 0.000000000 0.000000000 0.994768081</span></span>
-<span><span class="co">## SHISA5  0.007209596 4.631 0.018972197 0.014445518  1.518510e-02  2.165076e-02  3.749959e-02 0.019186192 0.025581589 0.007209596</span></span>
-<span><span class="co">## PHB     0.026105641 4.189 0.118799139 0.110644681  1.091531e-01  1.136193e-01  1.235950e-01 0.114928890 0.131347303 0.000000000</span></span>
-<span><span class="co">## HOPX    0.448242916 4.147 0.000000000 0.000000000 2.611455e-312 5.377138e-281 2.750916e-250 0.000000000 0.000000000 0.448242916</span></span>
-<span><span class="co">## MOBP    0.994747311 4.422 0.000000000 0.000000000  0.000000e+00  0.000000e+00  0.000000e+00 0.000000000 0.000000000 0.994747311</span></span>
-<span><span class="co">## EIF5B   0.014321150 4.074 0.003477314 0.001992989  1.645165e-03  2.147440e-03  4.220251e-03 0.002381182 0.003809891 0.014321150</span></span>
-<span><span class="co">## SCGB2A2 0.994473609 4.939 0.000000000 0.000000000  0.000000e+00  0.000000e+00  0.000000e+00 0.000000000 0.000000000 0.994473609</span></span>
-<span><span class="co">## YWHAE   0.009273184 4.009 0.183838106 0.173973851  1.681146e-01  1.660988e-01  1.675962e-01 0.171708675 0.171708675 0.000000000</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="co">##            tau.sq  sigma.sq1    sigma.sq2    sigma.sq3    sigma.sq4 sigma.sq5        phi1         phi2         phi3         phi4         phi5     raw_ESV  time       pval1       pval2         pval3         pval4         pval5        pval        padj         ESV</span></span>
+<span><span class="co">## CNP     0.0000000 0.00000000 0.7015934749 0.2179618252 0.000000e+00         0 0.001048406 0.0009286621 0.0008225946 0.0007286417 0.0006454196 0.994768081 4.999 0.000000000 0.000000000  0.000000e+00  0.000000e+00  0.000000e+00 0.000000000 0.000000000 0.994768081</span></span>
+<span><span class="co">## SHISA5  0.1500294 0.00000000 0.0004149912 0.0006837337 0.000000e+00         0 0.001703009 0.0013362057 0.0010484062 0.0008225946 0.0006454196 0.007209596 4.631 0.018972197 0.014445518  1.518510e-02  2.165076e-02  3.749959e-02 0.019186192 0.025581589 0.007209596</span></span>
+<span><span class="co">## PHB     0.1369763 0.00508862 0.0000000000 0.0000000000 0.000000e+00         0 0.007299270 0.0064655812 0.0057271124 0.0050729880 0.0044935748 0.026105641 4.189 0.118799139 0.110644681  1.091531e-01  1.136193e-01  1.235950e-01 0.114928890 0.131347303 0.000000000</span></span>
+<span><span class="co">## HOPX    0.1844922 0.00000000 0.0720213108 0.0766421489 2.561652e-03         0 0.001048406 0.0009286621 0.0008225946 0.0007286417 0.0006454196 0.448242916 4.147 0.000000000 0.000000000 2.611455e-312 5.377138e-281 2.750916e-250 0.000000000 0.000000000 0.448242916</span></span>
+<span><span class="co">## MOBP    0.0000000 0.00000000 0.4831314048 0.1345105327 0.000000e+00         0 0.001048406 0.0009286621 0.0008225946 0.0007286417 0.0006454196 0.994747311 4.422 0.000000000 0.000000000  0.000000e+00  0.000000e+00  0.000000e+00 0.000000000 0.000000000 0.994747311</span></span>
+<span><span class="co">## EIF5B   0.1113762 0.00000000 0.0000000000 0.0016466986 0.000000e+00         0 0.002766333 0.0021705050 0.0017030094 0.0013362057 0.0010484062 0.014321150 4.074 0.003477314 0.001992989  1.645165e-03  2.147440e-03  4.220251e-03 0.002381182 0.003809891 0.014321150</span></span>
+<span><span class="co">## SCGB2A2 0.0000000 0.13916786 0.7402986887 0.1394122051 0.000000e+00         0 0.001048406 0.0009286621 0.0008225946 0.0007286417 0.0006454196 0.994473609 4.939 0.000000000 0.000000000  0.000000e+00  0.000000e+00  0.000000e+00 0.000000000 0.000000000 0.994473609</span></span>
+<span><span class="co">## YWHAE   0.2485001 0.00000000 0.0011635764 0.0012691117 9.102338e-05         0 0.004493575 0.0039803394 0.0035257234 0.0031230316 0.0027663334 0.009273184 4.009 0.183838106 0.173973851  1.681146e-01  1.660988e-01  1.675962e-01 0.171708675 0.171708675 0.000000000</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="investigate-global-spacelink-result">Investigate global Spacelink result<a class="anchor" aria-label="anchor" href="#investigate-global-spacelink-result"></a>
+</h3>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Number of significant SVGs</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">global_results</span><span class="op">$</span><span class="va">padj</span> <span class="op">&lt;=</span> <span class="fl">0.05</span><span class="op">)</span></span></code></pre></div>
@@ -170,8 +165,8 @@ proportions.</p>
 <span>    <span class="fu">scale_color_gradient</span><span class="op">(</span>low <span class="op">=</span> <span class="st">"grey97"</span>, high <span class="op">=</span> <span class="st">"red"</span>, trans <span class="op">=</span> <span class="st">"log1p"</span>, name <span class="op">=</span> <span class="st">"counts"</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>    <span class="fu">theme</span><span class="op">(</span>plot.title <span class="op">=</span> <span class="fu">element_text</span><span class="op">(</span>face <span class="op">=</span> <span class="st">"italic"</span>, size <span class="op">=</span> <span class="fl">20</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p><img src="../reference/figures/CNP.png"></p>
-<p><img src="../reference/figures/PHB.png"></p>
+<p><img src="../reference/figures/CNP.png" id="id" class="class" style="width:50.0%;height:50.0%"></p>
+<p><img src="../reference/figures/PHB.png" id="id" class="class" style="width:50.0%;height:50.0%"></p>
 </div>
 <div class="section level3">
 <h3 id="run-cell-type-specific-spacelink">Run cell-type-specific Spacelink<a class="anchor" aria-label="anchor" href="#run-cell-type-specific-spacelink"></a>
