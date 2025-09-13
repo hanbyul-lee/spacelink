@@ -8,6 +8,7 @@
 #' @param phi_seq Sequence of length-scale parameters.
 #'
 #' @return List containing p-values for each length scale.
+#' @importFrom stats dist pchisq
 #' @keywords internal
 score_test <- function(y, spatial_coords, phi_seq){
   if(is.data.frame(phi_seq)){
