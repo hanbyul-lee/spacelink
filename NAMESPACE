@@ -2,4 +2,6 @@
 
 export(spacelink_cell_type)
 export(spacelink_global)
+importFrom(BiocParallel,MulticoreParam)
+importFrom(BiocParallel,bplapply)
 importFrom(RcppML,nnls)

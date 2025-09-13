@@ -67,7 +67,8 @@
 #'                                          cell_type_proportions = cell_type_props,
 #'                                          focal_cell_type = "Cell_type_1")
 #' print(cell_type_results[, c("pval", "ESV")])
-#'
+#' 
+#' @importFrom BiocParallel bplapply MulticoreParam
 #' @export
 spacelink_cell_type <- function(normalized_counts, spatial_coords, cell_type_proportions, focal_cell_type, covariates = NULL,
                                 global_spacelink_results = NULL, lengthscales = NULL, n_lengthscales = 5, M = 1,

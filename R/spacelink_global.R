@@ -51,6 +51,7 @@
 #' global_results <- spacelink_global(normalized_counts = expr_data, spatial_coords = coords)
 #' print(global_results[, c("raw_ESV", "pval", "ESV", "padj")])
 #'
+#' @importFrom BiocParallel bplapply MulticoreParam
 #' @export
 spacelink_global <- function(normalized_counts, spatial_coords, covariates = NULL, lengthscales = NULL, n_lengthscales = 5, M = 1, n_workers = 1){
   Y <- normalized_counts
