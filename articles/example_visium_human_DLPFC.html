@@ -143,12 +143,24 @@ proportions.</p>
 <div class="section level3">
 <h3 id="investigate-global-spacelink-result">Investigate global Spacelink result<a class="anchor" aria-label="anchor" href="#investigate-global-spacelink-result"></a>
 </h3>
+<p>The primary results are as follows:</p>
+<ul>
+<li>
+<code>pval</code> : Combined p-value for spatial significance</li>
+<li>
+<code>padj</code> : Benjamini-Hochberg adjusted p-values</li>
+<li>
+<code>ESV</code> : Effective Spatial Variability score (0-1)</li>
+</ul>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Number of significant SVGs</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">global_results</span><span class="op">$</span><span class="va">padj</span> <span class="op">&lt;=</span> <span class="fl">0.05</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## FALSE  TRUE </span></span>
 <span><span class="co">##     2     6</span></span></code></pre></div>
+<p>Top-ranked SVGs can be identified using the ESV score. Shown here is
+an example plotting the SVG with the highest ESV and a non-SVG with the
+lowest ESV score.</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Plot of the top SVG (highest ESV) and a non-SVG (lowest ESV)</span></span>
 <span><span class="va">gene_names</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">global_results</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/which.min.html" class="external-link">which.max</a></span><span class="op">(</span><span class="va">global_results</span><span class="op">$</span><span class="va">ESV</span><span class="op">)</span>,</span>
@@ -209,12 +221,23 @@ proportions.</p>
 <div class="section level3">
 <h3 id="investigate-cell-type-specific-spacelink-result">Investigate cell-type-specific Spacelink result<a class="anchor" aria-label="anchor" href="#investigate-cell-type-specific-spacelink-result"></a>
 </h3>
+<p>The key results are as follows:</p>
+<ul>
+<li>
+<code>pval</code> : Combined p-value for spatial significance</li>
+<li>
+<code>ESV</code> : Cell-type-specific Effective Spatial Variability
+(ct-ESV) score (0-1)</li>
+</ul>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Number of significant ct-SVGs within oligodendrocyte</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">cell_type_results</span><span class="op">$</span><span class="va">pval</span> <span class="op">&lt;=</span> <span class="fl">0.05</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## FALSE  TRUE </span></span>
 <span><span class="co">##     5     3 </span></span></code></pre></div>
+<p>The following illustrates the ct-SVG with the highest ct-ESV and a
+non-ct-SVG with the lowest ct-ESV among significant global SVGs
+identified by the global Spacelink analysis.</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Plot of the top ct-SVG (highest ct-ESV) and a non-ct-SVG (lowest ct-ESV) among significant global SVGs</span></span>
 <span><span class="va">global_svg_names</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">global_results</span><span class="op">)</span><span class="op">[</span><span class="va">global_results</span><span class="op">$</span><span class="va">padj</span> <span class="op">&lt;=</span> <span class="fl">0.05</span><span class="op">]</span></span>
