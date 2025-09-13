@@ -85,7 +85,8 @@ proportions.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://hanbyul-lee.github.io/spacelink/">spacelink</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://satijalab.org/seurat" class="external-link">Seurat</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/satijalab/sctransform" class="external-link">sctransform</a></span><span class="op">)</span></span></code></pre></div>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/satijalab/sctransform" class="external-link">sctransform</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="load-example-dataset">Load example dataset<a class="anchor" aria-label="anchor" href="#load-example-dataset"></a>
@@ -122,61 +123,82 @@ proportions.</p>
 <h3 id="run-global-spacelink">Run global Spacelink<a class="anchor" aria-label="anchor" href="#run-global-spacelink"></a>
 </h3>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># In this example, we use only the first five genes.</span></span>
-<span><span class="va">global_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/spacelink_global.html">spacelink_global</a></span><span class="op">(</span>normalized_counts <span class="op">=</span> <span class="va">counts</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>,<span class="op">]</span>,</span>
-<span>                                   spatial_coords <span class="op">=</span> <span class="va">spatial_coords</span><span class="op">)</span></span></code></pre></div>
-<div class="section level4">
-<h4 id="interpret-results">Interpret results<a class="anchor" aria-label="anchor" href="#interpret-results"></a>
-</h4>
-<p>The result will be a data frame with p-value, ESV, and other relevant
-values for each gene.</p>
-<p>The most important columns are</p>
-<ul>
-<li>
-<code>pval</code> : The combined p-values for statistical
-significance of spatial patterns.</li>
-<li>
-<code>padj</code> : Benjamini-Hochberg adjusted p-values.</li>
-<li>
-<code>ESV</code> : Effective Spatial Variability. Spatial pattern is
-stronger as ESV is closer to 1.</li>
-<li>
-<code>tau.sq</code> : Non-spatial (nugget) variance.</li>
-<li>
-<code>sigma.sq1</code>, <code>sigma.sq2</code>, … : Spatial variance
-at different length scales.</li>
-<li>
-<code>phi1</code>, <code>phi2</code>, … : Inverse of gene-specific
-length scales.</li>
-</ul>
-</div>
+<code class="sourceCode R"><span><span class="co"># Here, we investigate five example genes.</span></span>
+<span><span class="va">gene_list</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CNP"</span>,<span class="st">"SHISA5"</span>,<span class="st">"PHB"</span>,<span class="st">"HOPX"</span>,<span class="st">"MOBP"</span>,<span class="st">"EIF5B"</span>,<span class="st">"SCGB2A2"</span>,<span class="st">"YWHAE"</span><span class="op">)</span></span>
+<span><span class="va">global_results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/spacelink_global.html">spacelink_global</a></span><span class="op">(</span>normalized_counts <span class="op">=</span> <span class="va">counts</span><span class="op">[</span><span class="va">gene_list</span>,<span class="op">]</span>,</span>
+<span>                                   spatial_coords <span class="op">=</span> <span class="va">spatial_coords</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">global_results</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">##            tau.sq  sigma.sq1    sigma.sq2    sigma.sq3    sigma.sq4 sigma.sq5        phi1         phi2         phi3         phi4         phi5</span></span>
+<span><span class="co">## CNP     0.0000000 0.00000000 0.7015934749 0.2179618252 0.000000e+00         0 0.001048406 0.0009286621 0.0008225946 0.0007286417 0.0006454196</span></span>
+<span><span class="co">## SHISA5  0.1500294 0.00000000 0.0004149912 0.0006837337 0.000000e+00         0 0.001703009 0.0013362057 0.0010484062 0.0008225946 0.0006454196</span></span>
+<span><span class="co">## PHB     0.1369763 0.00508862 0.0000000000 0.0000000000 0.000000e+00         0 0.007299270 0.0064655812 0.0057271124 0.0050729880 0.0044935748</span></span>
+<span><span class="co">## HOPX    0.1844922 0.00000000 0.0720213108 0.0766421489 2.561652e-03         0 0.001048406 0.0009286621 0.0008225946 0.0007286417 0.0006454196</span></span>
+<span><span class="co">## MOBP    0.0000000 0.00000000 0.4831314048 0.1345105327 0.000000e+00         0 0.001048406 0.0009286621 0.0008225946 0.0007286417 0.0006454196</span></span>
+<span><span class="co">## EIF5B   0.1113762 0.00000000 0.0000000000 0.0016466986 0.000000e+00         0 0.002766333 0.0021705050 0.0017030094 0.0013362057 0.0010484062</span></span>
+<span><span class="co">## SCGB2A2 0.0000000 0.13916786 0.7402986887 0.1394122051 0.000000e+00         0 0.001048406 0.0009286621 0.0008225946 0.0007286417 0.0006454196</span></span>
+<span><span class="co">## YWHAE   0.2485001 0.00000000 0.0011635764 0.0012691117 9.102338e-05         0 0.004493575 0.0039803394 0.0035257234 0.0031230316 0.0027663334</span></span>
+<span><span class="co">##             raw_ESV  time       pval1       pval2         pval3         pval4         pval5        pval        padj         ESV</span></span>
+<span><span class="co">## CNP     0.994768081 4.999 0.000000000 0.000000000  0.000000e+00  0.000000e+00  0.000000e+00 0.000000000 0.000000000 0.994768081</span></span>
+<span><span class="co">## SHISA5  0.007209596 4.631 0.018972197 0.014445518  1.518510e-02  2.165076e-02  3.749959e-02 0.019186192 0.025581589 0.007209596</span></span>
+<span><span class="co">## PHB     0.026105641 4.189 0.118799139 0.110644681  1.091531e-01  1.136193e-01  1.235950e-01 0.114928890 0.131347303 0.000000000</span></span>
+<span><span class="co">## HOPX    0.448242916 4.147 0.000000000 0.000000000 2.611455e-312 5.377138e-281 2.750916e-250 0.000000000 0.000000000 0.448242916</span></span>
+<span><span class="co">## MOBP    0.994747311 4.422 0.000000000 0.000000000  0.000000e+00  0.000000e+00  0.000000e+00 0.000000000 0.000000000 0.994747311</span></span>
+<span><span class="co">## EIF5B   0.014321150 4.074 0.003477314 0.001992989  1.645165e-03  2.147440e-03  4.220251e-03 0.002381182 0.003809891 0.014321150</span></span>
+<span><span class="co">## SCGB2A2 0.994473609 4.939 0.000000000 0.000000000  0.000000e+00  0.000000e+00  0.000000e+00 0.000000000 0.000000000 0.994473609</span></span>
+<span><span class="co">## YWHAE   0.009273184 4.009 0.183838106 0.173973851  1.681146e-01  1.660988e-01  1.675962e-01 0.171708675 0.171708675 0.000000000</span></span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Number of significant SVGs</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">global_results</span><span class="op">$</span><span class="va">padj</span> <span class="op">&lt;=</span> <span class="fl">0.05</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">## FALSE  TRUE </span></span>
+<span><span class="co">##     2     6</span></span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Plot of the top SVG (highest ESV) and a non-SVG (lowest ESV)</span></span>
+<span><span class="va">gene_names</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">global_results</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/which.min.html" class="external-link">which.max</a></span><span class="op">(</span><span class="va">global_results</span><span class="op">$</span><span class="va">ESV</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/which.min.html" class="external-link">which.min</a></span><span class="op">(</span><span class="va">global_results</span><span class="op">$</span><span class="va">ESV</span><span class="op">)</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">gene_names</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">## [1] "CNP"    "PHB"</span></span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw">for</span><span class="op">(</span><span class="va">gene_name</span> <span class="kw">in</span> <span class="va">gene_names</span><span class="op">)</span><span class="op">{</span></span>
+<span>  <span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">spatial_coords</span>, expr <span class="op">=</span> <span class="va">counts</span><span class="op">[</span><span class="va">gene_name</span>,<span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'X0'</span>, <span class="st">'X1'</span>, <span class="st">'expr'</span><span class="op">)</span></span>
+<span>  <span class="va">title</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">gene_name</span>, <span class="st">", ESV:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">global_results</span><span class="op">[</span><span class="va">gene_name</span>,<span class="st">'ESV'</span><span class="op">]</span>,<span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu">ggplot</span><span class="op">(</span><span class="va">df</span>, <span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">X0</span>, y <span class="op">=</span> <span class="va">X1</span>, color <span class="op">=</span> <span class="va">expr</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>    <span class="fu">geom_point</span><span class="op">(</span>size <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>    <span class="fu">ggtitle</span><span class="op">(</span><span class="va">title</span><span class="op">)</span> <span class="op">+</span> <span class="fu">theme_void</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> <span class="fu">scale_y_reverse</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>    <span class="fu">scale_color_gradient</span><span class="op">(</span>low <span class="op">=</span> <span class="st">"grey97"</span>, high <span class="op">=</span> <span class="st">"red"</span>, trans <span class="op">=</span> <span class="st">"log1p"</span>, name <span class="op">=</span> <span class="st">"counts"</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>    <span class="fu">theme</span><span class="op">(</span>plot.title <span class="op">=</span> <span class="fu">element_text</span><span class="op">(</span>face <span class="op">=</span> <span class="st">"italic"</span>, size <span class="op">=</span> <span class="fl">20</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+<p><img src="../reference/figures/CNP.png"></p>
+<p><img src="../reference/figures/PHB.png"></p>
 </div>
 <div class="section level3">
 <h3 id="run-cell-type-specific-spacelink">Run cell-type-specific Spacelink<a class="anchor" aria-label="anchor" href="#run-cell-type-specific-spacelink"></a>
 </h3>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Load cell type proportions</span></span>
 <span><span class="va">cell_type_proportions</span> <span class="op">&lt;-</span> <span class="va">Visium_human_DLPFC</span><span class="op">$</span><span class="va">cell_type_proportions</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">cell_type_proportions</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## [1] 3639  9</span></span></code></pre></div>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">cell_type_proportions</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">## [1] "endothelial"  "L2_3"  "L4"  "L6"  "oligodendrocyte"  </span></span>
 <span><span class="co">## [6] "OPC"  "astro"  "Inh"  "microglia"</span></span></code></pre></div>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># In this example, we examine the oligodendrocyte-specific spatial variability.</span></span>
-<span><span class="va">cell_type_spacelink_results</span> <span class="op">&lt;-</span> </span>
+<span><span class="va">cell_type_results</span> <span class="op">&lt;-</span> </span>
 <span>  <span class="fu"><a href="../reference/spacelink_cell_type.html">spacelink_cell_type</a></span><span class="op">(</span>normalized_counts <span class="op">=</span> <span class="va">counts</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>,<span class="op">]</span>, </span>
 <span>                      spatial_coords <span class="op">=</span> <span class="va">spatial_coords</span>, </span>
 <span>                      cell_type_proportions <span class="op">=</span> <span class="va">cell_type_proportions</span>, </span>
 <span>                      focal_cell_type <span class="op">=</span> <span class="st">"oligodendrocyte"</span>,</span>
 <span>                      global_spacelink_results <span class="op">=</span> <span class="va">global_results</span>, </span>
-<span>                      <span class="co"># The above is not required, though providing global results can slightly improve efficiency.</span></span>
+<span>                      <span class="co"># The above is not required, though providing global results can improve efficiency.</span></span>
 <span>                      calculate_ESV <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <div class="section level4">
-<h4 id="interpret-results-1">Interpret results<a class="anchor" aria-label="anchor" href="#interpret-results-1"></a>
+<h4 id="interpret-results">Interpret results<a class="anchor" aria-label="anchor" href="#interpret-results"></a>
 </h4>
 <p>The result will be a data frame with p-value and ct-ESV for each
 gene.</p>
