@@ -1,12 +1,13 @@
 #' Cell Type-Specific Spatial Variability Analysis
 #'
-#' Detects cell type-specific spatially variable genes (ctSVGs) using a
-#' score test with a data-driven colocalization gating strategy to correct
-#' for spatial colocalization bias.
+#' Conducts hypothesis testing to identify cell type–specific spatially variable genes (ctSVGs) 
+#' using a data-driven colocalization gating strategy,
+#' and provides cell type–specific Effective Spatial Variability (ct-ESV) scores (ranging from 0 to 1), 
+#' where higher values indicate greater spatial variability in gene expression within the focal cell type.
 #'
 #' @param normalized_counts Normalized count matrix (genes x spots). Accepts a
 #'   numeric matrix, data.frame, or sparse matrix (\code{sparseMatrix}).
-#' @param spatial_coords Spatial coordinate matrix (spots x 2, x and y columns).
+#' @param spatial_coords Two-dimensional spatial coordinate matrix (spots x 2).
 #'   Accepts a numeric matrix or data.frame.
 #' @param cell_type_proportions Cell type proportion matrix (spots x cell types,
 #'   e.g., estimated by RCTD). Accepts a numeric matrix or data.frame.
@@ -17,7 +18,8 @@
 #' @param lite Logical. If \code{TRUE}, uses a grid-based approximation.
 #'   Default is \code{FALSE}.
 #' @param grid_size Grid cell size for lite mode. If \code{NULL}, set
-#'   automatically. Default is \code{NULL}.
+#'   automatically to 5 times the minimum nearest-neighbor distance.
+#'   Default is \code{NULL}.
 #' @param kernel Spatial kernel type. One of \code{"Exponential"} (default) or
 #'   \code{"Gaussian"}.
 #' @param n_lengthscales Number of length scales (kernels). Default is 5.
@@ -30,10 +32,10 @@
 #' @return A data frame (genes x results) containing:
 #' \describe{
 #'   \item{time}{Computation time per gene (seconds)}
-#'   \item{pval}{Combined p-value (ACAT) for cell type-specific spatial patterns}
+#'   \item{pval}{Combined p-value (ACAT)}
 #'   \item{padj}{Benjamini-Hochberg adjusted p-value}
 #'   \item{ESV}{Cell type-specific Effective Spatial Variability score}
-#'   \item{ESV_adj}{ESV adjusted for multiple testing (0 if padj > 0.05)}
+#'   \item{ESV_adj}{Cell type-specific ESV adjusted for non-ctSVGs (0 if padj > 0.05)}
 #' }
 #' If all spots are pure (no mixing), falls back to \code{\link{spacelink}}
 #' output (same columns) for the focal cell type spots.

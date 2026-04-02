@@ -1,11 +1,11 @@
 #' Global Spatial Variability Analysis
 #'
-#' Detects spatially variable genes (SVGs) across multiple length scales
-#' using an adaptive multi-kernel moment matching approach.
+#' Conducts hypothesis testing to identify spatially variable genes (SVGs) using an adaptive multi-kernel approach,
+#' and provides Effective Spatial Variability (ESV) scores (ranging from 0 to 1), where higher values indicate greater spatial variability in gene expression.
 #'
 #' @param normalized_counts Normalized count matrix (genes x spots). Accepts a
 #'   numeric matrix, data.frame, or sparse matrix (\code{sparseMatrix}).
-#' @param spatial_coords Spatial coordinate matrix (spots x 2, x and y columns).
+#' @param spatial_coords Two-dimensional spatial coordinate matrix (spots x 2).
 #'   Accepts a numeric matrix or data.frame.
 #' @param covariates Optional covariate matrix (spots x covariates, without
 #'   intercept). Accepts a numeric vector, matrix, or data.frame. Default is
@@ -25,11 +25,11 @@
 #'   \item{tau.sq}{Nugget variance component}
 #'   \item{sigma.sq1, sigma.sq2, ...}{Spatial variance components for each kernel}
 #'   \item{phi1, phi2, ...}{Inverse length scales for each kernel}
-#'   \item{ESV}{Effective Spatial Variability score (0 if padj > 0.05)}
+#'   \item{ESV}{Effective Spatial Variability score}
 #'   \item{pval1, pval2, ...}{Score test p-values for each kernel}
 #'   \item{pval}{Combined p-value (ACAT)}
 #'   \item{padj}{Benjamini-Hochberg adjusted p-value}
-#'   \item{ESV_adj}{ESV adjusted for multiple testing (0 if padj > 0.05)}
+#'   \item{ESV_adj}{ESV adjusted for non-SVGs (0 if padj > 0.05)}
 #'   \item{time}{Computation time per gene (seconds)}
 #' }
 #'
