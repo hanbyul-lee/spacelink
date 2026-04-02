@@ -16,6 +16,9 @@ NULL
     if (!all(vapply(normalized_counts, is.numeric, logical(1))))
       stop("'normalized_counts' contains non-numeric columns.", call. = FALSE)
     normalized_counts <- as.matrix(normalized_counts)
+  } else if (is.vector(normalized_counts) && is.numeric(normalized_counts)) {
+    warning("'normalized_counts' is converted into matrix with single row.")
+    normalized_counts <- matrix(normalized_counts, nrow=1)
   } else if (!is.matrix(normalized_counts) || !is.numeric(normalized_counts)) {
     stop("'normalized_counts' must be a numeric matrix, data.frame, or sparse matrix.", call. = FALSE)
   }
@@ -290,6 +293,9 @@ NULL
     if (!all(vapply(normalized_counts, is.numeric, logical(1))))
       stop("'normalized_counts' contains non-numeric columns.", call. = FALSE)
     normalized_counts <- as.matrix(normalized_counts)
+  } else if (is.vector(normalized_counts) && is.numeric(normalized_counts)) {
+    warning("'normalized_counts' is converted into matrix with single row.")
+    normalized_counts <- matrix(normalized_counts, nrow=1)
   } else if (!is.matrix(normalized_counts) || !is.numeric(normalized_counts)) {
     stop("'normalized_counts' must be a numeric matrix, data.frame, or sparse matrix.", call. = FALSE)
   }
