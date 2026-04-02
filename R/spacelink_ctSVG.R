@@ -105,6 +105,7 @@ spacelink_ctSVG <- function(normalized_counts,
   zero_spot_inds <- (apply(cell_type_proportions, 1, sum) == 0)
   if (sum(zero_spot_inds) > 0) {
     normalized_counts <- normalized_counts[, !zero_spot_inds]
+    if (is.vector(normalized_counts)) normalized_counts <- matrix(normalized_counts,nrow=1)
   }
   spatial_coords        <- spatial_coords[!zero_spot_inds, ]
   cell_type_proportions <- cell_type_proportions[!zero_spot_inds, ]
@@ -115,6 +116,7 @@ spacelink_ctSVG <- function(normalized_counts,
     ct_idx      <- which(colnames(cell_type_proportions) == focal_cell_type)
     focal_spots <- (cell_type_proportions[, ct_idx] >= 1 - (1e-7))
     normalized_counts <- normalized_counts[, focal_spots]
+    if (is.vector(normalized_counts)) normalized_counts <- matrix(normalized_counts,nrow=1)
     spatial_coords    <- spatial_coords[focal_spots, ]
     if (!is.null(covariates)) covariates <- covariates[focal_spots, ]
     results <- spacelink(normalized_counts, spatial_coords, covariates,
