@@ -37,8 +37,8 @@ reference:
 - title: "Main Analysis Functions"
   desc: "Core functions for spatial gene variability analysis"
   contents:
-  - spacelink_global
-  - spacelink_cell_type
+  - spacelink
+  - spacelink_ctSVG
 
 - title: "Example data"
   desc: "Visium human DLPFC data as example data"
