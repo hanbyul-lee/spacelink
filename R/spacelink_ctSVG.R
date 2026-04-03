@@ -142,40 +142,80 @@ spacelink_ctSVG <- function(normalized_counts,
   }
 
   out <- bplapply(1:nrow(normalized_counts), function(gene_idx) {
-    runtime <- system.time({
-      y <- as.numeric(normalized_counts[gene_idx, ])
-
-      phi_seq <- .select_lengthscales(
-        residual_fn(as.numeric(normalized_counts[gene_idx, ])),
-        dist_ctx, n_lengthscales, kernel_fun
-      )
-      colnames(phi_seq) <- paste0("phi", 1:n_lengthscales)
-
-      phi_list <- NULL
-      for (i in 1:ncol(cell_type_proportions)) {
-        phi_list[[i]] <- if (i == ct_idx) phi_seq else median(phi_seq)
-      }
-
-      # Null model REML estimation
-      D          <- as.matrix(dist(spatial_coords))
-      Sigma.list <- NULL
-      rest_ct_idx <- (1:ncol(cell_type_proportions))[-ct_idx]
-      temp_idx   <- 1
-      for (i in rest_ct_idx) {
-        if (i %in% coloc) {
-          Pi.sq <- cell_type_proportions[, i] %*% t(cell_type_proportions[, i])
-          for (phi in phi_list[[i]]) {
-            Sigma.list[[temp_idx]] <- kernel_fun(phi, D) * Pi.sq
-            temp_idx <- temp_idx + 1
+    if (sum(normalized_counts[gene_idx, ])==0) {
+      list(time = 0, pval_vec = data.frame("pval1"=1,"pval2"=1,"pval3"=1,"pval4"=1,"pval5"=1), ESV = 0)
+    } else {
+      runtime <- system.time({
+        y <- as.numeric(normalized_counts[gene_idx, ])
+  
+        phi_seq <- .select_lengthscales(
+          residual_fn(as.numeric(normalized_counts[gene_idx, ])),
+          dist_ctx, n_lengthscales, kernel_fun
+        )
+        colnames(phi_seq) <- paste0("phi", 1:n_lengthscales)
+  
+        phi_list <- NULL
+        for (i in 1:ncol(cell_type_proportions)) {
+          phi_list[[i]] <- if (i == ct_idx) phi_seq else median(phi_seq)
+        }
+  
+        # Null model REML estimation
+        D          <- as.matrix(dist(spatial_coords))
+        Sigma.list <- NULL
+        rest_ct_idx <- (1:ncol(cell_type_proportions))[-ct_idx]
+        temp_idx   <- 1
+        for (i in rest_ct_idx) {
+          if (i %in% coloc) {
+            Pi.sq <- cell_type_proportions[, i] %*% t(cell_type_proportions[, i])
+            for (phi in phi_list[[i]]) {
+              Sigma.list[[temp_idx]] <- kernel_fun(phi, D) * Pi.sq
+              temp_idx <- temp_idx + 1
+            }
           }
         }
-      }
-      if (is.null(Sigma.list)) {
-        local_cov <- if (is.null(covariates)) cell_type_proportions else
-          cbind(covariates, cell_type_proportions)
-        mu_hat   <- local_cov %*% solve(t(local_cov) %*% local_cov, t(local_cov) %*% y)
-        null_res <- mean((y - mu_hat)^2)
-      } else {
+        if (is.null(Sigma.list)) {
+          local_cov <- if (is.null(covariates)) cell_type_proportions else
+            cbind(covariates, cell_type_proportions)
+          mu_hat   <- local_cov %*% solve(t(local_cov) %*% local_cov, t(local_cov) %*% y)
+          null_res <- mean((y - mu_hat)^2)
+        } else {
+          reml_model <- lmm.aireml(
+            Y       = y,
+            X       = cbind(rep(1, nrow(cell_type_proportions)), covariates, cell_type_proportions),
+            K       = Sigma.list,
+            min_s2  = 0,
+            verbose = FALSE
+          )
+          mu_hat   <- cbind(rep(1, nrow(cell_type_proportions)), covariates, cell_type_proportions) %*%
+            reml_model$BLUP_beta
+          null_res <- c(reml_model$sigma2, reml_model$tau)
+        }
+        rm(Sigma.list)
+  
+        test_res <- .score_test_ctSVG(ct_idx, null_res, y - mu_hat, D,
+                                      kernel_fun, cell_type_proportions, coloc, phi_list)
+  
+        N          <- nrow(spatial_coords)
+        weight_vec <- sapply(phi_list[[ct_idx]],
+                             function(x) sqrt(max(0, 1 - (N / sum(exp(-2 * x * D))))))
+  
+        # Full model REML estimation
+        Sigma.list <- NULL
+        temp_idx   <- 1
+        Pi.sq      <- cell_type_proportions[, ct_idx] %*% t(cell_type_proportions[, ct_idx])
+        for (phi in phi_list[[ct_idx]]) {
+          Sigma.list[[temp_idx]] <- kernel_fun(phi, D) * Pi.sq
+          temp_idx <- temp_idx + 1
+        }
+        for (i in rest_ct_idx) {
+          if (i %in% coloc) {
+            Pi.sq <- cell_type_proportions[, i] %*% t(cell_type_proportions[, i])
+            for (phi in phi_list[[i]]) {
+              Sigma.list[[temp_idx]] <- kernel_fun(phi, D) * Pi.sq
+              temp_idx <- temp_idx + 1
+            }
+          }
+        }
         reml_model <- lmm.aireml(
           Y       = y,
           X       = cbind(rep(1, nrow(cell_type_proportions)), covariates, cell_type_proportions),
@@ -183,49 +223,13 @@ spacelink_ctSVG <- function(normalized_counts,
           min_s2  = 0,
           verbose = FALSE
         )
-        mu_hat   <- cbind(rep(1, nrow(cell_type_proportions)), covariates, cell_type_proportions) %*%
-          reml_model$BLUP_beta
-        null_res <- c(reml_model$sigma2, reml_model$tau)
-      }
-      rm(Sigma.list)
-
-      test_res <- .score_test_ctSVG(ct_idx, null_res, y - mu_hat, D,
-                                    kernel_fun, cell_type_proportions, coloc, phi_list)
-
-      N          <- nrow(spatial_coords)
-      weight_vec <- sapply(phi_list[[ct_idx]],
-                           function(x) sqrt(max(0, 1 - (N / sum(exp(-2 * x * D))))))
-
-      # Full model REML estimation
-      Sigma.list <- NULL
-      temp_idx   <- 1
-      Pi.sq      <- cell_type_proportions[, ct_idx] %*% t(cell_type_proportions[, ct_idx])
-      for (phi in phi_list[[ct_idx]]) {
-        Sigma.list[[temp_idx]] <- kernel_fun(phi, D) * Pi.sq
-        temp_idx <- temp_idx + 1
-      }
-      for (i in rest_ct_idx) {
-        if (i %in% coloc) {
-          Pi.sq <- cell_type_proportions[, i] %*% t(cell_type_proportions[, i])
-          for (phi in phi_list[[i]]) {
-            Sigma.list[[temp_idx]] <- kernel_fun(phi, D) * Pi.sq
-            temp_idx <- temp_idx + 1
-          }
-        }
-      }
-      reml_model <- lmm.aireml(
-        Y       = y,
-        X       = cbind(rep(1, nrow(cell_type_proportions)), covariates, cell_type_proportions),
-        K       = Sigma.list,
-        min_s2  = 0,
-        verbose = FALSE
-      )
-
-      numerator   <- sum(reml_model$tau[1:length(phi_list[[ct_idx]])] * weight_vec)
-      denominator <- sum(reml_model$tau[1:length(phi_list[[ct_idx]])]) + reml_model$sigma2
-      ESV         <- if (denominator < 1e-5) 0 else numerator / denominator
-    })
-    list(time = runtime[["elapsed"]], pval_vec = test_res$pval_vec, ESV = ESV)
+  
+        numerator   <- sum(reml_model$tau[1:length(phi_list[[ct_idx]])] * weight_vec)
+        denominator <- sum(reml_model$tau[1:length(phi_list[[ct_idx]])]) + reml_model$sigma2
+        ESV         <- if (denominator < 1e-5) 0 else numerator / denominator
+      })
+      list(time = runtime[["elapsed"]], pval_vec = test_res$pval_vec, ESV = ESV)
+    }
   }, BPPARAM = MulticoreParam(workers = n_workers))
 
   results  <- data.frame(time = do.call("rbind", lapply(out, function(x) x$time)))

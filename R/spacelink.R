@@ -84,32 +84,38 @@ spacelink <- function(normalized_counts,
   dist_ctx    <- .build_dist_context(spatial_coords, lite, grid_size)
 
   out <- bplapply(1:nrow(normalized_counts), function(gene_idx) {
-    runtime <- system.time({
-      y        <- residual_fn(as.numeric(normalized_counts[gene_idx, ]))
-      sum.y.sq <- sum(y^2)
-
-      phi_seq <- .select_lengthscales(y, dist_ctx, n_lengthscales, kernel_fun)
-      colnames(phi_seq) <- paste0("phi", 1:n_lengthscales)
-
-      mom <- .compute_AtA_Atx(y, phi_seq, kernel_fun, dist_ctx)
-      AtA <- mom$AtA
-      Atx <- mom$Atx
-
-      theta   <- nnls(AtA, as.matrix(Atx))
-      mme_res <- data.frame(t(theta))
-      colnames(mme_res) <- c("tau.sq", paste0("sigma.sq", 1:n_lengthscales))
-      mme_res <- cbind(mme_res, phi_seq)
-
-      sigma.sq_vec <- unlist(mme_res[, grep("sigma", colnames(mme_res))])
-      tau.sq       <- unlist(mme_res[, grep("tau",   colnames(mme_res))])
-      weight_vec   <- sqrt((diag(AtA)[-1] - N) / diag(AtA)[-1])
-      mme_res$ESV  <- if (sum(sigma.sq_vec) + tau.sq == 0) 0 else
-        sum(sigma.sq_vec * weight_vec) / (sum(sigma.sq_vec) + tau.sq)
-
-      pval_vec <- .score_test(N, sum.y.sq, Atx[-1], diag(AtA)[-1])
-    })
-    mme_res$time <- runtime[["elapsed"]]
-    list(mme_res = mme_res, pval_vec = pval_vec)
+    if (sum(normalized_counts[gene_idx, ])==0) {
+      list(mme_res = data.frame("tau.sq"=NA,"sigma.sq1"=NA,"sigma.sq2"=NA,"sigma.sq3"=NA,"sigma.sq4"=NA,"sigma.sq5"=NA,
+                                "phi1"=NA,"phi2"=NA,"phi3"=NA,"phi4"=NA,"phi5"=NA,"ESV"=0,"time"=0),
+           pval_vec = data.frame("pval1"=1,"pval2"=1,"pval3"=1,"pval4"=1,"pval5"=1))
+    } else {
+      runtime <- system.time({
+        y        <- residual_fn(as.numeric(normalized_counts[gene_idx, ]))
+        sum.y.sq <- sum(y^2)
+  
+        phi_seq <- .select_lengthscales(y, dist_ctx, n_lengthscales, kernel_fun)
+        colnames(phi_seq) <- paste0("phi", 1:n_lengthscales)
+  
+        mom <- .compute_AtA_Atx(y, phi_seq, kernel_fun, dist_ctx)
+        AtA <- mom$AtA
+        Atx <- mom$Atx
+  
+        theta   <- nnls(AtA, as.matrix(Atx))
+        mme_res <- data.frame(t(theta))
+        colnames(mme_res) <- c("tau.sq", paste0("sigma.sq", 1:n_lengthscales))
+        mme_res <- cbind(mme_res, phi_seq)
+  
+        sigma.sq_vec <- unlist(mme_res[, grep("sigma", colnames(mme_res))])
+        tau.sq       <- unlist(mme_res[, grep("tau",   colnames(mme_res))])
+        weight_vec   <- sqrt((diag(AtA)[-1] - N) / diag(AtA)[-1])
+        mme_res$ESV  <- if (sum(sigma.sq_vec) + tau.sq == 0) 0 else
+          sum(sigma.sq_vec * weight_vec) / (sum(sigma.sq_vec) + tau.sq)
+  
+        pval_vec <- .score_test(N, sum.y.sq, Atx[-1], diag(AtA)[-1])
+      })
+      mme_res$time <- runtime[["elapsed"]]
+      list(mme_res = mme_res, pval_vec = pval_vec)
+    }
   }, BPPARAM = MulticoreParam(workers = n_workers))
 
   .aggregate_results(out, n_lengthscales, rownames(normalized_counts))
