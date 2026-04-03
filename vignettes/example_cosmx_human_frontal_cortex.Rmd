@@ -112,8 +112,18 @@ global_results <- spacelink(
   spatial_coords=spatial_coords, 
   lite=TRUE, 
   grid_size=100)
+print(global_results[order(global_results$ESV_adj, decreasing=T),c("time","pval","padj","ESV","ESV_adj")])
 ```
 
+```{r eval=FALSE}
+##           time         pval         padj         ESV     ESV_adj
+## CNP    534.629 0.000000e+00 0.000000e+00 0.543320827 0.543320827
+## HOPX   627.573 0.000000e+00 0.000000e+00 0.126254263 0.126254263
+## KRT19  748.232 1.376570e-44 1.376570e-44 0.010851710 0.010851710
+## PHB2   952.747 0.000000e+00 0.000000e+00 0.010378755 0.010378755
+## SHISA5 662.903 0.000000e+00 0.000000e+00 0.006717931 0.006717931
+## EIF5B  308.566 2.902064e-41 2.902064e-41 0.004919191 0.004919191
+```
 
 ## 5. Visualize Global Spacelink Results
 
@@ -131,17 +141,17 @@ for(gene_name in gene_names){
   df <- as.data.frame(cbind(spatial_coords, expr = counts[gene_name,]))
   colnames(df) <- c('X0', 'X1', 'expr')
   title <- paste0(gene_name, ", ESV:", round(global_results[gene_name,'ESV'],3))
-  print(ggplot(df, aes(x = X0, y = X1, color = expr)) +
-    geom_point(size = 1) +
-    ggtitle(title) + theme_void() + scale_y_reverse() +
-    scale_color_gradient(low = "grey97", high = "red", trans = "log1p", name = "counts") +
-    theme(plot.title = element_text(face = "italic", size = 16)))
+  print(ggplot(df %>% arrange(expr), aes(x = X0, y = X1, color = expr)) + 
+    geom_point(size = 0.3, stroke=0) + 
+    ggtitle(title) + theme_void() + 
+    scale_color_gradient(low = "grey97", high = "red", trans = "log1p", name = "counts") + 
+    theme(plot.title = element_text(face = "italic", size = 20)))
 }
 ```
 
-```{r eval=FALSE}
-## Gene expression plots
-```
+![](../man/figures/CNP_cosmx.png){#id .class width=50% height=50%}
+
+![](../man/figures/SHISA5_cosmx.png){#id .class width=50% height=50%}
 
 
 ## 6. Run Cell-type-specific Spacelink
