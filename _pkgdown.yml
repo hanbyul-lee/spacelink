@@ -28,6 +28,10 @@ navbar:
         href: articles/getting-started.html
       - text: Example Visium Human DLPFC
         href: articles/example_visium_human_DLPFC.html
+      - text: Example CosMx Human Frontal Cortex
+        href: articles/example_cosmx_human_frontal_cortex.html
+      - text: Example Disease Informativeness Evaluation
+        href: articles/example_pops_analysis.html
     github:
       icon: fab fa-github fa-lg
       href: https://github.com/hanbyul-lee/spacelink
@@ -55,6 +59,8 @@ articles:
   desc: "Detailed guides for specific use cases"
   contents:
   - example_visium_human_DLPFC
+  - example_cosmx_human_frontal_cortex
+  - example_pops_analysis
 
 footer:
   structure:
