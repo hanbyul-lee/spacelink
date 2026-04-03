@@ -1,5 +1,5 @@
 ---
-title: "CosMx Human Frontal Cortex"
+title: "CosMx Human Frontal Cortex Analysis"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{CosMx Human Frontal Cortex Analysis}

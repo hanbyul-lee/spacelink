@@ -1,5 +1,5 @@
 ---
-title: "Disease Informativeness Evaluation"
+title: "Disease Informativeness Evaluation of ESVs"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Disease Informativeness Evaluation}

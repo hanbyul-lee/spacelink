@@ -1,5 +1,5 @@
 ---
-title: "Visium Human DLPFC"
+title: "Visium Human DLPFC Analysis"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Visium Human DLPFC Analysis}
