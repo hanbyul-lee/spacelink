@@ -20,7 +20,7 @@ knitr::opts_chunk$set(
 
 Here, we demonstrate how to perform SVG analysis using the **spacelink** package with a Visium human dorsolateral prefrontal cortex (DLPFC) dataset.
 The dataset is available [here](https://research.libd.org/spatialLIBD/), and we use sample 151673. 
-Cell-type proportions were estimated using [RCTD](https://github.com/dmcable/spacexr) with the [CosMx Human Frontal Cortex dataset](https://nanostring.com/products/cosmx-spatial-molecular-imager/ffpe-dataset/human-frontal-cortex-ffpe-dataset/) as a reference. 
+Cell-type proportions were estimated using [RCTD](https://github.com/dmcable/spacexr) with the [CosMx Human Frontal Cortex dataset](https://brukerspatialbiology.com/products/cosmx-spatial-molecular-imager/ffpe-dataset/human-frontal-cortex-ffpe-dataset/) as a reference. 
 The processed example data, provided as [`Visium_human_DLPFC`](https://hanbyul-lee.github.io/spacelink/reference/Visium_human_DLPFC.html), includes gene expression, spot coordinates, and the estimated cell type proportions.
 
 ## 1. Load Packages
