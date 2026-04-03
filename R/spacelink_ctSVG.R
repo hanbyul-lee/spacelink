@@ -41,6 +41,7 @@
 #' output (same columns) for the focal cell type spots.
 #'
 #' @examples
+#' \donttest{
 #' library(spacelink)
 #' set.seed(123)
 #' n_spots    <- 100
@@ -75,8 +76,8 @@
 #'   focal_cell_type       = "Cell_type_1"
 #' )
 #' print(results[, c("pval", "ESV")])
+#' }
 #'
-#' @importFrom BiocParallel bplapply MulticoreParam
 #' @importFrom gaston lmm.aireml
 #' @importFrom stats p.adjust
 #' @export
@@ -140,7 +141,7 @@ spacelink_ctSVG <- function(normalized_counts,
     if (q > c2) coloc <- c(coloc, i)
   }
 
-  out <- bplapply(1:nrow(normalized_counts), function(gene_idx) {
+  out <- .bplapply(1:nrow(normalized_counts), function(gene_idx) {
     if (sum(normalized_counts[gene_idx, ])==0) {
       list(time = 0, pval_vec = data.frame("pval1"=1,"pval2"=1,"pval3"=1,"pval4"=1,"pval5"=1), ESV = 0)
     } else {
@@ -229,7 +230,7 @@ spacelink_ctSVG <- function(normalized_counts,
       })
       list(time = runtime[["elapsed"]], pval_vec = test_res$pval_vec, ESV = ESV)
     }
-  }, BPPARAM = MulticoreParam(workers = n_workers))
+  }, n_workers = n_workers)
 
   results  <- data.frame(time = do.call("rbind", lapply(out, function(x) x$time)))
   pval_mat <- do.call("rbind", lapply(out, function(x) x$pval_vec))

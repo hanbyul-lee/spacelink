@@ -17,23 +17,22 @@ URL: https://hanbyul-lee.github.io/spacelink/, https://github.com/hanbyul-lee/sp
 BugReports: https://github.com/hanbyul-lee/spacelink/issues
 Encoding: UTF-8
 LazyData: true
+LazyDataCompression: xz
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 Depends: 
     R (>= 4.0.0)
 Imports:
     Rcpp (>= 1.0.0),
-    RcppArmadillo (>= 0.9.900.0.0),
     RcppML,
-    BiocParallel,
     gaston,
     pracma,
     RANN,
     fields,
+    grDevices,
     Matrix,
     stats,
-    methods,
-    utils
+    methods
 LinkingTo:
     Rcpp,
     RcppArmadillo

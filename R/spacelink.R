@@ -34,6 +34,7 @@
 #' }
 #'
 #' @examples
+#' \donttest{
 #' library(spacelink)
 #' set.seed(123)
 #' n_spots <- 100
@@ -57,8 +58,8 @@
 #'
 #' results <- spacelink(normalized_counts = expr_data, spatial_coords = coords)
 #' print(results[, c("ESV", "pval", "padj")])
+#' }
 #'
-#' @importFrom BiocParallel bplapply MulticoreParam
 #' @importFrom RcppML nnls
 #' @importFrom stats p.adjust
 #' @export
@@ -82,11 +83,17 @@ spacelink <- function(normalized_counts,
   kernel_fun  <- .make_kernel(kernel)
   dist_ctx    <- .build_dist_context(spatial_coords, lite, grid_size)
 
-  out <- bplapply(1:nrow(normalized_counts), function(gene_idx) {
+  out <- .bplapply(1:nrow(normalized_counts), function(gene_idx) {
     if (sum(normalized_counts[gene_idx, ])==0) {
-      list(mme_res = data.frame("tau.sq"=NA,"sigma.sq1"=NA,"sigma.sq2"=NA,"sigma.sq3"=NA,"sigma.sq4"=NA,"sigma.sq5"=NA,
-                                "phi1"=NA,"phi2"=NA,"phi3"=NA,"phi4"=NA,"phi5"=NA,"ESV"=0,"time"=0),
-           pval_vec = data.frame("pval1"=1,"pval2"=1,"pval3"=1,"pval4"=1,"pval5"=1))
+      empty_mme <- setNames(
+        data.frame(matrix(c(NA, rep(NA, n_lengthscales), rep(NA, n_lengthscales), 0, 0), nrow = 1)),
+        c("tau.sq", paste0("sigma.sq", 1:n_lengthscales), paste0("phi", 1:n_lengthscales), "ESV", "time")
+      )
+      empty_pval <- setNames(
+        data.frame(matrix(rep(1, n_lengthscales), nrow = 1)),
+        paste0("pval", 1:n_lengthscales)
+      )
+      list(mme_res = empty_mme, pval_vec = empty_pval)
     } else {
       runtime <- system.time({
         y        <- residual_fn(as.numeric(normalized_counts[gene_idx, ]))
@@ -115,7 +122,7 @@ spacelink <- function(normalized_counts,
       mme_res$time <- runtime[["elapsed"]]
       list(mme_res = mme_res, pval_vec = pval_vec)
     }
-  }, BPPARAM = MulticoreParam(workers = n_workers))
+  }, n_workers = n_workers)
 
   .aggregate_results(out, n_lengthscales, rownames(normalized_counts))
 }

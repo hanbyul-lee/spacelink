@@ -1,11 +1,20 @@
 #' @importFrom RANN nn2
 #' @importFrom fields rdist
+#' @importFrom grDevices chull
 #' @importFrom Matrix Matrix tril drop0
 #' @importFrom methods as
 #' @importFrom pracma logspace
 #' @importFrom RcppML nnls
-#' @importFrom stats dist pchisq pcauchy
+#' @importFrom stats dist median model.matrix pchisq pcauchy setNames
 NULL
+
+.bplapply <- function(X, FUN, n_workers) {
+  if (.Platform$OS.type == "windows" || n_workers == 1L) {
+    lapply(X, FUN)
+  } else {
+    parallel::mclapply(X, FUN, mc.cores = n_workers)
+  }
+}
 
 ACAT <- function(Pvals, weights = NULL, is.check = TRUE) {
   Pvals <- as.matrix(Pvals)

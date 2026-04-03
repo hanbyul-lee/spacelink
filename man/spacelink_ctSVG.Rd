@@ -74,6 +74,7 @@ and provides cell type–specific Effective Spatial Variability (ct-ESV) scores 
 where higher values indicate greater spatial variability in gene expression within the focal cell type.
 }
 \examples{
+\donttest{
 library(spacelink)
 set.seed(123)
 n_spots    <- 100
@@ -108,5 +109,6 @@ results <- spacelink_ctSVG(
   focal_cell_type       = "Cell_type_1"
 )
 print(results[, c("pval", "ESV")])
+}
 
 }

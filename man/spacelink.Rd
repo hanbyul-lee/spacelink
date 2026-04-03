@@ -59,6 +59,7 @@ Conducts hypothesis testing to identify spatially variable genes (SVGs) using an
 and provides Effective Spatial Variability (ESV) scores (ranging from 0 to 1), where higher values indicate greater spatial variability in gene expression.
 }
 \examples{
+\donttest{
 library(spacelink)
 set.seed(123)
 n_spots <- 100
@@ -82,5 +83,6 @@ for (i in (n_genes / 2 + 1):n_genes) {
 
 results <- spacelink(normalized_counts = expr_data, spatial_coords = coords)
 print(results[, c("ESV", "pval", "padj")])
+}
 
 }
