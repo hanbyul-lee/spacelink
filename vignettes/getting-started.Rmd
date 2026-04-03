@@ -16,12 +16,6 @@ knitr::opts_chunk$set(
 )
 ```
 
-The **spacelink** package consists of two main functions: [`spacelink`](https://hanbyul-lee.github.io/spacelink/reference/spacelink.html) and [`spacelink_ctSVG`](https://hanbyul-lee.github.io/spacelink/reference/spacelink_ctSVG.html).
-
-The [`spacelink`](https://hanbyul-lee.github.io/spacelink/reference/spacelink.html) function performs hypothesis testing at the global tissue level to identify spatially variable genes (SVGs) using an adaptive multi-kernel approach. It also provides **Effective Spatial Variability (ESV)** scores (ranging from 0 to 1), where higher values indicate greater spatial variability in gene expression.
-
-The [`spacelink_ctSVG`](https://hanbyul-lee.github.io/spacelink/reference/spacelink_ctSVG.html) function performs hypothesis testing to identify cell-type–specific spatially variable genes (ctSVGs) using a data-driven colocalization gating strategy. It reports **cell-type–specific Effective Spatial Variability (ct-ESV)** scores (ranging from 0 to 1), where higher values indicate greater spatial variability within the focal cell type.
-
 ## Installation
 
 Install the development version from GitHub:
@@ -35,7 +29,14 @@ devtools::install_github("hanbyul-lee/spacelink")
 library(spacelink)
 ```
 
+
 ## Usage Overview
+
+The **spacelink** package consists of two main functions: [`spacelink`](https://hanbyul-lee.github.io/spacelink/reference/spacelink.html) and [`spacelink_ctSVG`](https://hanbyul-lee.github.io/spacelink/reference/spacelink_ctSVG.html).
+
+The [`spacelink`](https://hanbyul-lee.github.io/spacelink/reference/spacelink.html) function performs hypothesis testing at the global tissue level to identify spatially variable genes (SVGs) using an adaptive multi-kernel approach. It also provides **Effective Spatial Variability (ESV)** scores (ranging from 0 to 1), where higher values indicate greater spatial variability in gene expression.
+
+The [`spacelink_ctSVG`](https://hanbyul-lee.github.io/spacelink/reference/spacelink_ctSVG.html) function performs hypothesis testing to identify cell-type–specific spatially variable genes (ctSVGs) using a data-driven colocalization gating strategy. It reports **cell-type–specific Effective Spatial Variability (ct-ESV)** scores (ranging from 0 to 1), where higher values indicate greater spatial variability within the focal cell type.
 
 ### 1. Global Analysis
 
