@@ -16,11 +16,11 @@ knitr::opts_chunk$set(
 )
 ```
 
-The **spacelink** package consists of two main functions: `spacelink` and `spacelink_ctSVG`.
+The **spacelink** package consists of two main functions: [`spacelink`](https://hanbyul-lee.github.io/spacelink/reference/spacelink.html) and [`spacelink_ctSVG`](https://hanbyul-lee.github.io/spacelink/reference/spacelink_ctSVG.html).
 
-The `spacelink` function performs hypothesis testing at the global tissue level to identify spatially variable genes (SVGs) using an adaptive multi-kernel approach. It also provides **Effective Spatial Variability (ESV)** scores (ranging from 0 to 1), where higher values indicate greater spatial variability in gene expression.
+The [`spacelink`](https://hanbyul-lee.github.io/spacelink/reference/spacelink.html) function performs hypothesis testing at the global tissue level to identify spatially variable genes (SVGs) using an adaptive multi-kernel approach. It also provides **Effective Spatial Variability (ESV)** scores (ranging from 0 to 1), where higher values indicate greater spatial variability in gene expression.
 
-The `spacelink_ctSVG` function performs hypothesis testing to identify cell-type–specific spatially variable genes (ctSVGs) using a data-driven colocalization gating strategy. It reports **cell-type–specific Effective Spatial Variability (ct-ESV)** scores (ranging from 0 to 1), where higher values indicate greater spatial variability within the focal cell type.
+The [`spacelink_ctSVG`](https://hanbyul-lee.github.io/spacelink/reference/spacelink_ctSVG.html) function performs hypothesis testing to identify cell-type–specific spatially variable genes (ctSVGs) using a data-driven colocalization gating strategy. It reports **cell-type–specific Effective Spatial Variability (ct-ESV)** scores (ranging from 0 to 1), where higher values indicate greater spatial variability within the focal cell type.
 
 ## Installation
 
@@ -35,13 +35,11 @@ devtools::install_github("hanbyul-lee/spacelink")
 library(spacelink)
 ```
 
-## Basic Workflow
-
-The typical analysis workflow involves two main steps:
+## Usage Overview
 
 ### 1. Global Analysis
 
-At the global tissue level, `spacelink` requires two primary inputs: a normalized count matrix (`normalized_counts`) and a two-dimensional spatial coordinate matrix (`spatial_coords`).
+At the global tissue level, [`spacelink`](https://hanbyul-lee.github.io/spacelink/reference/spacelink.html) requires two primary inputs: a normalized count matrix (`normalized_counts`) and a two-dimensional spatial coordinate matrix (`spatial_coords`).
 The normalized count matrix can be obtained, for example, by applying normalization methods such as the [SCTransform](https://satijalab.org/seurat/reference/sctransform) function to raw count data.
 Optionally, for large-scale datasets where computational cost is high, setting `lite = TRUE` enables a grid-based approximation of spacelink to accelerate computation.
 Parallel computation across genes can be performed by specifying the number of workers (`n_workers`).
@@ -67,9 +65,9 @@ The output includes the following results for each gene:
 
 ### 2. Cell-Type-Specific Analysis
 
-At the cell-type level, `spacelink_ctSVG` requires four inputs: a normalized count matrix (`normalized_counts`), a two-dimensional spatial coordinate matrix (`spatial_coords`), a cell type proportion matrix (`cell_type_proportions`), and the name of the focal cell type (`focal_cell_type`).
+At the cell-type level, [`spacelink_ctSVG`](https://hanbyul-lee.github.io/spacelink/reference/spacelink_ctSVG.html) requires four inputs: a normalized count matrix (`normalized_counts`), a two-dimensional spatial coordinate matrix (`spatial_coords`), a cell type proportion matrix (`cell_type_proportions`), and the name of the focal cell type (`focal_cell_type`).
 The cell type proportion matrix can be obtained, for example, using methods such as the [RCTD](https://github.com/dmcable/spacexr) function. The `focal_cell_type` must match one of the column names in `cell_type_proportions`.
-If all spots are pure (i.e., no cell type mixing), as in single-cell resolution data, the `spacelink` function is internally applied to the subset of spots corresponding to the focal cell type.
+If all spots are pure (i.e., no cell type mixing), as in single-cell resolution data, the [`spacelink`](https://hanbyul-lee.github.io/spacelink/reference/spacelink.html) function is internally applied to the subset of spots corresponding to the focal cell type.
 Parallelization across genes is supported via the `n_workers` parameter.
 
 ```{r eval=FALSE}
