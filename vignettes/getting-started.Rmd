@@ -83,7 +83,7 @@ cell_type_results <- spacelink_ctSVG(
 head(cell_type_results[order(cell_type_results$ESV_adj, decreasing=T), c("pval","padj","ESV","ESV_adj")])
 ```
 
-The output is similar to that of the global analysis and includes the following for each gene:
+The output includes the following for each gene:
 
 - `pval` : Combined p-value for testing spatial variability within the focal cell type
 - `padj` : Benjamini-Hochberg adjusted p-value
