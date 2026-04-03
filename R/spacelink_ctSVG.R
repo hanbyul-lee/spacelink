@@ -76,7 +76,6 @@
 #' )
 #' print(results[, c("pval", "ESV")])
 #'
-#' @importFrom ACAT ACAT
 #' @importFrom BiocParallel bplapply MulticoreParam
 #' @importFrom gaston lmm.aireml
 #' @importFrom stats p.adjust

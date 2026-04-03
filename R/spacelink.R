@@ -58,7 +58,6 @@
 #' results <- spacelink(normalized_counts = expr_data, spatial_coords = coords)
 #' print(results[, c("ESV", "pval", "padj")])
 #'
-#' @importFrom ACAT ACAT
 #' @importFrom BiocParallel bplapply MulticoreParam
 #' @importFrom RcppML nnls
 #' @importFrom stats p.adjust
