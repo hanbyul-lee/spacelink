@@ -26,11 +26,11 @@ navbar:
       menu:
       - text: Getting Started
         href: articles/getting-started.html
-      - text: Example Visium Human DLPFC
+      - text: Visium Human DLPFC
         href: articles/example_visium_human_DLPFC.html
-      - text: Example CosMx Human Frontal Cortex
+      - text: CosMx Human Frontal Cortex
         href: articles/example_cosmx_human_frontal_cortex.html
-      - text: Example Disease Informativeness Evaluation
+      - text: Disease Informativeness Evaluation
         href: articles/example_pops_analysis.html
     github:
       icon: fab fa-github fa-lg
