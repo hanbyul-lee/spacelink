@@ -2,7 +2,7 @@
 title: "Example: Visium Human DLPFC"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Example - Visium Human DLPFC}
+  %\VignetteIndexEntry{Visium Human DLPFC Analysis}
   %\VignetteEngine{knitr::rmarkdown}  
   %\VignetteEncoding{UTF-8}
 ---
@@ -37,6 +37,7 @@ library(viridis)
 
 Here we load the built-in example dataset for Visium Human DLPFC (sample 151673).
 It comes with three pieces of information we'll use throughout the analysis:
+
 - `counts`: gene expression matrix (33,538 genes × 3,639 spots)
 - `spatial_coords`: spatial coordinates for each spot
 - `cell_type_proportions`: estimated cell type compositions via RCTD (9 cell types)
@@ -196,9 +197,9 @@ for(gene_name in gene_names){
 }
 ```
 
-![](../man/figures/CNP.pdf){#id .class width=50% height=50%}
+![](../man/figures/CNP.png){#id .class width=50% height=50%}
 
-![](../man/figures/SHISA5.pdf){#id .class width=50% height=50%}
+![](../man/figures/SHISA5.png){#id .class width=50% height=50%}
 
 ## 6. Run Cell-type-specific Spacelink
 
@@ -263,8 +264,8 @@ for(gene_name in gene_names){
 }
 ```
 
-![](../man/figures/oligodendrocyte.pdf){#id .class width=50% height=50%}
+![](../man/figures/oligodendrocyte.png){#id .class width=50% height=50%}
 
-![](../man/figures/KRT19.pdf){#id .class width=50% height=50%}
+![](../man/figures/KRT19.png){#id .class width=50% height=50%}
 
-![](../man/figures/HOPX.pdf){#id .class width=50% height=50%}
+![](../man/figures/HOPX.png){#id .class width=50% height=50%}

@@ -1,0 +1,255 @@
+---
+title: "Example: CosMx Human Frontal Cortex"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{CosMx Human Frontal Cortex Analysis}
+  %\VignetteEngine{knitr::rmarkdown}  
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "figures/",
+  out.width = "100%"
+)
+```
+
+# Application of Spacelink to CosMx Human Frontal Cortex Dataset
+
+In this vignette, we demonstrate how to apply **Spacelink** to a large-scale, single-cell resolution spatial transcriptomics dataset. 
+Here, we use the **CosMx Human Frontal Cortex** dataset as a representative example of how to handle datasets where the number of cells is large enough to make standard kernel-based methods computationally prohibitive.
+
+We walk through the full Spacelink workflow in two stages: (1) **global tissue-level** SVG detection, 
+which tests for spatial variability across all cells regardless of cell type, 
+and (2) **cell-type-specific** SVG detection, 
+which restricts the analysis to cells of a given type to identify spatially variable patterns within that cell population.
+
+The dataset is publicly available [here](https://brukerspatialbiology.com/products/cosmx-spatial-molecular-imager/ffpe-dataset/human-frontal-cortex-ffpe-dataset/).
+
+## 1. Load Packages
+
+```{r eval=FALSE}
+library(spacelink)
+library(SpatialExperiment)
+library(Seurat)
+library(sctransform)
+library(ggplot2)
+library(viridis)
+```
+
+## 2. Load Dataset
+
+We load the CosMx cortex dataset stored as a `SpatialExperiment` object. 
+We extract three components needed for downstream analysis:
+
+- **`counts`**: the raw gene expression count matrix (genes × cells).
+- **`spatial_coords`**: a matrix of 2D spatial coordinates for each cell, used to model spatial autocorrelation.
+- **`cell_type_info`**: a one-hot encoded matrix of cell type assignments, constructed via `model.matrix()` from the `cell_type` column in the object's metadata. Each column corresponds to a cell type, and each row to a cell, with a value of 1 indicating membership. This format is required as input for cell-type-specific analysis in Section 6.
+
+```{r eval=FALSE}
+spe <- readRDS("cosmx_cortex_spe.rds")
+
+counts <- spe@assays@data$counts
+spatial_coords <- spatialCoords(spe)
+cell_type_info <- model.matrix(~ cell_type - 1, data = spe@colData)
+colnames(cell_type_info) <- str_remove(colnames(cell_type_info), "cell_type")
+```
+
+## 3. Preprocessing
+
+Before running Spacelink, we normalize the raw count matrix using [SCTransform](https://satijalab.org/seurat/reference/sctransform),
+which applies a regularized negative binomial regression to correct for sequencing depth 
+and other technical variation across cells. 
+The normalized values are stored in the `SCT` assay of the resulting Seurat object and extracted for use in Spacelink.
+
+Note that SCTransform can be computationally intensive for large datasets. 
+If runtime is a concern, alternative normalization approaches such as log-normalization (`scran` or simple log1p scaling) 
+may be substituted.
+
+
+```{r eval=FALSE}
+seurat_res <- CreateSeuratObject(counts = counts)
+seurat_norm = SCTransform(seurat_res, vst.flavor = "v2", verbose = FALSE)
+normalized_counts <- seurat_norm@assays$SCT$data
+```
+
+## 4. Run Global Spacelink
+
+We first run Spacelink at the **global tissue level** to identify genes 
+whose expression is spatially variable across the entire tissue, regardless of cell type composition.
+
+Because this CosMx dataset contains a very large number of cells, 
+we use the **Spacelink lite** version by setting `lite = TRUE`. 
+The lite version approximates the kernel covariance matrix using a **grid-based spatial binning** scheme, 
+which substantially reduces memory and computation time while preserving the accuracy of ESV estimates. 
+Specifically, rather than computing pairwise distances between all individual cells, 
+Spacelink lite aggregates cells into spatial grid bins and computes kernel values between bin centroids.
+
+The default grid size is set to 5 times the minimum nearest-neighbor distance between cells. 
+However, for this CosMx dataset, the cells are so densely and uniformly packed that 
+the minimum nearest-neighbor distance is very small, 
+and the default grid size results in a grid that is nearly as fine as the original data -- providing little computational benefit. 
+We therefore manually set `grid_size = 100` (in the same spatial units as the coordinates) 
+to achieve a meaningful reduction in the number of effective spatial units.
+
+We demonstrate the analysis on 6 example genes to keep runtime short. 
+The two key output columns to interpret are:
+
+- **`padj`**: Benjamini–Hochberg adjusted p-value for the test of spatial autocorrelation. Genes with `padj < 0.05` are considered statistically significant SVGs.
+- **`ESV_adj`**: the Effective Spatial Variability value after adjustment, ranging from 0 to 1, reflecting the strength of spatial autocorrelation. Higher values indicate stronger spatial patterning.
+
+Note that both `padj` and `ESV_adj` will differ from a full-gene-set analysis, 
+because the BH correction is applied across all tested genes. 
+In this example, adjustment is performed only across the 6 selected genes.
+
+
+```{r eval=FALSE}
+gene_list <- c("CNP","EIF5B","HOPX","KRT19","PHB","SHISA5")
+global_results <- spacelink(
+  normalized_counts=normalized_counts[gene_list,], 
+  spatial_coords=spatial_coords, 
+  lite=TRUE, 
+  grid_size=100)
+```
+
+
+## 5. Visualize Global Spacelink Results
+
+To qualitatively validate the ESV scores, 
+we visualize gene expression in spatial coordinates for the genes with the **highest** and **lowest** ESV among the tested genes. 
+A gene with a high ESV should display a clearly structured spatial pattern (e.g., layer-specific enrichment), 
+while a gene with a low ESV should appear spatially uniform or random. 
+Each cell is plotted as a point at its spatial coordinate, colored by raw count expression on a log1p scale.
+
+```{r eval=FALSE}
+gene_names <- rownames(global_results)[c(which.max(global_results$ESV_adj),
+                                         which.min(global_results$ESV))]
+
+for(gene_name in gene_names){
+  df <- as.data.frame(cbind(spatial_coords, expr = counts[gene_name,]))
+  colnames(df) <- c('X0', 'X1', 'expr')
+  title <- paste0(gene_name, ", ESV:", round(global_results[gene_name,'ESV'],3))
+  print(ggplot(df, aes(x = X0, y = X1, color = expr)) +
+    geom_point(size = 1) +
+    ggtitle(title) + theme_void() + scale_y_reverse() +
+    scale_color_gradient(low = "grey97", high = "red", trans = "log1p", name = "counts") +
+    theme(plot.title = element_text(face = "italic", size = 16)))
+}
+```
+
+
+## 6. Run Cell-type-specific Spacelink
+
+Beyond global spatial variability, we may ask whether a gene's spatial pattern emerges specifically within a particular cell type. 
+For this, we use `spacelink_ctSVG`, which performs Spacelink restricted to cells belonging to a specified focal cell type. 
+When the `cell_type_proportions` argument is supplied as a **binary one-hot encoded matrix** (as constructed in Section 2), 
+the function internally detects this and subsets both the expression matrix and spatial coordinates to cells 
+where the focal cell type indicator equals 1. 
+`spacelink` is then applied only to those cells, 
+testing whether the gene is spatially variable within that cell type's spatial distribution.
+
+This approach is directly applicable to single-cell resolution datasets (such as CosMx), 
+where each observation corresponds to a single cell with a definitive cell type label. 
+The same function also supports spot-based data with continuous cell type proportion estimates (refer to [Example: Visium Human DLPFC](https://hanbyul-lee.github.io/spacelink/articles/example_visium_human_DLPFC.html)).
+
+The `lite` and `grid_size` arguments work identically to the global `spacelink()` function and are passed through to the internal call. Here we apply it to *oligodendrocytes* as the focal cell type.
+
+As before, note that `padj` and `ESV_adj` values are computed relative to the 6 example genes only, 
+and will differ from a full-gene-set run.
+
+
+```{r eval=FALSE}
+cell_type_results <- spacelink_ctSVG(
+  normalized_counts=normalized_counts[gene_list,], 
+  spatial_coords=spatial_coords, 
+  cell_type_proportions=cell_type_info,
+  focal_cell_type = "oligodendrocyte",
+  lite=TRUE, 
+  grid_size=100)
+```
+
+
+## 7. Visualize Cell-type-specific Spacelink Results
+
+We visualize the results of cell-type-specific Spacelink to compare 
+how a gene's spatial pattern looks globally versus within oligodendrocytes. 
+For each of the highest- and lowest-ct-ESV genes, 
+we display the full spatial expression map (all cells), 
+with the title reporting both the global ESV and the cell-type-specific ESV (ct-ESV) for reference.
+
+We also first plot the **spatial distribution of oligodendrocytes** themselves. 
+Since cell-type-specific Spacelink only tests cells of the focal type, 
+understanding where those cells are located in the tissue helps interpret 
+whether a gene's ct-ESV reflects true within-type spatial variation or is driven by the cell type's own spatial clustering.
+
+
+```{r eval=FALSE}
+gene_names <- rownames(cell_type_results)[c(which.max(cell_type_results$ESV_adj),
+                                            which.min(cell_type_results$ESV))]
+
+# Visualize oligodendrocyte proportions
+df <- as.data.frame(cbind(spatial_coords, expr = cell_type_proportions[,'oligodendrocyte']))
+colnames(df) <- c('X0', 'X1', 'prop')
+print(ggplot(df, aes(x = X0, y = X1, color = prop)) +
+        geom_point(size = 1) +
+        ggtitle("Oligodendrocyte proportions") + theme_void() + scale_y_reverse() +
+        scale_color_viridis(option="magma", direction=-1, limits=c(0,1)) +
+        theme(plot.title = element_text(face = "italic", size = 16)))
+
+# Visualize gene expression (compare ESV vs ct-ESV)
+for(gene_name in gene_names){
+  df <- as.data.frame(cbind(spatial_coords, expr = counts[gene_name,]))
+  colnames(df) <- c('X0', 'X1', 'expr')
+  title <- paste0(gene_name,
+                  ", ESV:", round(global_results[gene_name,'ESV'],3),
+                  ", ct-ESV:", round(cell_type_results[gene_name,'ESV'],3))
+  print(ggplot(df, aes(x = X0, y = X1, color = expr)) +
+          geom_point(size = 1) +
+          ggtitle(title) + theme_void() + scale_y_reverse() +
+          scale_color_gradient(low = "grey97", high = "red", trans = "log1p", name = "counts") +
+          theme(plot.title = element_text(face = "italic", size = 16)))
+}
+```
+
+
+
+## 8. Comparison of Spacelink Lite vs. Original Version
+
+Finally, we benchmark the **lite version** against the **original (full kernel) version** of Spacelink 
+in terms of both computational efficiency and similarity of ESV estimates.
+
+Applying the original version to the full CosMx cortex dataset (hundreds of thousands of cells) is computationally infeasible 
+due to the O(n²) scaling of the kernel covariance matrix. 
+We therefore restrict the comparison to **endothelial cells** only, 
+which constitute a small enough subset of the data for the original version to run in reasonable time. 
+
+We then produce two scatter plots:
+
+- **ESV comparison**: Each point represents one gene, with the x-axis showing the ESV from the original version and the y-axis showing the ESV from the lite version. High concordance (points along the diagonal) indicates that the lite approximation preserves the accuracy of the full kernel approach.
+- **Runtime comparison**: A bar or scatter plot showing wall-clock time for each version, illustrating the speedup factor achieved by the lite approximation.
+
+The results confirm that the lite version produces ESV estimates highly concordant with the original, while running approximately 2 times faster -- validating its use as the recommended approach for large-scale datasets.
+
+```{r eval=FALSE}
+normalized_counts_endothelial <- normalized_counts[,cell_type_info[,'endothelial']==1]
+spatial_coords_endothelial <- spatial_coords[cell_type_info[,'endothelial']==1,]
+
+global_results_original <- spacelink(
+  normalized_counts = normalized_counts_endothelial,
+  spatial_coords = spatial_coords_endothelial,
+  lite = FALSE
+)
+
+global_results_lite <- spacelink(
+  normalized_counts = normalized_counts_endothelial,
+  spatial_coords = spatial_coords_endothelial,
+  lite = TRUE
+)
+```
+
+```{r eval=FALSE}
+## ESV scatter plot: lite vs. original
+## Runtime comparison plot
+```
