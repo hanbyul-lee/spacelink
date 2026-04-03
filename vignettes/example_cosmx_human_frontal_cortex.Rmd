@@ -139,6 +139,10 @@ for(gene_name in gene_names){
 }
 ```
 
+```{r eval=FALSE}
+## Gene expression plots
+```
+
 
 ## 6. Run Cell-type-specific Spacelink
 
@@ -213,6 +217,10 @@ for(gene_name in gene_names){
 }
 ```
 
+```{r eval=FALSE}
+## Cell type plot for oligodendrocyte
+## Gene expression plots
+```
 
 
 ## 8. Comparison of Spacelink Lite vs. Original Version
