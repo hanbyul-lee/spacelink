@@ -45,7 +45,7 @@ Optionally, for large-scale datasets where computational cost is high, setting `
 Parallel computation across genes can be performed by specifying the number of workers (`n_workers`).
 
 ```{r eval=FALSE}
-global_results <- spacelink_global(
+global_results <- spacelink(
   normalized_counts = normalized_expression_matrix,  # Genes × Spots
   spatial_coords = coordinates,  # Spots × 2
   lite = FALSE,
