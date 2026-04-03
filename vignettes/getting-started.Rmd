@@ -16,7 +16,11 @@ knitr::opts_chunk$set(
 )
 ```
 
-The `spacelink` package provides statistical methods for detecting and prioritizing spatially variable genes (SVGs) at both global-tissue and cell-type resolution.
+The **spacelink** package consists of two main functions: `spacelink` and `spacelink_ctSVG`.
+
+The `spacelink` function performs hypothesis testing at the global tissue level to identify spatially variable genes (SVGs) using an adaptive multi-kernel approach. It also provides **Effective Spatial Variability (ESV)** scores (ranging from 0 to 1), where higher values indicate greater spatial variability in gene expression.
+
+The `spacelink_ctSVG` function performs hypothesis testing to identify cell-type–specific spatially variable genes (ctSVGs) using a data-driven colocalization gating strategy. It reports **cell-type–specific Effective Spatial Variability (ct-ESV)** scores (ranging from 0 to 1), where higher values indicate greater spatial variability within the focal cell type.
 
 ## Installation
 
@@ -37,163 +41,53 @@ The typical analysis workflow involves two main steps:
 
 ### 1. Global Analysis
 
-Start with global analysis to identify spatially variable genes:
+At the global tissue level, `spacelink` requires two primary inputs: a normalized count matrix (`normalized_counts`) and a two-dimensional spatial coordinate matrix (`spatial_coords`).
+The normalized count matrix can be obtained, for example, by applying normalization methods such as the [SCTransform](https://satijalab.org/seurat/reference/sctransform) function to raw count data.
+Optionally, for large-scale datasets where computational cost is high, setting `lite = TRUE` enables a grid-based approximation of spacelink to accelerate computation.
+Parallel computation across genes can be performed by specifying the number of workers (`n_workers`).
 
 ```{r eval=FALSE}
-# Run global spatial variability analysis
 global_results <- spacelink_global(
   normalized_counts = normalized_expression_matrix,  # Genes × Spots
-  spatial_coords = coordinates,  # Spots × 2 (x,y coordinates)
-  n_lengthscales = 5  # Number of spatial bandwidths
+  spatial_coords = coordinates,  # Spots × 2
+  lite = FALSE,
+  n_workers = 1
 )
 
 # View results
-head(global_results[order(global_results$ESV, decreasing=T), ])
+head(global_results[order(global_results$ESV_adj, decreasing=T), c("pval","padj","ESV","ESV_adj")])
 ```
 
-The results include:
+The output includes the following results for each gene:
 
-- `pval` : Combined p-value for spatial significance
-- `padj` : Benjamini-Hochberg adjusted p-values
-- `ESV` : Effective Spatial Variability score (0-1)
-- `tau.sq` : Nugget variance component
-- `sigma.sq1`, `sigma.sq2`, ... : Spatial variance components for each kernel
-- `phi1`, `phi2`, ... : Inverse of gene-specific length scales
+- `pval` : Combined p-value for testing whether the gene is spatially variable
+- `padj` : Benjamini-Hochberg adjusted p-value
+- `ESV` : Effective Spatial Variability score (0–1) for prioritizing SVGs; higher values indicate greater spatial variability
+- `ESV_adj` : ESV adjusted for non-SVGs (set to 0 if `padj` > 0.05)
 
 ### 2. Cell-Type-Specific Analysis
 
-If you have cell type proportion information, analyze cell-type-specific spatial patterns:
+At the cell-type level, `spacelink_ctSVG` requires four inputs: a normalized count matrix (`normalized_counts`), a two-dimensional spatial coordinate matrix (`spatial_coords`), a cell type proportion matrix (`cell_type_proportions`), and the name of the focal cell type (`focal_cell_type`).
+The cell type proportion matrix can be obtained, for example, using methods such as the [RCTD](https://github.com/dmcable/spacexr) function. The `focal_cell_type` must match one of the column names in `cell_type_proportions`.
+If all spots are pure (i.e., no cell type mixing), as in single-cell resolution data, the `spacelink` function is internally applied to the subset of spots corresponding to the focal cell type.
+Parallelization across genes is supported via the `n_workers` parameter.
 
 ```{r eval=FALSE}
-# Run cell-type-specific spatial variability analysis
-cell_type_results <- spacelink_cell_type(
+cell_type_results <- spacelink_ctSVG(
   normalized_counts = normalized_expression_matrix,  # Genes × Spots
-  spatial_coords = coordinates,  # Spots × 2 (x,y coordinates)
+  spatial_coords = coordinates,  # Spots × 2
   cell_type_proportions = cell_type_proportions,  # Spots × Cell-types
   focal_cell_type = cell_type_name,  # Cell type name to test
-  global_spacelink_results = global_results,  # Not necessary. Providing global results improves efficiency.
-  calculate_ESV = TRUE
+  n_workers = 1
 )
 
 # View results
-head(cell_type_results[order(cell_type_results$ESV, decreasing=T), ])
+head(cell_type_results[order(cell_type_results$ESV_adj, decreasing=T), c("pval","padj","ESV","ESV_adj")])
 ```
 
-The results include:
+The output is similar to that of the global analysis and includes the following for each gene:
 
-- `pval` : Combined p-value for spatial significance
-- `ESV` : Cell-type-specific Effective Spatial Variability (ct-ESV) score (0-1)
-
-## Example with Simulated Data
-
-### 1. Example of global Spacelink analysis
-
-```{r eval=FALSE}
-# Set up simulated data
-set.seed(123)
-n_spots <- 100
-n_genes <- 10
-
-# Generate spatial coordinates (2D grid)
-coords <- expand.grid(
-  x = seq(0, 10, length.out = sqrt(n_spots)),
-  y = seq(0, 10, length.out = sqrt(n_spots))
-)
-
-# Simulate (normalized) expression data with spatial autocorrelation
-expr_data <- matrix(nrow=n_genes, ncol=n_spots)
-rownames(expr_data) <- paste0("Gene_", 1:n_genes)
-D <- as.matrix(dist(coords))
-K <- exp(-D); chol_K <- chol(K)
-for(i in 1:(n_genes/2)){
-  expr_data[i,] <- matrix(rnorm(n_spots, 0, 1), nrow=1, ncol=n_spots)
-  expr_data[i,] <- expr_data[i,] + i*matrix(rnorm(n_spots, 0, 1), 1, n_spots)%*%chol_K
-}
-# Simulate (normalized) expression data without spatial autocorrelation
-for(i in (n_genes/2+1):n_genes){
-  expr_data[i,] <- i*matrix(rnorm(n_spots, 0, 1), nrow=1, ncol=n_spots)
-}
-# Gene_1, Gene_2, ..., Gene_5: true SVGs
-# Gene_6, Gene_7, ..., Gene_10: true non-SVGs
-
-global_results <- spacelink_global(normalized_counts = expr_data, spatial_coords = coords)
-print(global_results[, c("raw_ESV", "pval", "ESV", "padj")])
-```
-
-```{r}
-##            raw_ESV        pval       ESV       padj
-## Gene_1  0.15061194 0.158662165 0.0000000 0.31732433
-## Gene_2  0.36958214 0.013996958 0.3695821 0.04665653
-## Gene_3  0.24545260 0.063870746 0.0000000 0.15967687
-## Gene_4  0.42172756 0.007834405 0.4217276 0.03917202
-## Gene_5  0.43943594 0.004087093 0.4394359 0.03917202
-## Gene_6  0.00000000 0.748318133 0.0000000 0.86450152
-## Gene_7  0.00000000 0.805014384 0.0000000 0.86450152
-## Gene_8  0.06886313 0.326967744 0.0000000 0.54494624
-## Gene_9  0.00000000 0.835162432 0.0000000 0.86450152
-## Gene_10 0.00000000 0.864501520 0.0000000 0.86450152
-```
-
-### 2. Example of cell-type-specific Spacelink analysis
-
-```{r eval=FALSE}
-# Set up simulated data
-set.seed(123)
-n_spots <- 100
-n_genes <- 10
-n_cell_types <- 2
-
-# Generate spatial coordinates (2D grid)
-coords <- expand.grid(
-  x = seq(0, 10, length.out = sqrt(n_spots)),
-  y = seq(0, 10, length.out = sqrt(n_spots))
-)
-
-# Generate cell type proportions for 2 cell types
-cell_type_props <- matrix(nrow = n_spots, ncol = n_cell_types)
-cell_type_props[1:(n_spots/2),1] <- runif(n_spots/2,0,0.5)
-cell_type_props[(n_spots/2+1):n_spots,1] <- runif(n_spots/2,0.5,1)
-cell_type_props[,2] <- 1-cell_type_props[,1]
-colnames(cell_type_props) <- paste0("Cell_type_", 1:n_cell_types)
-
-# Simulate (normalized) expression data with spatial autocorrelation for cell type 1
-expr_data <- matrix(nrow = n_genes, ncol = n_spots)
-rownames(expr_data) <- paste0("Gene_", 1:n_genes)
-D <- as.matrix(dist(coords))
-K <- exp(-D)
-Sigma <- chol(K)%*%diag(cell_type_props[,'Cell_type_1'])
-for(i in 1:(n_genes/2)){
-  expr_data[i,] <- matrix(rnorm(n_spots, 0, 1), 1, n_spots)
-  expr_data[i,] <- expr_data[i,] + i*matrix(rnorm(n_spots, 0, 1), 1, n_spots)%*%Sigma
-}
-# Simulate (normalized) expression data with spatial autocorrelation for cell type 2
-Sigma <- chol(K)%*%diag(cell_type_props[,'Cell_type_2'])
-for(i in (n_genes/2+1):n_genes){
-  expr_data[i,] <- matrix(rnorm(n_spots, 0, 1), 1, n_spots)
-  expr_data[i,] <- expr_data[i,] + matrix(rnorm(n_spots, 0, 1), 1, n_spots)%*%Sigma
-}
-# Gene_1, Gene_2, ..., Gene_5: true cell-type-1-specific ct-SVGs
-# Gene_6, Gene_7, ..., Gene_10: true cell-type-2-specific ct-SVGs
-
-# Test cell-type-1 specific SVG
-cell_type_results <- spacelink_cell_type(normalized_counts = expr_data, 
-                                         spatial_coords = coords,
-                                         cell_type_proportions = cell_type_props,
-                                         focal_cell_type = "Cell_type_1")
-
-print(cell_type_results[, c("pval", "ESV")])
-```
-
-```{r}
-##                 pval          ESV
-## Gene_1  6.975021e-02 4.167041e-01
-## Gene_2  3.853336e-03 5.590444e-01
-## Gene_3  3.952311e-04 6.964892e-01
-## Gene_4  3.027289e-06 6.672739e-01
-## Gene_5  1.246179e-04 6.579634e-01
-## Gene_6  1.000000e+00 0.000000e+00
-## Gene_7  6.681283e-01 3.128719e-06
-## Gene_8  9.629749e-01 3.459269e-06
-## Gene_9  1.000000e+00 0.000000e+00
-## Gene_10 1.000000e+00 0.000000e+00
-```
+- `pval` : Combined p-value for testing spatial variability within the focal cell type
+- `padj` : Benjamini-Hochberg adjusted p-value
+- `ESV` : Cell-type–specific Effective Spatial Variability (ct-ESV) score (0–1) for prioritizing ctSVGs; higher values indicate greater spatial variability within the focal cell type
+- `ESV_adj` : ESV adjusted for non-ctSVGs (set to 0 if `padj` > 0.05)
