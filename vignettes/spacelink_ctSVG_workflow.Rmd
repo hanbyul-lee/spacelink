@@ -16,48 +16,187 @@ knitr::opts_chunk$set(
 )
 ```
 
-## ddd
+Here, we demonstrate the workflow for spatial gene variability analysis at the *cell-type–specific level* using the [`spacelink_ctSVG`](https://hanbyul-lee.github.io/spacelink/reference/spacelink_ctSVG.html) function through a simple simulation example.
 
-ddd
+
+## 1. Simulate Data
+
+Here, gene expression data ($x$) are simulated from the following Gaussian process model:
+
+$y \sim MVN(0, \alpha\cdot \Pi_r K_l \Pi_r + I)$
+
+$x \sim Poisson(\exp(y))$
+
+where $\Pi_r$ is a diagonal matrix of the proportions of cell type $r$, and $K_l$ is an exponential covariance kernel with length scale $l$.
+
+We consider there are two cell types (`Cell_type_1`, `Cell_type_2`).
+We simulate a total of six cell-type-1-specific spatially variable genes (ctSVGs), two cell-type-2-specific ctSVGs and two non-SVGs.
+For the first three cell-type-1 ctSVGs (`Gene_1`, `Gene_2`, `Gene_3`), the length scale $l$ is set to 0.5, and the signal-to-noise ratio $\alpha$ is set to 1, 2, and 5, respectively.
+For the next three cell-type-1 ctSVGs (`Gene_4`, `Gene_5`, `Gene_6`), the length scale $l$ is set to 2, and the signal-to-noise ratio $\alpha$ is again set to 1, 2, and 5, respectively.
+For the cell-type-2 ctSVGs (`Gene_7`, `Gene_8`), the length scale $l$ is set to 1, and the signal-to-noise ratio $\alpha$ is again set to 1 and 5, respectively.
+The non-SVGs (`Gene_9`, `Gene_10`) are simulated with $\alpha=0$.
+
+ctSVGs are expected to exhibit higher spatial variability as the length scale and signal-to-noise ratio increase.
 
 ```{r eval=FALSE}
 set.seed(123)
-n_spots    <- 100
+n_spots    <- 500
 n_genes    <- 10
 n_celltypes <- 2
 
+# Obtain spatial coordinates
 coords <- expand.grid(
-  x = seq(0, 10, length.out = sqrt(n_spots)),
-  y = seq(0, 10, length.out = sqrt(n_spots))
+  x = seq(0, 10, length.out = 25),
+  y = seq(0, 10, length.out = 20)
 )
 
+# Obtain cell type proportions
 cell_type_props <- matrix(nrow = n_spots, ncol = n_celltypes)
-cell_type_props[1:(n_spots / 2), 1]            <- runif(n_spots / 2, 0, 0.5)
-cell_type_props[(n_spots / 2 + 1):n_spots, 1]  <- runif(n_spots / 2, 0.5, 1)
-cell_type_props[, 2] <- 1 - cell_type_props[, 1]
 colnames(cell_type_props) <- paste0("Cell_type_", 1:n_celltypes)
+cell_type_props[1:(n_spots/2), 'Cell_type_1'] <- runif(n_spots / 2, 0, 0.5)
+cell_type_props[(n_spots/2+1):n_spots, 'Cell_type_1'] <- runif(n_spots / 2, 0.5, 1)
+cell_type_props[, 'Cell_type_2'] <- 1 - cell_type_props[, 'Cell_type_1']
 
 expr_data <- matrix(nrow = n_genes, ncol = n_spots)
 rownames(expr_data) <- paste0("Gene_", 1:n_genes)
-D <- as.matrix(dist(coords)); K <- exp(-D)
+D <- as.matrix(dist(coords))
+
+# Simulate Gene_1, Gene_2, Gene_3
+lengthscale = 0.5
+snr = c(1, 2, 5)
+K <- exp(-D/lengthscale)
 Sigma <- chol(K) %*% diag(cell_type_props[, "Cell_type_1"])
-for (i in 1:(n_genes / 2))
-  expr_data[i, ] <- rnorm(n_spots) + i * rnorm(n_spots) %*% Sigma
+for (i in 1:3) {
+  expr_data[i, ] <- rnorm(n_spots) + snr[i] * rnorm(n_spots) %*% Sigma
+}
+
+# Simulate Gene_4, Gene_5, Gene_6
+lengthscale = 2
+snr = c(1, 2, 5)
+K <- exp(-D/lengthscale)
+Sigma <- chol(K) %*% diag(cell_type_props[, "Cell_type_1"])
+for (i in 1:3) {
+  expr_data[i+3, ] <- rnorm(n_spots) + snr[i] * rnorm(n_spots) %*% Sigma
+}
+
+# Simulate Gene_7, Gene_8
+lengthscale = 1
+snr = c(1, 5)
+K <- exp(-D/lengthscale)
 Sigma <- chol(K) %*% diag(cell_type_props[, "Cell_type_2"])
-for (i in (n_genes / 2 + 1):n_genes)
-  expr_data[i, ] <- rnorm(n_spots) + rnorm(n_spots) %*% Sigma
+for (i in 1:2) {
+  expr_data[i+6, ] <- rnorm(n_spots) + snr[i] * rnorm(n_spots) %*% Sigma
+}
 
+# Simulate Gene_9, Gene_10
+for (i in 9:10) {
+  expr_data[i, ] <- rnorm(n_spots)
+}
 
+expr_data <- apply(exp(expr_data), 1:2, function(x)rpois(1,x))
+expr_data[,1:10]
+```
+
+```{r eval=FALSE}
+##         [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10]
+## Gene_1     0    1    0    0    2    0    4    1    0     0
+## Gene_2     3    4    1    0    2    0    0    1    0     0
+## Gene_3     0    0    0    5   12    1    1    2    3     0
+## Gene_4     0    1    4    1    1    7    8    2    0     0
+## Gene_5     4    1    1    0    1    0    2    3    0     2
+## Gene_6     1   11    0    1   12    5    6  203    3     2
+## Gene_7     2    0    2    0    0    0    0    5    0     7
+## Gene_8    70    2 2281   66    0    1    1    2    1     3
+## Gene_9     0    1    0    0    1    0    2    2    0     1
+## Gene_10    3    0    0    2    1   12    3    4    0     2
 ```
 
 
+## 2. Preprocessing
+
+Since [`spacelink_ctSVG`](https://hanbyul-lee.github.io/spacelink/reference/spacelink_ctSVG.html) requires normalized input data, we first normalize the count data (`expr_data`) before running the method.
+In this example, we apply a simple log normalization, as the data are simple.
+For more sophisticated normalization approaches that also correct for differences in sequencing depth across spots, please refer to the [CosMx](https://hanbyul-lee.github.io/spacelink/articles/illustration_on_cosmx_data.html) and [Visium](https://hanbyul-lee.github.io/spacelink/articles/illustration_on_visium_data.html) application examples.
+
+```{r eval=FALSE}
+norm_data <- log1p(expr_data)/log(2)
+norm_data[,1:10]
+```
+
+```{r eval=FALSE}
+##             [,1]     [,2]      [,3]     [,4]     [,5]     [,6]     [,7]     [,8] [,9]    [,10]
+## Gene_1  0.000000 1.000000  0.000000 0.000000 1.584963 0.000000 2.321928 1.000000    0 0.000000
+## Gene_2  2.000000 2.321928  1.000000 0.000000 1.584963 0.000000 0.000000 1.000000    0 0.000000
+## Gene_3  0.000000 0.000000  0.000000 2.584963 3.700440 1.000000 1.000000 1.584963    2 0.000000
+## Gene_4  0.000000 1.000000  2.321928 1.000000 1.000000 3.000000 3.169925 1.584963    0 0.000000
+## Gene_5  2.321928 1.000000  1.000000 0.000000 1.000000 0.000000 1.584963 2.000000    0 1.584963
+## Gene_6  1.000000 3.584963  0.000000 1.000000 3.700440 2.584963 2.807355 7.672425    2 1.584963
+## Gene_7  1.584963 0.000000  1.584963 0.000000 0.000000 0.000000 0.000000 2.584963    0 3.000000
+## Gene_8  6.149747 1.584963 11.156083 6.066089 0.000000 1.000000 1.000000 1.584963    1 2.000000
+## Gene_9  0.000000 1.000000  0.000000 0.000000 1.000000 0.000000 1.584963 1.584963    0 1.000000
+## Gene_10 2.000000 0.000000  0.000000 1.584963 1.000000 3.700440 2.000000 2.321928    0 1.584963
+```
 
 
+## 3. Run Spacelink
 
-results <- spacelink_ctSVG(
-  normalized_counts     = expr_data,
-  spatial_coords        = coords,
-  cell_type_proportions = cell_type_props,
-  focal_cell_type       = "Cell_type_1"
-)
-print(results[, c("pval", "ESV")])
+We now run [`spacelink_ctSVG`](https://hanbyul-lee.github.io/spacelink/reference/spacelink_ctSVG.html) using the normalized data (`norm_data`), the spatial coordinates (`coords`), and the cell type proportions (`cell_type_props`).
+
+Here, we aim to identify the cell-type-1-specific ctSVGs. Therefore, we set `focal_cell_type` to the corresponding column name, `Cell_type_1`.
+
+```{r eval=FALSE}
+library(spacelink)
+
+results <- spacelink_ctSVG(normalized_counts = norm_data, spatial_coords = coords, cell_type_proportions = cell_type_props, focal_cell_type = "Cell_type_1")
+results[, c("padj", "ESV")]
+```
+
+```{r eval=FALSE}
+##                 padj          ESV
+## Gene_1  7.135920e-04 3.718855e-01
+## Gene_2  2.093598e-08 5.074171e-01
+## Gene_3  1.008101e-21 5.922732e-01
+## Gene_4  2.839529e-02 2.448116e-01
+## Gene_5  5.597474e-04 2.987805e-01
+## Gene_6  2.072716e-87 7.598290e-01
+## Gene_7  1.079779e-01 1.801354e-01
+## Gene_8  9.464224e-01 6.696993e-06
+## Gene_9  9.464224e-01 4.681218e-06
+## Gene_10 4.884490e-01 4.553093e-02
+```
+
+
+## 4. Analyze Results
+
+We can identify which genes are detected as cell-type-1-specific ctSVGs based on the hypothesis testing results as follows:
+
+```{r eval=FALSE}
+ctsvg_results <- results[results$padj < 0.05,]
+rownames(ctsvg_results)
+```
+
+```{r eval=FALSE}
+## [1] "Gene_1" "Gene_2" "Gene_3" "Gene_4" "Gene_5" "Gene_6"
+```
+
+All the simulated cell-type-1-specific ctSVGs -- `Gene_1`, `Gene_2`, `Gene_3`, `Gene_4`, `Gene_5`, and `Gene_6` -- are successfully identified.
+
+Next, among the identified cell-type-1-specific ctSVGs, we can assess which genes exhibit the highest spatial variability within the cell type using the **cell-type–specific Effective Spatial Variability (ct-ESV)** score:
+
+```{r eval=FALSE}
+ctsvg_results = ctsvg_results[order(ctsvg_results$ESV, decreasing=T),]
+ctsvg_results$rank = 1:nrow(ctsvg_results)
+ctsvg_results[,c('rank','ESV')]
+```
+
+```{r eval=FALSE}
+##        rank       ESV
+## Gene_6    1 0.7598290
+## Gene_3    2 0.5922732
+## Gene_2    3 0.5074171
+## Gene_1    4 0.3718855
+## Gene_5    5 0.2987805
+## Gene_4    6 0.2448116
+```
+
+`Gene_6`, which was simulated with the highest length scale and signal-to-noise ratio, shows the highest ct-ESV value and is ranked first.
