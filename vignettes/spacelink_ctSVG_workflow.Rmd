@@ -21,5 +21,43 @@ knitr::opts_chunk$set(
 ddd
 
 ```{r eval=FALSE}
+set.seed(123)
+n_spots    <- 100
+n_genes    <- 10
+n_celltypes <- 2
+
+coords <- expand.grid(
+  x = seq(0, 10, length.out = sqrt(n_spots)),
+  y = seq(0, 10, length.out = sqrt(n_spots))
+)
+
+cell_type_props <- matrix(nrow = n_spots, ncol = n_celltypes)
+cell_type_props[1:(n_spots / 2), 1]            <- runif(n_spots / 2, 0, 0.5)
+cell_type_props[(n_spots / 2 + 1):n_spots, 1]  <- runif(n_spots / 2, 0.5, 1)
+cell_type_props[, 2] <- 1 - cell_type_props[, 1]
+colnames(cell_type_props) <- paste0("Cell_type_", 1:n_celltypes)
+
+expr_data <- matrix(nrow = n_genes, ncol = n_spots)
+rownames(expr_data) <- paste0("Gene_", 1:n_genes)
+D <- as.matrix(dist(coords)); K <- exp(-D)
+Sigma <- chol(K) %*% diag(cell_type_props[, "Cell_type_1"])
+for (i in 1:(n_genes / 2))
+  expr_data[i, ] <- rnorm(n_spots) + i * rnorm(n_spots) %*% Sigma
+Sigma <- chol(K) %*% diag(cell_type_props[, "Cell_type_2"])
+for (i in (n_genes / 2 + 1):n_genes)
+  expr_data[i, ] <- rnorm(n_spots) + rnorm(n_spots) %*% Sigma
+
 
 ```
+
+
+
+
+
+results <- spacelink_ctSVG(
+  normalized_counts     = expr_data,
+  spatial_coords        = coords,
+  cell_type_proportions = cell_type_props,
+  focal_cell_type       = "Cell_type_1"
+)
+print(results[, c("pval", "ESV")])

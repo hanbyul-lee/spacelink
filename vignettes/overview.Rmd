@@ -27,21 +27,21 @@ The **spacelink** package consists of two main functions:
 
 [`spacelink`](https://hanbyul-lee.github.io/spacelink/reference/spacelink.html) requires two primary inputs: 
 
-- `normalized_counts`: Normalized count matrix (genes x spots). This can be generated, for example, by applying normalization methods such as [SCTransform](https://satijalab.org/seurat/reference/sctransform) to raw count data. See the [CosMx](https://hanbyul-lee.github.io/spacelink/articles/illustration_on_cosmx_data.html) and [Visium](https://hanbyul-lee.github.io/spacelink/articles/illustration_on_visium_data.html) application examples for normalization details.
-- `spatial_coords`: Two-dimensional spatial coordinate matrix (spots x 2).
+- **`normalized_counts`**: Normalized count matrix (genes x spots). This can be generated, for example, by applying normalization methods such as [SCTransform](https://satijalab.org/seurat/reference/sctransform) to raw count data. See the [CosMx](https://hanbyul-lee.github.io/spacelink/articles/illustration_on_cosmx_data.html) and [Visium](https://hanbyul-lee.github.io/spacelink/articles/illustration_on_visium_data.html) application examples for normalization details.
+- **`spatial_coords`**: Two-dimensional spatial coordinate matrix (spots x 2).
 
 Optionally, you can provide:
 
-- `lite`: Logical variable. If `TRUE`, a grid-based approximation is used to speed up computation for large datasets. Default is `FALSE`. For very large datasets, we recommend setting `lite = TRUE`.
-- `grid_size`: Grid cell size when `lite = TRUE`. If `NULL`, It is set automatically to 5 times the minimum nearest-neighbor distance. Default is `NULL`. We recommend adjusting the grid size to suit your dataset.
-- `n_workers`: Number of workers for parallel computation across genes.
+- **`lite`**: Logical variable. If `TRUE`, a grid-based approximation is used to speed up computation for large datasets. Default is `FALSE`. For very large datasets, we recommend setting `lite = TRUE`.
+- **`grid_size`**: Grid cell size when `lite = TRUE`. If `NULL`, It is set automatically to 5 times the minimum nearest-neighbor distance. Default is `NULL`. We recommend adjusting the grid size to suit your dataset.
+- **`n_workers`**: Number of workers for parallel computation across genes.
 
 ### Outputs
 
-- `pval` : Combined p-value testing whether each gene is spatially variable.
-- `padj` : Benjamini-Hochberg adjusted p-value.
-- `ESV` : Effective Spatial Variability score (0–1) for prioritizing SVGs; higher values indicate stronger spatial variability.
-- `ESV_adj` : ESV adjusted for non-SVGs (set to 0 if `padj` > 0.05).
+- **`pval`** : Combined p-value testing whether each gene is spatially variable.
+- **`padj`** : Benjamini-Hochberg adjusted p-value.
+- **`ESV`** : Effective Spatial Variability score (0–1) for prioritizing SVGs; higher values indicate stronger spatial variability.
+- **`ESV_adj`** : ESV adjusted for non-SVGs (set to 0 if `padj` > 0.05).
 
 ### Code example
 
@@ -65,23 +65,23 @@ head(global_results[order(global_results$ESV_adj, decreasing=T), c("pval","padj"
 
 [`spacelink_ctSVG`](https://hanbyul-lee.github.io/spacelink/reference/spacelink_ctSVG.html) requires four primary inputs:
 
-- `normalized_counts`: Normalized count matrix (as above).
-- `spatial_coords`: Two-dimensional spatial coordinate matrix (spots x 2).
-- `cell_type_proportions`: Cell type proportion matrix (spots x cell-types), e.g., estimated with [RCTD](https://github.com/dmcable/spacexr). If all spots contain only one cell type (no mixing), [`spacelink`](https://hanbyul-lee.github.io/spacelink/reference/spacelink.html) is applied internally to the subset of spots corresponding to the focal cell type.
-- `focal_cell_type`: Name of the focal cell type; must match one of the columns in `cell_type_proportions`.
+- **`normalized_counts`**: Normalized count matrix (as above).
+- **`spatial_coords`**: Two-dimensional spatial coordinate matrix (spots x 2).
+- **`cell_type_proportions`**: Cell type proportion matrix (spots x cell-types), e.g., estimated with [RCTD](https://github.com/dmcable/spacexr). If all spots contain only one cell type (no mixing), [`spacelink`](https://hanbyul-lee.github.io/spacelink/reference/spacelink.html) is applied internally to the subset of spots corresponding to the focal cell type.
+- **`focal_cell_type`**: Name of the focal cell type; must match one of the columns in `cell_type_proportions`.
 
 Optionally, you can provide:
 
-- `lite`: Logical variable, applicable only when all spots are pure (single-cell resolution). If `TRUE`, a grid-based approximation is used to speed up computation for large datasets. Default is `FALSE`. For very large numbers of cells, we recommend setting `lite = TRUE`.
-- `grid_size`: Grid cell size when `lite = TRUE`. If `NULL`, set automatically to 5 times the minimum nearest-neighbor distance. Default is `NULL`. Adjust to suit your dataset.
-- `n_workers`: Number of workers for parallel computation across genes.
+- **`lite`**: Logical variable, applicable only when all spots are pure (single-cell resolution). If `TRUE`, a grid-based approximation is used to speed up computation for large datasets. Default is `FALSE`. For very large numbers of cells, we recommend setting `lite = TRUE`.
+- **`grid_size`**: Grid cell size when `lite = TRUE`. If `NULL`, set automatically to 5 times the minimum nearest-neighbor distance. Default is `NULL`. Adjust to suit your dataset.
+- **`n_workers`**: Number of workers for parallel computation across genes.
 
 ### Outputs
 
-- `pval` : Combined p-value testing spatial variability within the focal cell type.
-- `padj` : Benjamini-Hochberg adjusted p-value.
-- `ESV` : Cell-type–specific Effective Spatial Variability (ct-ESV) score (0–1) for prioritizing ctSVGs; higher values indicate stronger spatial variability within the focal cell type.
-- `ESV_adj` : ESV adjusted for non-ctSVGs (set to 0 if `padj` > 0.05).
+- **`pval`** : Combined p-value testing spatial variability within the focal cell type.
+- **`padj`** : Benjamini-Hochberg adjusted p-value.
+- **`ESV`** : Cell-type–specific Effective Spatial Variability (ct-ESV) score (0–1) for prioritizing ctSVGs; higher values indicate stronger spatial variability within the focal cell type.
+- **`ESV_adj`** : ESV adjusted for non-ctSVGs (set to 0 if `padj` > 0.05).
 
 ### Code example
 

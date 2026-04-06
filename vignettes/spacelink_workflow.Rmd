@@ -1,8 +1,8 @@
 ---
-title: "Spacelink workflow"
+title: "Spacelink Workflow"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Spacelink workflow}
+  %\VignetteIndexEntry{Spacelink Workflow}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -23,11 +23,13 @@ Here, we demonstrate the workflow for spatial gene variability analysis at the *
 ## 1. Simulate Data
 
 Here, gene expression data ($x$) are simulated from the following simple Gaussian process model:
+
 $$
 y \sim MVN(0, \alpha K_l + I), K_l: \text{exponential covariance kernel with length scale } l
 \\
 x \sim Poisson(\exp(y))
 $$
+
 We simulate a total of 6 spatially variable genes (SVGs) and 4 non-SVGs.
 For the first 3 genes (`Gene_1`, `Gene_2`, `Gene_3`), the length scale $l$ is set to 0.5, and the signal-to-noise ratio $\alpha$ is set to 0.5, 1, and 2, respectively.
 For the next 3 genes (`Gene_4`, `Gene_5`, `Gene_6`), the length scale $l$ is set to 2, and the signal-to-noise ratio $\alpha$ is again set to 0.5, 1, and 2, respectively.

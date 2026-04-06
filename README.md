@@ -6,7 +6,7 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-`spacelink` is a unified statistical framework for detecting and
+**Spacelink** is a unified statistical framework for detecting and
 prioritizing SVGs at both global tissue and cell-type resolution.
 Spacelink employs an adaptive multi-kernel model to capture spatial
 variance across diverse length scales, and its cell-type specific
@@ -33,7 +33,7 @@ devtools::install_github("hanbyul-lee/spacelink")
 ## Documentation
 
 | Page | Description |
-| --------------------- | ------------------------------ |
+| ------------------------ | ------------------------------ |
 | [Installation]() | Setup |
 | [Overview]() | Descriptions of main functions |
 | [Spacelink Workflow]() | Examples and guides for Spacelink analysis at the global tissue level |
