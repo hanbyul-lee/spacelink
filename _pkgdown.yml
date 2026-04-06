@@ -24,43 +24,73 @@ navbar:
     articles:
       text: Articles
       menu:
-      - text: Getting Started
-        href: articles/getting-started.html
-      - text: Visium Human DLPFC Analysis
-        href: articles/example_visium_human_DLPFC.html
-      - text: CosMx Human Frontal Cortex Analysis
-        href: articles/example_cosmx_human_frontal_cortex.html
-      - text: Disease Informativeness Evaluation of ESVs
-        href: articles/example_pops_analysis.html
+      - text: "Getting Started"
+      - text: Installation
+        href: articles/installation.html
+      - text: Overview of Spacelink main functions
+        href: articles/overview.html
+      - text: "-------"
+      - text: "Workflows"
+      - text: Spacelink workflow
+        href: articles/spacelink_workflow.html
+      - text: Spacelink ctSVG workflow
+        href: articles/spacelink_ctSVG_workflow.html
+      - text: "-------"
+      - text: "Analyses"
+      - text: Visium human DLPFC analysis
+        href: articles/illustration_on_visium_data.html
+      - text: CosMx human frontal cortex analysis
+        href: articles/illustration_on_cosmx_data.html
+      - text: Disease informativeness evaluation of ESV
+        href: articles/disease_informativeness_evaluation.html
+      - text: "-------"
+      - text: "Benchmarks"
+      - text: SVG ranking metric comparison
+        href: articles/svg_ranking_metric_comparison.html
+      - text: Runtime and memory usage
+        href: articles/runtime_memory_usage.html
     github:
       icon: fab fa-github fa-lg
       href: https://github.com/hanbyul-lee/spacelink
       aria-label: GitHub
 
 reference:
-- title: "Main Analysis Functions"
+- title: "Main Functions"
   desc: "Core functions for spatial gene variability analysis"
   contents:
   - spacelink
   - spacelink_ctSVG
 
-- title: "Example data"
+- title: "Example Data"
   desc: "Visium human DLPFC data as example data"
   contents:
   - Visium_human_DLPFC
 
 articles:
 - title: "Getting Started"
-  navbar: ~
+  desc: "Installation and overview of the package"
   contents:
-  - getting-started
+  - installation
+  - overview
 
-- title: "Advanced Usage"
-  desc: "Detailed guides for specific use cases"
+- title: "Workflows"
+  desc: "Step-by-step workflow guides"
   contents:
-  - example_visium_human_DLPFC
-  - example_cosmx_human_frontal_cortex
-  - example_pops_analysis
+  - spacelink_workflow
+  - spacelink_ctSVG_workflow
+
+- title: "Analyses"
+  desc: "Detailed example analyses on real datasets"
+  contents:
+  - illustration_on_visium_data
+  - illustration_on_cosmx_data
+  - disease_informativeness_evaluation
+
+- title: "Benchmarks"
+  desc: "Performance and comparison benchmarks"
+  contents:
+  - svg_ranking_metric_comparison
+  - runtime_memory_usage
 
 footer:
   structure:

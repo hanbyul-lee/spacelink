@@ -1,0 +1,25 @@
+---
+title: "Runtime and memory usage"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Runtime and memory usage}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "figures/",
+  out.width = "100%"
+)
+```
+
+## ddd
+
+ddd
+
+```{r eval=FALSE}
+
+```
