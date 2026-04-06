@@ -24,16 +24,18 @@ Here, we demonstrate the workflow for spatial gene variability analysis at the *
 
 Here, gene expression data ($x$) are simulated from the following simple Gaussian process model:
 
-$$
+$
 y \sim MVN(0, \alpha K_l + I), K_l: \text{exponential covariance kernel with length scale } l
-\\
+$
+
+$
 x \sim Poisson(\exp(y))
-$$
+$
 
 We simulate a total of 6 spatially variable genes (SVGs) and 4 non-SVGs.
 For the first 3 genes (`Gene_1`, `Gene_2`, `Gene_3`), the length scale $l$ is set to 0.5, and the signal-to-noise ratio $\alpha$ is set to 0.5, 1, and 2, respectively.
 For the next 3 genes (`Gene_4`, `Gene_5`, `Gene_6`), the length scale $l$ is set to 2, and the signal-to-noise ratio $\alpha$ is again set to 0.5, 1, and 2, respectively.
-The non-SVGs were simulated with $\alpha=0$.
+The non-SVGs (`Gene_7`, `Gene_8`, `Gene_9`, `Gene_10`) are simulated with $\alpha=0$.
 
 SVGs are expected to exhibit higher spatial variability as the length scale and signal-to-noise ratio increase.
 
@@ -94,7 +96,7 @@ expr_data[,1:10]
 
 ## 2. Preprocessing
 
-Since [`spacelink`](https://hanbyul-lee.github.io/spacelink/reference/spacelink.html) requires normalized input data, we first normalize the count data `expr_data` before running the method.
+Since [`spacelink`](https://hanbyul-lee.github.io/spacelink/reference/spacelink.html) requires normalized input data, we first normalize the count data (`expr_data`) before running the method.
 In this example, we apply a simple log normalization, as the data are simple.
 For more sophisticated normalization approaches that also correct for differences in sequencing depth across spots, please refer to the [CosMx](https://hanbyul-lee.github.io/spacelink/articles/illustration_on_cosmx_data.html) and [Visium](https://hanbyul-lee.github.io/spacelink/articles/illustration_on_visium_data.html) application examples.
 
@@ -120,7 +122,7 @@ norm_data[,1:10]
 
 ## 3. Run Spacelink
 
-We now run [`spacelink`](https://hanbyul-lee.github.io/spacelink/reference/spacelink.html) using the normalized data `norm_data` and the spatial coordinates `coords`.
+We now run [`spacelink`](https://hanbyul-lee.github.io/spacelink/reference/spacelink.html) using the normalized data (`norm_data`) and the spatial coordinates (`coords`).
 
 ```{r eval=FALSE}
 library(spacelink)
@@ -162,7 +164,7 @@ The simulated SVGs -- `Gene_2`, `Gene_3`, `Gene_4`, `Gene_5`, and `Gene_6` -- ar
 Next, among the identified SVGs, we can assess which genes exhibit the highest spatial variability using the **Effective Spatial Variability (ESV)** score:
 
 ```{r eval=FALSE}
-svg_results = svg_results[order(svg_results$ESV,decreasing=T),]
+svg_results = svg_results[order(svg_results$ESV, decreasing=T),]
 svg_results$rank = 1:nrow(svg_results)
 svg_results[,c('rank','ESV')]
 ```
