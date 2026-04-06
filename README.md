@@ -33,7 +33,7 @@ devtools::install_github("hanbyul-lee/spacelink")
 ## Documentation
 
 | Page | Description |
-| ----------------- | ------------------------------ |
+| --------------------- | ------------------------------ |
 | [Installation]() | Setup |
 | [Overview]() | Descriptions of main functions |
 | [Spacelink Workflow]() | Examples and guides for Spacelink analysis at the global tissue level |

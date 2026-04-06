@@ -16,10 +16,162 @@ knitr::opts_chunk$set(
 )
 ```
 
-## ddd
 
-ddd
+Here, we demonstrate the workflow for spatial gene variability analysis at the *global tissue level* using the [`spacelink`](https://hanbyul-lee.github.io/spacelink/reference/spacelink.html) function through a simple simulation example.
+
+
+## 1. Simulate Data
+
+Here, gene expression data ($x$) are simulated from the following simple Gaussian process model:
+$$
+y \sim MVN(0, \alpha K_l + I), K_l: \text{exponential covariance kernel with length scale } l
+\\
+x \sim Poisson(\exp(y))
+$$
+We simulate a total of 6 spatially variable genes (SVGs) and 4 non-SVGs.
+For the first 3 genes (`Gene_1`, `Gene_2`, `Gene_3`), the length scale $l$ is set to 0.5, and the signal-to-noise ratio $\alpha$ is set to 0.5, 1, and 2, respectively.
+For the next 3 genes (`Gene_4`, `Gene_5`, `Gene_6`), the length scale $l$ is set to 2, and the signal-to-noise ratio $\alpha$ is again set to 0.5, 1, and 2, respectively.
+The non-SVGs were simulated with $\alpha=0$.
+
+SVGs are expected to exhibit higher spatial variability as the length scale and signal-to-noise ratio increase.
 
 ```{r eval=FALSE}
+set.seed(123)
+n_spots <- 500
+n_genes <- 10
 
+# Obtain spatial coordinates
+coords <- expand.grid(
+  x = seq(0, 10, length.out = 25),
+  y = seq(0, 10, length.out = 20)
+)
+
+expr_data <- matrix(nrow = n_genes, ncol = n_spots)
+rownames(expr_data) <- paste0("Gene_", 1:n_genes)
+D <- as.matrix(dist(coords))
+
+# Simulate Gene_1, Gene_2, Gene_3
+lengthscale = 0.5
+snr = c(0.5, 1, 2)
+K <- exp(-D/lengthscale); chol_K <- chol(K)
+for (i in 1:3) {
+  expr_data[i, ] <- rnorm(n_spots) + snr[i] * rnorm(n_spots) %*% chol_K
+}
+
+# Simulate Gene_4, Gene_5, Gene_6
+lengthscale = 2
+snr = c(0.5, 1, 2)
+K <- exp(-D/lengthscale); chol_K <- chol(K)
+for (i in 1:3) {
+  expr_data[i+3, ] <- rnorm(n_spots) + snr[i] * rnorm(n_spots) %*% chol_K
+}
+
+# Simulate Gene_7, Gene_8, Gene_9, Gene_10
+for (i in 7:10) {
+  expr_data[i, ] <- rnorm(n_spots)
+}
+
+expr_data <- apply(exp(expr_data), 1:2, function(x)rpois(1,x))
+expr_data[,1:10]
 ```
+
+```{r eval=FALSE}
+##         [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10]
+## Gene_1     1    0    5    1    0    4    1    0    0     0
+## Gene_2     0    0    0    1    0   29    5    9    2     0
+## Gene_3     1    1    0    0    5    0    1    6    1     4
+## Gene_4     2    1    1    1    8    0    3    0    2     0
+## Gene_5     0    2    6    1    1   27    9    7    1     3
+## Gene_6     0    0    0    0    0    0    6    3    0     0
+## Gene_7     1    4    2    1    2    1    2    5    1     0
+## Gene_8     1    1    2    3    0    4    2    1    9     3
+## Gene_9     0    0    6    3    7    0    0    4    1     1
+## Gene_10    2    0    2    0    1    0    1    0    3     0
+```
+
+
+## 2. Preprocessing
+
+Since [`spacelink`](https://hanbyul-lee.github.io/spacelink/reference/spacelink.html) requires normalized input data, we first normalize the count data `expr_data` before running the method.
+In this example, we apply a simple log normalization, as the data are simple.
+For more sophisticated normalization approaches that also correct for differences in sequencing depth across spots, please refer to the [CosMx](https://hanbyul-lee.github.io/spacelink/articles/illustration_on_cosmx_data.html) and [Visium](https://hanbyul-lee.github.io/spacelink/articles/illustration_on_visium_data.html) application examples.
+
+```{r eval=FALSE}
+norm_data <- log1p(expr_data)/log(2)
+norm_data[,1:10]
+```
+
+```{r eval=FALSE}
+##             [,1]     [,2]     [,3] [,4]     [,5]     [,6]     [,7]     [,8]     [,9]    [,10]
+## Gene_1  1.000000 0.000000 2.584963    1 0.000000 2.321928 1.000000 0.000000 0.000000 0.000000
+## Gene_2  0.000000 0.000000 0.000000    1 0.000000 4.906891 2.584963 3.321928 1.584963 0.000000
+## Gene_3  1.000000 1.000000 0.000000    0 2.584963 0.000000 1.000000 2.807355 1.000000 2.321928
+## Gene_4  1.584963 1.000000 1.000000    1 3.169925 0.000000 2.000000 0.000000 1.584963 0.000000
+## Gene_5  0.000000 1.584963 2.807355    1 1.000000 4.807355 3.321928 3.000000 1.000000 2.000000
+## Gene_6  0.000000 0.000000 0.000000    0 0.000000 0.000000 2.807355 2.000000 0.000000 0.000000
+## Gene_7  1.000000 2.321928 1.584963    1 1.584963 1.000000 1.584963 2.584963 1.000000 0.000000
+## Gene_8  1.000000 1.000000 1.584963    2 0.000000 2.321928 1.584963 1.000000 3.321928 2.000000
+## Gene_9  0.000000 0.000000 2.807355    2 3.000000 0.000000 0.000000 2.321928 1.000000 1.000000
+## Gene_10 1.584963 0.000000 1.584963    0 1.000000 0.000000 1.000000 0.000000 2.000000 0.000000
+```
+
+
+## 3. Run Spacelink
+
+We now run [`spacelink`](https://hanbyul-lee.github.io/spacelink/reference/spacelink.html) using the normalized data `norm_data` and the spatial coordinates `coords`.
+
+```{r eval=FALSE}
+library(spacelink)
+
+results <- spacelink(normalized_counts = norm_data, spatial_coords = coords)
+results[, c("padj", "ESV")]
+```
+
+```{r eval=FALSE}
+##                 padj         ESV
+## Gene_1  2.388026e-01 0.081564906
+## Gene_2  3.376990e-02 0.171733914
+## Gene_3  1.378931e-08 0.467050678
+## Gene_4  4.138725e-02 0.124286163
+## Gene_5  4.901449e-20 0.418612352
+## Gene_6  5.660031e-47 0.786031823
+## Gene_7  7.575684e-01 0.000000000
+## Gene_8  5.102295e-01 0.014419457
+## Gene_9  7.999929e-01 0.000000000
+## Gene_10 5.102295e-01 0.005973537
+```
+
+
+## 4. Analyze Results
+
+We can identify which genes are detected as SVGs based on the hypothesis testing results as follows:
+
+```{r eval=FALSE}
+svg_results <- results[results$padj < 0.05,]
+rownames(svg_results)
+```
+
+```{r eval=FALSE}
+## [1] "Gene_2" "Gene_3" "Gene_4" "Gene_5" "Gene_6"
+```
+
+The simulated SVGs -- `Gene_2`, `Gene_3`, `Gene_4`, `Gene_5`, and `Gene_6` -- are successfully identified as SVGs, except for `Gene_1`, which was simulated under low length scale and low signal-to-noise ratio.
+
+Next, among the identified SVGs, we can assess which genes exhibit the highest spatial variability using the **Effective Spatial Variability (ESV)** score:
+
+```{r eval=FALSE}
+svg_results = svg_results[order(svg_results$ESV,decreasing=T),]
+svg_results$rank = 1:nrow(svg_results)
+svg_results[,c('rank','ESV')]
+```
+
+```{r eval=FALSE}
+##        rank       ESV
+## Gene_6    1 0.7860318
+## Gene_3    2 0.4670507
+## Gene_5    3 0.4186124
+## Gene_2    4 0.1717339
+## Gene_4    5 0.1242862
+```
+
+`Gene_6`, which was simulated with the highest length scale and signal-to-noise ratio, shows the highest ESV value and is ranked first.

@@ -1,5 +1,5 @@
 ---
-title: "Installation Instructions for Spacelink"
+title: "Installation Instructions"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Installation instructions for Spacelink}
@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-To install **Spacelink**, R version 4.0 or greater is required.
+To install Spacelink, R version 4.0 or greater is required.
 
 ## Install from CRAN
 
