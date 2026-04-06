@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# spacelink
+# Spacelink
 
 <!-- badges: start -->
 <!-- badges: end -->
@@ -14,7 +14,7 @@ version introduces a data-driven gating strategy to correct for spatial
 colocalization, designed to improve the specificity for cell types that
 are weakly represented in mixed spots relative to more abundant
 colocalizing cell types. To summarize spatial variability, we define
-Effective Spatial Variability (ESV), a metric which integrates variance
+**Effective Spatial Variability (ESV)**, a metric which integrates variance
 magnitude of each component kernel and its corresponding spatial scale
 into a single interpretable score directly suited for genetic analyses.
 
@@ -30,7 +30,15 @@ You can install the development version of spacelink from
 devtools::install_github("hanbyul-lee/spacelink")
 ```
 
-## Tutorial
+## Documentation
 
-A detailed tutorial is available
-[here](https://hanbyul-lee.github.io/spacelink/index.html).
+| Page | Description |
+| ---- | ----------- |
+| [Installation]() | Setup |
+| [Overview]() | Descriptions of main functions |
+| [Spacelink Workflow]() | Examples and guides for Spacelink analysis at the global tissue level |
+| [Spacelink (ct-SVG) Workflow]() | Examples and guides for Spacelink (ct-SVG) analysis at the cell-type-specific level |
+| [Runtime & Memory Usage]() | Benchmarks of computational time and memory requirements across different dataset sizes |
+| [Illustration on CosMx Data]() | Application of Spacelink on a large-scale single-cell resolution dataset |
+| [Illustration on Visium Data]() | Application of Spacelink on a medium-scale spot resolution dataset |
+| [SVG Ranking Metric Comparison]() | Comparison of ESV with other metrics for ranking genes by spatial variability |
