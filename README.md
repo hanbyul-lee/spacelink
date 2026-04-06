@@ -41,4 +41,5 @@ devtools::install_github("hanbyul-lee/spacelink")
 | [Runtime & Memory Usage]() | Benchmarks of computational time and memory requirements across different dataset sizes |
 | [Illustration on CosMx Data]() | Application of Spacelink on a large-scale single-cell resolution dataset |
 | [Illustration on Visium Data]() | Application of Spacelink on a medium-scale spot resolution dataset |
+| [Disease Informativeness Evaluation]() | Evaluation of ESV disease informativeness using PoPS (Polygenic Priority Score) |
 | [SVG Ranking Metric Comparison]() | Comparison of ESV with other metrics for ranking genes by spatial variability |
