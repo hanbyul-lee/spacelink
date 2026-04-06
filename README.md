@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# Spacelink
+# **Spacelink**
 
 <!-- badges: start -->
 <!-- badges: end -->
@@ -33,7 +33,7 @@ devtools::install_github("hanbyul-lee/spacelink")
 ## Documentation
 
 | Page | Description |
-| ---- | ----------- |
+| ----------------- | ------------------------------ |
 | [Installation]() | Setup |
 | [Overview]() | Descriptions of main functions |
 | [Spacelink Workflow]() | Examples and guides for Spacelink analysis at the global tissue level |

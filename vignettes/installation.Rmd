@@ -1,8 +1,8 @@
 ---
-title: "Getting Started with Spacelink"
+title: "Installation Instructions for Spacelink"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Getting Started with spacelink}
+  %\VignetteIndexEntry{Installation instructions for Spacelink}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -16,77 +16,25 @@ knitr::opts_chunk$set(
 )
 ```
 
-## Installation
+To install **Spacelink**, R version 4.0 or greater is required.
 
-Install the development version from GitHub:
+## Install from CRAN
+
+Spacelink is available on CRAN for all platforms. To install it, run:
+
+```{r eval=FALSE}
+# TBD
+# install.packages("spacelink")
+# library(spacelink)
+```
+
+
+## Install the development version
+
+You can install the development version of Spacelink directly from GitHub.
 
 ```{r eval=FALSE}
 # install.packages("devtools")
 devtools::install_github("hanbyul-lee/spacelink")
-```
-
-```{r}
 library(spacelink)
 ```
-
-
-## Usage Overview
-
-The **spacelink** package consists of two main functions: [`spacelink`](https://hanbyul-lee.github.io/spacelink/reference/spacelink.html) and [`spacelink_ctSVG`](https://hanbyul-lee.github.io/spacelink/reference/spacelink_ctSVG.html).
-
-The [`spacelink`](https://hanbyul-lee.github.io/spacelink/reference/spacelink.html) function performs hypothesis testing at the global tissue level to identify spatially variable genes (SVGs) using an adaptive multi-kernel approach. It also provides **Effective Spatial Variability (ESV)** scores (ranging from 0 to 1), where higher values indicate greater spatial variability in gene expression.
-
-The [`spacelink_ctSVG`](https://hanbyul-lee.github.io/spacelink/reference/spacelink_ctSVG.html) function performs hypothesis testing to identify cell-type–specific spatially variable genes (ctSVGs) using a data-driven colocalization gating strategy. It reports **cell-type–specific Effective Spatial Variability (ct-ESV)** scores (ranging from 0 to 1), where higher values indicate greater spatial variability within the focal cell type.
-
-### 1. Global Analysis
-
-At the global tissue level, [`spacelink`](https://hanbyul-lee.github.io/spacelink/reference/spacelink.html) requires two primary inputs: a normalized count matrix (`normalized_counts`) and a two-dimensional spatial coordinate matrix (`spatial_coords`).
-The normalized count matrix can be obtained, for example, by applying normalization methods such as the [SCTransform](https://satijalab.org/seurat/reference/sctransform) function to raw count data.
-Optionally, for large-scale datasets where computational cost is high, setting `lite = TRUE` enables a grid-based approximation of spacelink to accelerate computation.
-Parallel computation across genes can be performed by specifying the number of workers (`n_workers`).
-
-```{r eval=FALSE}
-global_results <- spacelink(
-  normalized_counts = normalized_expression_matrix,  # Genes × Spots
-  spatial_coords = coordinates,  # Spots × 2
-  lite = FALSE,
-  n_workers = 1
-)
-
-# View results
-head(global_results[order(global_results$ESV_adj, decreasing=T), c("pval","padj","ESV","ESV_adj")])
-```
-
-The output includes the following results for each gene:
-
-- `pval` : Combined p-value for testing whether the gene is spatially variable
-- `padj` : Benjamini-Hochberg adjusted p-value
-- `ESV` : Effective Spatial Variability score (0–1) for prioritizing SVGs; higher values indicate greater spatial variability
-- `ESV_adj` : ESV adjusted for non-SVGs (set to 0 if `padj` > 0.05)
-
-### 2. Cell-Type-Specific Analysis
-
-At the cell-type level, [`spacelink_ctSVG`](https://hanbyul-lee.github.io/spacelink/reference/spacelink_ctSVG.html) requires four inputs: a normalized count matrix (`normalized_counts`), a two-dimensional spatial coordinate matrix (`spatial_coords`), a cell type proportion matrix (`cell_type_proportions`), and the name of the focal cell type (`focal_cell_type`).
-The cell type proportion matrix can be obtained, for example, using methods such as the [RCTD](https://github.com/dmcable/spacexr) function. The `focal_cell_type` must match one of the column names in `cell_type_proportions`.
-If all spots are pure (i.e., no cell type mixing), as in single-cell resolution data, the [`spacelink`](https://hanbyul-lee.github.io/spacelink/reference/spacelink.html) function is internally applied to the subset of spots corresponding to the focal cell type.
-Parallelization across genes is supported via the `n_workers` parameter.
-
-```{r eval=FALSE}
-cell_type_results <- spacelink_ctSVG(
-  normalized_counts = normalized_expression_matrix,  # Genes × Spots
-  spatial_coords = coordinates,  # Spots × 2
-  cell_type_proportions = cell_type_proportions,  # Spots × Cell-types
-  focal_cell_type = cell_type_name,  # Cell type name to test
-  n_workers = 1
-)
-
-# View results
-head(cell_type_results[order(cell_type_results$ESV_adj, decreasing=T), c("pval","padj","ESV","ESV_adj")])
-```
-
-The output includes the following for each gene:
-
-- `pval` : Combined p-value for testing spatial variability within the focal cell type
-- `padj` : Benjamini-Hochberg adjusted p-value
-- `ESV` : Cell-type–specific Effective Spatial Variability (ct-ESV) score (0–1) for prioritizing ctSVGs; higher values indicate greater spatial variability within the focal cell type
-- `ESV_adj` : ESV adjusted for non-ctSVGs (set to 0 if `padj` > 0.05)
