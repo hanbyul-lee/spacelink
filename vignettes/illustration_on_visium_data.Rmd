@@ -23,6 +23,11 @@ The dataset is available [here](https://research.libd.org/spatialLIBD/), and we 
 Cell-type proportions were estimated using [RCTD](https://github.com/dmcable/spacexr) with the [CosMx Human Frontal Cortex dataset](https://brukerspatialbiology.com/products/cosmx-spatial-molecular-imager/ffpe-dataset/human-frontal-cortex-ffpe-dataset/) as a reference. 
 The processed example data, provided as [`Visium_human_DLPFC`](https://hanbyul-lee.github.io/spacelink/reference/Visium_human_DLPFC.html), includes gene expression, spot coordinates, and the estimated cell type proportions.
 
+We walk through the full Spacelink workflow in two stages: (1) **global tissue-level** SVG detection, 
+which tests for spatial variability across all spots regardless of cell type, 
+and (2) **cell-type-specific** SVG detection, 
+which tests for spatial variability within a specific cell population.
+
 ## 1. Load Packages
 
 ```{r eval=FALSE}
@@ -38,9 +43,9 @@ library(viridis)
 Here we load the built-in example dataset for Visium Human DLPFC (sample 151673).
 It comes with three pieces of information we'll use throughout the analysis:
 
-- `counts`: gene expression matrix (33,538 genes × 3,639 spots)
-- `spatial_coords`: spatial coordinates for each spot
-- `cell_type_proportions`: estimated cell type compositions via RCTD (9 cell types)
+- `counts`: Gene expression matrix (33,538 genes × 3,639 spots)
+- `spatial_coords`: Spatial coordinates for each spot
+- `cell_type_proportions`: Estimated cell type compositions via RCTD (9 cell types)
 
 ```{r eval=FALSE}
 data(Visium_human_DLPFC)
@@ -62,14 +67,6 @@ head(counts[,1:10])
 ```
 
 ```{r eval=FALSE}
-dim(counts)
-```
-
-```{r eval=FALSE}
-## [1] 33538  3639
-```
-
-```{r eval=FALSE}
 head(spatial_coords)
 ```
 
@@ -84,14 +81,6 @@ head(spatial_coords)
 ```
 
 ```{r eval=FALSE}
-dim(spatial_coords)
-```
-
-```{r eval=FALSE}
-## [1] 3639  2
-```
-
-```{r eval=FALSE}
 head(cell_type_proportions)
 ```
 
@@ -103,14 +92,6 @@ head(cell_type_proportions)
 ## AAACAGAGCGACTCCT-1 4.419690e-04 0.70660998 1.437067e-04 1.437067e-04     0.012711896 1.437067e-04 0.119882025 0.133047245 0.0268757663
 ## AAACAGCTTTCAGAAG-1 1.398113e-02 0.52170271 8.882893e-05 2.874930e-01     0.050319200 8.882893e-05 0.026019353 0.096453571 0.0038533732
 ## AAACAGGGTCTATATT-1 8.872097e-05 0.37248441 8.872097e-05 3.500929e-01     0.206785555 8.872097e-05 0.029330741 0.040862758 0.0001774419
-```
-
-```{r eval=FALSE}
-dim(cell_type_proportions)
-```
-
-```{r eval=FALSE}
-## [1] 3639    9
 ```
 
 ## 3. Preprocessing

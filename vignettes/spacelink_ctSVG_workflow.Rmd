@@ -1,8 +1,8 @@
 ---
-title: "Spacelink ctSVG workflow"
+title: "Spacelink ctSVG Workflow"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Spacelink ctSVG workflow}
+  %\VignetteIndexEntry{Spacelink ctSVG Workflow}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -114,7 +114,7 @@ expr_data[,1:10]
 
 ## 2. Preprocessing
 
-Since [`spacelink_ctSVG`](https://hanbyul-lee.github.io/spacelink/reference/spacelink_ctSVG.html) requires normalized input data, we first normalize the count data (`expr_data`) before running the method.
+Since [`spacelink_ctSVG`](https://hanbyul-lee.github.io/spacelink/reference/spacelink_ctSVG.html) requires log-transformed normalized input data, we first normalize the count data (`expr_data`) before running the method.
 In this example, we apply a simple log normalization, as the data are simple.
 For more sophisticated normalization approaches that also correct for differences in sequencing depth across spots, please refer to the [CosMx](https://hanbyul-lee.github.io/spacelink/articles/illustration_on_cosmx_data.html) and [Visium](https://hanbyul-lee.github.io/spacelink/articles/illustration_on_visium_data.html) application examples.
 
@@ -138,9 +138,9 @@ norm_data[,1:10]
 ```
 
 
-## 3. Run Spacelink
+## 3. Run Spacelink (ctSVG)
 
-We now run [`spacelink_ctSVG`](https://hanbyul-lee.github.io/spacelink/reference/spacelink_ctSVG.html) using the normalized data (`norm_data`), the spatial coordinates (`coords`), and the cell type proportions (`cell_type_props`).
+We now run [`spacelink_ctSVG`](https://hanbyul-lee.github.io/spacelink/reference/spacelink_ctSVG.html) using the log-transformed normalized data (`norm_data`), the spatial coordinates (`coords`), and the cell type proportions (`cell_type_props`).
 
 Here, we aim to identify the cell-type-1-specific ctSVGs. Therefore, we set `focal_cell_type` to the corresponding column name, `Cell_type_1`.
 

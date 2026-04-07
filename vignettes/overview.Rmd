@@ -27,7 +27,7 @@ The **spacelink** package consists of two main functions:
 
 [`spacelink`](https://hanbyul-lee.github.io/spacelink/reference/spacelink.html) requires two primary inputs: 
 
-- **`normalized_counts`**: Normalized count matrix (genes x spots). This can be generated, for example, by applying normalization methods such as [SCTransform](https://satijalab.org/seurat/reference/sctransform) to raw count data. See the [CosMx](https://hanbyul-lee.github.io/spacelink/articles/illustration_on_cosmx_data.html) and [Visium](https://hanbyul-lee.github.io/spacelink/articles/illustration_on_visium_data.html) application examples for normalization details.
+- **`normalized_counts`**: Log-transformed normalized count matrix (genes x spots). This can be generated, for example, by applying normalization methods such as [SCTransform](https://satijalab.org/seurat/reference/sctransform) to raw count data. See the [CosMx](https://hanbyul-lee.github.io/spacelink/articles/illustration_on_cosmx_data.html) and [Visium](https://hanbyul-lee.github.io/spacelink/articles/illustration_on_visium_data.html) application examples for normalization details.
 - **`spatial_coords`**: Two-dimensional spatial coordinate matrix (spots x 2).
 
 Optionally, you can provide:
@@ -65,7 +65,7 @@ head(global_results[order(global_results$ESV_adj, decreasing=T), c("pval","padj"
 
 [`spacelink_ctSVG`](https://hanbyul-lee.github.io/spacelink/reference/spacelink_ctSVG.html) requires four primary inputs:
 
-- **`normalized_counts`**: Normalized count matrix (as above).
+- **`normalized_counts`**: Log-transformed normalized count matrix (as above).
 - **`spatial_coords`**: Two-dimensional spatial coordinate matrix (spots x 2).
 - **`cell_type_proportions`**: Cell type proportion matrix (spots x cell-types), e.g., estimated with [RCTD](https://github.com/dmcable/spacexr). If all spots contain only one cell type (no mixing), [`spacelink`](https://hanbyul-lee.github.io/spacelink/reference/spacelink.html) is applied internally to the subset of spots corresponding to the focal cell type.
 - **`focal_cell_type`**: Name of the focal cell type; must match one of the columns in `cell_type_proportions`.

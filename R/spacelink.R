@@ -3,7 +3,7 @@
 #' Conducts hypothesis testing to identify spatially variable genes (SVGs) using an adaptive multi-kernel approach,
 #' and provides Effective Spatial Variability (ESV) scores (ranging from 0 to 1), where higher values indicate greater spatial variability in gene expression.
 #'
-#' @param normalized_counts Normalized count matrix (genes x spots). Accepts a
+#' @param normalized_counts Log-transformed normalized count matrix (genes x spots). Accepts a
 #'   numeric matrix, data.frame, or sparse matrix (\code{sparseMatrix}).
 #' @param spatial_coords Two-dimensional spatial coordinate matrix (spots x 2).
 #'   Accepts a numeric matrix or data.frame.
