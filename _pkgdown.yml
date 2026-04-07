@@ -37,10 +37,10 @@ navbar:
         href: articles/spacelink_ctSVG_workflow.html
       - text: "-------"
       - text: "Analyses"
-      - text: Visium human DLPFC analysis
-        href: articles/illustration_on_visium_data.html
       - text: CosMx human frontal cortex analysis
         href: articles/illustration_on_cosmx_data.html
+      - text: Visium human DLPFC analysis
+        href: articles/illustration_on_visium_data.html
       - text: Disease informativeness evaluation of ESV
         href: articles/disease_informativeness_evaluation.html
       - text: "-------"
@@ -82,8 +82,8 @@ articles:
 - title: "Analyses"
   desc: "Detailed example analyses on real datasets"
   contents:
-  - illustration_on_visium_data
   - illustration_on_cosmx_data
+  - illustration_on_visium_data
   - disease_informativeness_evaluation
 
 - title: "Benchmarks"
