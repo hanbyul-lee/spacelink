@@ -30,6 +30,12 @@ You can install the development version of spacelink from
 devtools::install_github("hanbyul-lee/spacelink")
 ```
 
+The following dependency package may need to be installed manually from CRAN:
+
+``` r
+install.packages("gaston")
+```
+
 ## Documentation
 
 | Page | Description |
