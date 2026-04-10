@@ -16,6 +16,8 @@ knitr::opts_chunk$set(
 )
 ```
 
+Here's everything you need to get started.
+
 ```{r eval=FALSE}
 library(spacelink)
 ```
