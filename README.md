@@ -41,6 +41,7 @@ install.packages("gaston")
 | Page | Description |
 | ------------------------ | ------------------------------ |
 | [Installation](https://hanbyul-lee.github.io/spacelink/articles/installation.html) | Setup |
+| [Quick Start](https://hanbyul-lee.github.io/spacelink/articles/quick_start.html) | Get started with a minimal working example |
 | [Overview](https://hanbyul-lee.github.io/spacelink/articles/overview.html) | Descriptions of main functions |
 | [Spacelink Workflow](https://hanbyul-lee.github.io/spacelink/articles/spacelink_workflow.html) | Examples and guides for Spacelink analysis at the global tissue level |
 | [Spacelink (ct-SVG) Workflow](https://hanbyul-lee.github.io/spacelink/articles/spacelink_ctSVG_workflow.html) | Examples and guides for Spacelink (ct-SVG) analysis at the cell-type-specific level |
