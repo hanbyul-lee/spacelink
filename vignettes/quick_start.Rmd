@@ -1,0 +1,45 @@
+---
+title: "Quick Start"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Quick start}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "figures/",
+  out.width = "100%"
+)
+```
+
+```{r eval=FALSE}
+library(spacelink)
+```
+
+```{r eval=FALSE}
+# Mock data
+n_genes = 5; n_spots = 100
+normalized_counts <- matrix(log1p(rpois(n_genes*n_spots,5))/log(2), n_genes, n_spots)
+spatial_coords <- expand.grid(x = seq(0, 1, length.out = sqrt(n_spots)), y = seq(0, 1, length.out = sqrt(n_spots)))
+cell_type_proportions <- data.frame("CellType1"=rep(c(0.3,0.7),each=n_spots/2),"CellType2"=rep(c(0.7,0.3),each=n_spots/2))
+```
+
+```{r eval=FALSE}
+global_results <- spacelink(
+  normalized_counts = normalized_counts,
+  spatial_coords = spatial_coords
+)
+```
+
+```{r eval=FALSE}
+cell_type_results <- spacelink_ctSVG(
+  normalized_counts = normalized_counts,
+  spatial_coords = spatial_coords,
+  cell_type_proportions = cell_type_proportions,
+  focal_cell_type = "CellType1"
+)
+```

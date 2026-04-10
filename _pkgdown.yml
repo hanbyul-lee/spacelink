@@ -27,6 +27,8 @@ navbar:
       - text: "Getting Started"
       - text: Installation
         href: articles/installation.html
+      - text: Quick start
+        href: articles/quick_start.html
       - text: Overview of Spacelink main functions
         href: articles/overview.html
       - text: "-------"
@@ -71,6 +73,7 @@ articles:
   desc: "Installation and overview of the package"
   contents:
   - installation
+  - quick_start
   - overview
 
 - title: "Workflows"

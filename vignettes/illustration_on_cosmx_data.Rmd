@@ -202,7 +202,7 @@ testing whether the gene is spatially variable within that cell type's spatial d
 
 This approach is directly applicable to single-cell resolution datasets (such as CosMx), 
 where each observation corresponds to a single cell with a definitive cell type label. 
-The same function also supports spot-based data with continuous cell type proportion estimates (refer to [Example: Visium Human DLPFC](https://hanbyul-lee.github.io/spacelink/articles/example_visium_human_DLPFC.html)).
+The same function also supports spot-based data with continuous cell type proportion estimates (refer to [Visium Human DLPFC Analysis](https://hanbyul-lee.github.io/spacelink/articles/illustration_on_visium_data.html)).
 
 The `lite` and `grid_size` arguments work identically to the global `spacelink()` function and are passed through to the internal call. Here we apply it to *oligodendrocytes* as the focal cell type.
 
