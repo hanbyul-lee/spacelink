@@ -32,16 +32,16 @@ cell_type_proportions <- data.frame("CellType1"=rep(c(0.3,0.7),each=n_spots/2),"
 
 ```{r eval=FALSE}
 global_results <- spacelink(
-  normalized_counts = normalized_counts,
-  spatial_coords = spatial_coords
+  normalized_counts = normalized_counts, # Gene x Spot log-transformed normalized count matrix
+  spatial_coords = spatial_coords        # Spot x 2 spatial coordinates
 )
 ```
 
 ```{r eval=FALSE}
 cell_type_results <- spacelink_ctSVG(
-  normalized_counts = normalized_counts,
-  spatial_coords = spatial_coords,
-  cell_type_proportions = cell_type_proportions,
-  focal_cell_type = "CellType1"
+  normalized_counts = normalized_counts,         # Gene x Spot log-transformed normalized count matrix
+  spatial_coords = spatial_coords,               # Spot x 2 spatial coordinates
+  cell_type_proportions = cell_type_proportions, # Spot x Cell-type proportions matrix
+  focal_cell_type = "CellType1"                  # Name of focal cell-type
 )
 ```
