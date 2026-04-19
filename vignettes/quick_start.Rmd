@@ -23,14 +23,16 @@ library(spacelink)
 ```
 
 ```{r eval=FALSE}
-# Mock data
-n_genes = 5; n_spots = 100
-normalized_counts <- matrix(log1p(rpois(n_genes*n_spots,5))/log(2), n_genes, n_spots)
-spatial_coords <- expand.grid(x = seq(0, 1, length.out = sqrt(n_spots)), y = seq(0, 1, length.out = sqrt(n_spots)))
-cell_type_proportions <- data.frame("CellType1"=rep(c(0.3,0.7),each=n_spots/2),"CellType2"=rep(c(0.7,0.3),each=n_spots/2))
+# Mock data: 5 SVGs (all cell-type-1 specific ctSVGs) and 5 non-SVGs
+set.seed(123)
+spatial_coords <- expand.grid(x = seq(0, 10, length.out = 20), y = seq(0, 10, length.out = 20))
+cell_type_proportions <- data.frame("Cell_type_1"=c(runif(200,0,0.5),runif(200,0.5,1)),"Cell_type_2"=rep(NA,400)); cell_type_proportions$Cell_type_2 = 1 - cell_type_proportions$Cell_type_1
+K <- exp(-as.matrix(dist(spatial_coords))); Sigma <- 2 * chol(K) %*% diag(cell_type_proportions$Cell_type_1); counts <- apply(exp(rbind(matrix(rnorm(2000),5,400) %*% Sigma, matrix(rnorm(2000),5,400))), 1:2, function(x)rpois(1,x)); rownames(counts) <- paste0("Gene_", 1:10)
+normalized_counts <- log1p(counts)/log(2)
 ```
 
 ```{r eval=FALSE}
+# Run global Spacelink
 global_results <- spacelink(
   normalized_counts = normalized_counts, # Gene x Spot log-transformed normalized count matrix
   spatial_coords = spatial_coords        # Spot x 2 spatial coordinates
@@ -38,10 +40,48 @@ global_results <- spacelink(
 ```
 
 ```{r eval=FALSE}
+# Run cell-type-specific Spacelink
 cell_type_results <- spacelink_ctSVG(
   normalized_counts = normalized_counts,         # Gene x Spot log-transformed normalized count matrix
   spatial_coords = spatial_coords,               # Spot x 2 spatial coordinates
   cell_type_proportions = cell_type_proportions, # Spot x Cell-type proportions matrix
-  focal_cell_type = "CellType1"                  # Name of focal cell-type
+  focal_cell_type = "Cell_type_1"                  # Name of focal cell-type
 )
+```
+
+```{r eval=FALSE}
+# Check results
+global_results[, c("padj", "ESV")]
+```
+
+```{r eval=FALSE}
+##                 padj        ESV
+## Gene_1  6.193842e-20 0.69073236
+## Gene_2  1.676751e-15 0.69073236
+## Gene_3  3.501070e-10 0.51188196
+## Gene_4  1.446757e-27 0.69073236
+## Gene_5  2.331051e-16 0.69073236
+## Gene_6  8.466960e-01 0.00000000
+## Gene_7  4.549321e-01 0.03219048
+## Gene_8  8.466960e-01 0.00000000
+## Gene_9  1.942449e-01 0.08369567
+## Gene_10 8.466960e-01 0.00000000
+```
+
+```{r eval=FALSE}
+cell_type_results[, c("padj", "ESV")]
+```
+
+```{r eval=FALSE}
+##                 padj          ESV
+## Gene_1  3.543090e-34 7.008895e-01
+## Gene_2  4.690917e-24 6.877475e-01
+## Gene_3  3.163935e-12 6.532014e-01
+## Gene_4  2.860108e-33 7.393841e-01
+## Gene_5  1.955930e-17 7.325753e-01
+## Gene_6  8.934313e-01 4.875191e-06
+## Gene_7  1.174734e-01 1.476443e-01
+## Gene_8  8.934313e-01 5.869161e-06
+## Gene_9  1.142349e-01 1.429539e-01
+## Gene_10 8.934313e-01 5.689795e-06
 ```
