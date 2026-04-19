@@ -47,8 +47,8 @@ navbar:
         href: articles/disease_informativeness_evaluation.html
       - text: "-------"
       - text: "Benchmarks"
-      - text: SVG ranking metric comparison
-        href: articles/svg_ranking_metric_comparison.html
+      - text: Length scale estimation
+        href: articles/lengthscale_estimation.html
       - text: Runtime and memory usage
         href: articles/runtime_memory_usage.html
     github:
@@ -90,9 +90,9 @@ articles:
   - disease_informativeness_evaluation
 
 - title: "Benchmarks"
-  desc: "Performance and comparison benchmarks"
+  desc: "Length scale Estimation"
   contents:
-  - svg_ranking_metric_comparison
+  - lengthscale_estimation
   - runtime_memory_usage
 
 footer:

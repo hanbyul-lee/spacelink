@@ -43,10 +43,10 @@ install.packages("gaston")
 | [Installation](https://hanbyul-lee.github.io/spacelink/articles/installation.html) | Setup |
 | [Quick Start](https://hanbyul-lee.github.io/spacelink/articles/quick_start.html) | Get started with a minimal working example |
 | [Overview](https://hanbyul-lee.github.io/spacelink/articles/overview.html) | Descriptions of main functions |
-| [Spacelink Workflow](https://hanbyul-lee.github.io/spacelink/articles/spacelink_workflow.html) | Examples and guides for Spacelink analysis at the global tissue level |
-| [Spacelink (ct-SVG) Workflow](https://hanbyul-lee.github.io/spacelink/articles/spacelink_ctSVG_workflow.html) | Examples and guides for Spacelink (ct-SVG) analysis at the cell-type-specific level |
+| [Spacelink Global SVG Vignette](https://hanbyul-lee.github.io/spacelink/articles/spacelink_illustration.html) | Examples and guides for Spacelink analysis at the global tissue level |
+| [Spacelink ct-SVG Vignette](https://hanbyul-lee.github.io/spacelink/articles/spacelink_ctSVG_illustration.html) | Examples and guides for Spacelink (ct-SVG) analysis at the cell-type-specific level |
 | [Illustration on CosMx Data](https://hanbyul-lee.github.io/spacelink/articles/illustration_on_cosmx_data.html) | Application of Spacelink on a large-scale single-cell resolution dataset |
 | [Illustration on Visium Data](https://hanbyul-lee.github.io/spacelink/articles/illustration_on_visium_data.html) | Application of Spacelink on a medium-scale spot resolution dataset |
 | [Disease Informativeness Evaluation](https://hanbyul-lee.github.io/spacelink/articles/disease_informativeness_evaluation.html) | Evaluation of ESV disease informativeness using PoPS (Polygenic Priority Score) |
-| [SVG Ranking Metric Comparison](https://hanbyul-lee.github.io/spacelink/articles/svg_ranking_metric_comparison.html) | Comparison of ESV with other metrics for ranking genes by spatial variability |
+| [Lengthscale Estimation](https://hanbyul-lee.github.io/spacelink/articles/lengthscale_estimation.html) | Comparison of length-scale estimation performance |
 | [Runtime & Memory Usage](https://hanbyul-lee.github.io/spacelink/articles/runtime_memory_usage.html) | Benchmarks of computational time and memory requirements across different dataset sizes |
