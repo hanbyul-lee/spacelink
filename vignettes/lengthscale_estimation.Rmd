@@ -1,8 +1,8 @@
 ---
-title: "Length scale Estimation"
+title: "Lengthscale Estimation"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Length scale Estimation}
+  %\VignetteIndexEntry{Lengthscale Estimation}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -74,7 +74,7 @@ ggplot(df, aes(x = method, y = error, fill = method)) +
 ![](../man/figures/lengthscale_violin.png){#id .class width=50% height=50%}
 
 While most cases have a difference of 5 or less, nnSVG shows error exceeding 20 in some case.
-The data for such outlier case is shown below:
+The data for the outlier case is shown below:
 
 ```{r eval=FALSE}
 df <- as.data.frame(cbind(spatial_coords, expr = (norm_expr[nnsvg_lengthscale_error > 20,])))

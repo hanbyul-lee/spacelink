@@ -18,17 +18,6 @@ knitr::opts_chunk$set(
 
 To install Spacelink, R version 4.0 or greater is required.
 
-## Install from CRAN
-
-Spacelink is available on CRAN for all platforms. To install it, run:
-
-```{r eval=FALSE}
-# TBD
-# install.packages("spacelink")
-# library(spacelink)
-```
-
-
 ## Install the development version
 
 You can install the development version of Spacelink directly from GitHub.
@@ -37,4 +26,10 @@ You can install the development version of Spacelink directly from GitHub.
 # install.packages("devtools")
 devtools::install_github("hanbyul-lee/spacelink")
 library(spacelink)
+```
+
+The following dependency package may need to be installed manually from CRAN:
+
+```{r eval=FALSE}
+install.packages("gaston")
 ```

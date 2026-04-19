@@ -47,7 +47,7 @@ navbar:
         href: articles/disease_informativeness_evaluation.html
       - text: "-------"
       - text: "Benchmarks"
-      - text: Length scale estimation
+      - text: Lengthscale estimation
         href: articles/lengthscale_estimation.html
       - text: Runtime and memory usage
         href: articles/runtime_memory_usage.html
@@ -90,7 +90,7 @@ articles:
   - disease_informativeness_evaluation
 
 - title: "Benchmarks"
-  desc: "Length scale Estimation"
+  desc: "Lengthscale Estimation"
   contents:
   - lengthscale_estimation
   - runtime_memory_usage
