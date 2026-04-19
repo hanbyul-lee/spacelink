@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 
 
 Here, we demonstrate how to perform SVG analysis using the `spacelink` package with a large-scale, single-cell resolution spatial transcriptomics dataset.
-We use the CosMx Human Frontal Cortex dataset (number of spots = 188686) as an example.
+We use the CosMx Human Frontal Cortex dataset (number of spots = 188,686) as an example.
 The dataset is publicly available [here](https://brukerspatialbiology.com/products/cosmx-spatial-molecular-imager/ffpe-dataset/human-frontal-cortex-ffpe-dataset/).
 
 We walk through the full Spacelink workflow in two stages: (1) **global tissue-level** SVG detection, 
@@ -200,9 +200,7 @@ where the focal cell type indicator equals 1.
 `spacelink` is then applied only to those cells, 
 testing whether the gene is spatially variable within that cell type's spatial distribution.
 
-This approach is directly applicable to single-cell resolution datasets (such as CosMx), 
-where each observation corresponds to a single cell with a definitive cell type label. 
-The same function also supports spot-based data with continuous cell type proportion estimates (refer to [Visium Human DLPFC Analysis](https://hanbyul-lee.github.io/spacelink/articles/illustration_on_visium_data.html)).
+Note that `spacelink_ctSVG` also supports spot-based data with continuous cell type proportion estimates (refer to [Visium Human DLPFC Analysis](https://hanbyul-lee.github.io/spacelink/articles/illustration_on_visium_data.html)).
 
 The `lite` and `grid_size` arguments work identically to the global `spacelink()` function and are passed through to the internal call. Here we apply it to *oligodendrocytes* as the focal cell type.
 

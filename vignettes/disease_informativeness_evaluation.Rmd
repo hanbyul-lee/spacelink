@@ -33,7 +33,7 @@ the **global tissue level** (aggregated across all cells) and the **cell-type le
 By comparing disease informativeness across tissues and trait categories, 
 we test whether Spacelink-derived ESVs capture biologically meaningful, tissue-specific signals.
 
-All data used in this analysis -- including Spacelink output files, PoPS scores, trait category information, and confounder tables -- are available for download at [link].
+All data used in this analysis -- including Spacelink output files, PoPS scores, trait category information, and confounder tables -- are available for download [here](https://zenodo.org/records/19655699).
 
 ## 1. Load Packages
 
