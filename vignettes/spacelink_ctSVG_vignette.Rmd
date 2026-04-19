@@ -1,8 +1,8 @@
 ---
-title: "Spacelink ctSVG Workflow"
+title: "Spacelink ctSVG Vignette"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Spacelink ctSVG Workflow}
+  %\VignetteIndexEntry{Spacelink ctSVG Vignette}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-Here, we demonstrate the workflow for spatial gene variability analysis at the *cell-type–specific level* using the [`spacelink_ctSVG`](https://hanbyul-lee.github.io/spacelink/reference/spacelink_ctSVG.html) function through a simple simulation example.
+Here, we demonstrate the spatial gene variability analysis at the *cell-type–specific level* using the [`spacelink_ctSVG`](https://hanbyul-lee.github.io/spacelink/reference/spacelink_ctSVG.html) function through a simple simulation example.
 
 
 ## 1. Simulate Data

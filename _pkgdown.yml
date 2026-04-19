@@ -32,11 +32,11 @@ navbar:
       - text: Overview of Spacelink main functions
         href: articles/overview.html
       - text: "-------"
-      - text: "Workflows"
-      - text: Spacelink workflow
-        href: articles/spacelink_workflow.html
-      - text: Spacelink ctSVG workflow
-        href: articles/spacelink_ctSVG_workflow.html
+      - text: "Illustration"
+      - text: Spacelink global SVG vignette
+        href: articles/spacelink_vignette.html
+      - text: Spacelink ctSVG vignette
+        href: articles/spacelink_ctSVG_vignette.html
       - text: "-------"
       - text: "Analyses"
       - text: CosMx human frontal cortex analysis
@@ -76,11 +76,11 @@ articles:
   - quick_start
   - overview
 
-- title: "Workflows"
-  desc: "Step-by-step workflow guides"
+- title: "Illustration"
+  desc: "Step-by-step illustration"
   contents:
-  - spacelink_workflow
-  - spacelink_ctSVG_workflow
+  - spacelink_vignette
+  - spacelink_ctSVG_vignette
 
 - title: "Analyses"
   desc: "Detailed example analyses on real datasets"

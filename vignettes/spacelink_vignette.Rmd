@@ -1,8 +1,8 @@
 ---
-title: "Spacelink Workflow"
+title: "Spacelink Global SVG Vignette"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Spacelink Workflow}
+  %\VignetteIndexEntry{Spacelink Global SVG Vignette}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 ```
 
 
-Here, we demonstrate the workflow for spatial gene variability analysis at the *global tissue level* using the [`spacelink`](https://hanbyul-lee.github.io/spacelink/reference/spacelink.html) function through a simple simulation example.
+Here, we demonstrate the spatial gene variability analysis at the *global tissue level* using the [`spacelink`](https://hanbyul-lee.github.io/spacelink/reference/spacelink.html) function through a simple simulation example.
 
 
 ## 1. Simulate Data
