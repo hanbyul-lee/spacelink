@@ -49,15 +49,15 @@ install.packages(c("Rcpp", "RcppML", "pracma", "RANN", "fields", "Matrix"))
 
 ## Documentation
 
-| Page | Description |
-| ------------------------ | ------------------------------ |
-| [Installation](https://hanbyul-lee.github.io/spacelink/articles/installation.html) | Setup |
-| [Quick Start](https://hanbyul-lee.github.io/spacelink/articles/quick_start.html) | Get started with a minimal working example |
-| [Overview](https://hanbyul-lee.github.io/spacelink/articles/overview.html) | Descriptions of main functions |
-| [Spacelink Global SVG Vignette](https://hanbyul-lee.github.io/spacelink/articles/spacelink_vignette.html) | Examples and guides for Spacelink analysis at the global tissue level |
-| [Spacelink ct-SVG Vignette](https://hanbyul-lee.github.io/spacelink/articles/spacelink_ctSVG_vignette.html) | Examples and guides for Spacelink (ct-SVG) analysis at the cell-type-specific level |
-| [Illustration on CosMx Data](https://hanbyul-lee.github.io/spacelink/articles/illustration_on_cosmx_data.html) | Application of Spacelink on a large-scale single-cell resolution dataset |
-| [Illustration on Visium Data](https://hanbyul-lee.github.io/spacelink/articles/illustration_on_visium_data.html) | Application of Spacelink on a medium-scale spot resolution dataset |
-| [Disease Informativeness Evaluation](https://hanbyul-lee.github.io/spacelink/articles/disease_informativeness_evaluation.html) | Evaluation of ESV disease informativeness using PoPS (Polygenic Priority Score) |
-| [Lengthscale Estimation](https://hanbyul-lee.github.io/spacelink/articles/lengthscale_estimation.html) | Comparison of length-scale estimation performance |
-| [Runtime & Memory Usage](https://hanbyul-lee.github.io/spacelink/articles/runtime_memory_usage.html) | Benchmarks of computational time and memory requirements across different dataset sizes |
+| Page | Description | Runtime |
+| ------------------------ | ------------------------------ | --- |
+| [Installation](https://hanbyul-lee.github.io/spacelink/articles/installation.html) | Setup | 3m |
+| [Quick Start](https://hanbyul-lee.github.io/spacelink/articles/quick_start.html) | Get started with a minimal working example | 10s |
+| [Overview](https://hanbyul-lee.github.io/spacelink/articles/overview.html) | Descriptions of main functions | - |
+| [Spacelink Global SVG Vignette](https://hanbyul-lee.github.io/spacelink/articles/spacelink_vignette.html) | Examples and guides for Spacelink analysis at the global tissue level | 5s |
+| [Spacelink ct-SVG Vignette](https://hanbyul-lee.github.io/spacelink/articles/spacelink_ctSVG_vignette.html) | Examples and guides for Spacelink (ct-SVG) analysis at the cell-type-specific level | 10s |
+| [Illustration on CosMx Data](https://hanbyul-lee.github.io/spacelink/articles/illustration_on_cosmx_data.html) | Application of Spacelink on a large-scale single-cell resolution dataset | 50m |
+| [Illustration on Visium Data](https://hanbyul-lee.github.io/spacelink/articles/illustration_on_visium_data.html) | Application of Spacelink on a medium-scale spot resolution dataset | 20m |
+| [Disease Informativeness Evaluation](https://hanbyul-lee.github.io/spacelink/articles/disease_informativeness_evaluation.html) | Evaluation of ESV disease informativeness using PoPS (Polygenic Priority Score) | 2m |
+| [Lengthscale Estimation](https://hanbyul-lee.github.io/spacelink/articles/lengthscale_estimation.html) | Comparison of length-scale estimation performance | 5m |
+| [Runtime & Memory Usage](https://hanbyul-lee.github.io/spacelink/articles/runtime_memory_usage.html) | Benchmarks of computational time and memory requirements across different dataset sizes | 12m |
