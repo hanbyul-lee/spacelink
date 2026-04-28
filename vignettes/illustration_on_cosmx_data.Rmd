@@ -40,6 +40,7 @@ We extract three components needed for the analysis:
 ```{r eval=FALSE}
 library(Seurat)
 library(stringr)
+library(dplyr)
 
 seurat_obj <- readRDS("SeuratObj_withTranscripts.RDS")
 counts <- GetAssayData(seurat_obj, assay = "RNA", layer = "counts")
