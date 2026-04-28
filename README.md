@@ -22,6 +22,10 @@ into a single interpretable score directly suited for genetic analyses.
 
 ## Installation
 
+System requirements:
+- R ≥ 4.0.0
+- Supported: Windows, macOS, Linux
+
 You can install the development version of spacelink from
 [GitHub](https://github.com/) with:
 
@@ -35,6 +39,13 @@ The following dependency package may need to be installed manually from CRAN:
 ``` r
 install.packages("gaston")
 ```
+
+The other dependency packages are as follows. If automatic installation fails, you can manually install them from CRAN:
+
+```r
+install.packages(c("Rcpp", "RcppML", "pracma", "RANN", "fields", "Matrix"))
+```
+
 
 ## Documentation
 
