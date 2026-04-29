@@ -45,6 +45,8 @@ navbar:
         href: articles/illustration_on_visium_data.html
       - text: Disease informativeness evaluation of ESV
         href: articles/disease_informativeness_evaluation.html
+      - text: Examples on AD Visium Data
+        href: articles/example_AD_data.html
       - text: "-------"
       - text: "Benchmarks"
       - text: Lengthscale estimation
@@ -88,6 +90,14 @@ articles:
   - illustration_on_cosmx_data
   - illustration_on_visium_data
   - disease_informativeness_evaluation
+
+- title: "Analyses"
+  desc: "Detailed example analyses on real datasets"
+  contents:
+  - illustration_on_cosmx_data
+  - illustration_on_visium_data
+  - disease_informativeness_evaluation
+  - example_AD_data
 
 - title: "Benchmarks"
   desc: "Lengthscale Estimation"
