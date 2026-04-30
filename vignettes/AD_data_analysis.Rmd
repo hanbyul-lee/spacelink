@@ -1,8 +1,8 @@
 ---
-title: "Examples on AD Visium Data"
+title: "Alzheimer’s Disease Data Analysis"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Examples on AD Visium Data}
+  %\VignetteIndexEntry{AD Data Analysis}
   %\VignetteEngine{knitr::rmarkdown}  
   %\VignetteEncoding{UTF-8}
 ---
@@ -18,12 +18,14 @@ knitr::opts_chunk$set(
 
 # Application of Spacelink to Visium Human DLPFC Samples across AD Progression Stages
 
-In this vignette, we apply Spacelink to Visium DLPFC samples from donors at different stages of Alzheimer's Disease (AD) to demonstrate that Spacelink can effectively capture spatial patterns of gene expression associated with AD pathological features.
+In this vignette, we apply Spacelink to Visium brain dorsolateral prefrontal cortex (DLPFC) samples from donors at different stages of Alzheimer's Disease (AD) to demonstrate that Spacelink can capture differences in spatial gene expression patterns associated with AD pathological features.
 
-The data used here consists of 32 ROSMAP 10x Visium samples from brain dorsolateral prefrontal cortex (DLPFC) at different stages of Alzheimer's disease (AD), which is available at [link](https://adknowledgeportal.org).
+We use a dataset of 32 ROSMAP 10x Visium samples, available at [link](https://adknowledgeportal.org).
 
-For simplicity, here we analyze *PKM* gene expression in one control sample and one late-stage AD sample.
-*PKM* is a key glycolysis enzyme that may be affected by metabolic dysfunction in early AD.
+Here, we analyze *PKM* expression in one control sample and one late-stage AD sample.
+*PKM* is a key glycolytic enzyme that may be affected by metabolic dysfunction in early AD.
+We show that *PKM* exhibits distinct spatial expression patterns across AD stages, and that these differences can be captured by examining spatial variability using Spacelink.
+
 
 ## 1. Load Packages
 
@@ -39,7 +41,7 @@ library(spacelink)
 
 ## 2. Load Example Dataset
 
-We use one control sample and one late-stage AD sample.
+We use one control sample (ID: 50500136_1) and one late-stage AD sample (ID: 18414513_1).
 
 ```{r eval=FALSE}
 control_spe <- readRDS("50500136_1.rds")
@@ -117,6 +119,7 @@ AD_ESV = spacelink_results$ESV
 ## 5. Visualize Results
 
 We visualize three aspects of each sample side by side:
+
 - **Expression**: raw *PKM* expression level
 - **Layer**: cortical layer annotation per spot
 - **Plaque**: proximity to neuritic plaques
@@ -144,7 +147,7 @@ AD_spatial_coords <- AD_spatial_coords %>%
     TRUE            ~ NA_character_
   ))
 
-plot_gene = function(spatial_coords, ESV, amyloid_sqrt, dot_size = 1) {
+plot_gene = function(spatial_coords, ESV, dot_size = 1) {
   p1 <- ggplot(spatial_coords, aes(x = x, y = y, color = expression)) +
     geom_point(size = dot_size) +
     scale_color_viridis(option = "magma", direction = -1) +
@@ -181,7 +184,7 @@ plot_gene = function(spatial_coords, ESV, amyloid_sqrt, dot_size = 1) {
     ) +
     labs(
       color = "Layer",
-      title = paste0("Amyloid_sqrt: ", amyloid_sqrt)
+      title = "Layer"
     ) 
   
   p3 <- ggplot(spatial_coords, aes(x = x, y = y, color = distance_category)) +
@@ -205,10 +208,10 @@ plot_gene = function(spatial_coords, ESV, amyloid_sqrt, dot_size = 1) {
   return(list(expression = p1, layer = p2, plaque = p3))
 }
 
-control_plot = plot_gene(control_spatial_coords, round(control_ESV,4), 3.7748, dot_size = 2.3)
+control_plot = plot_gene(control_spatial_coords, round(control_ESV,4), dot_size = 2.3)
 control_plot = control_plot[[1]] + guides(color="none") + control_plot[[2]] + guides(color="none") + control_plot[[3]] + guides(color="none")
 
-AD_plot = plot_gene(AD_spatial_coords, round(AD_ESV,4), 3.7748, dot_size = 2.3)
+AD_plot = plot_gene(AD_spatial_coords, round(AD_ESV,4), dot_size = 2.3)
 AD_plot = AD_plot[[1]] + guides(color="none") + AD_plot[[2]] + guides(color="none") + AD_plot[[3]] + guides(color="none")
 
 print(control_plot)
@@ -218,4 +221,8 @@ print(AD_plot)
 ![](../man/figures/PKM_control.png){#id .class width=100% height=100%}
 
 ![](../man/figures/PKM_AD.png){#id .class width=100% height=100%}
- 
+In the control sample (top panel), where no neuritic plaques are present, *PKM* expression aligns with cortical layers, showing strong spatial patterning. This pattern is captured by a high ESV score (0.8416).
+
+In contrast, in the late-stage AD sample (bottom panel), where multiple neuritic plaques are present, *PKM* expression appears disorganized and shows much weaker spatial patterning, reflected in a low ESV score (0.0594).
+
+Together, these results demonstrate that Spacelink effectively captures AD-associated changes in spatial gene expression.
