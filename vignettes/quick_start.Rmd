@@ -31,25 +31,15 @@ K <- exp(-as.matrix(dist(spatial_coords))); Sigma <- 2 * chol(K) %*% diag(cell_t
 normalized_counts <- log1p(counts)/log(2)
 ```
 
+## Global Spacelink
+
 ```{r eval=FALSE}
 # Run global Spacelink
 global_results <- spacelink(
   normalized_counts = normalized_counts, # Gene x Spot log-transformed normalized count matrix
   spatial_coords = spatial_coords        # Spot x 2 spatial coordinates
 )
-```
 
-```{r eval=FALSE}
-# Run cell-type-specific Spacelink
-cell_type_results <- spacelink_ctSVG(
-  normalized_counts = normalized_counts,         # Gene x Spot log-transformed normalized count matrix
-  spatial_coords = spatial_coords,               # Spot x 2 spatial coordinates
-  cell_type_proportions = cell_type_proportions, # Spot x Cell-type proportions matrix
-  focal_cell_type = "Cell_type_1"                  # Name of focal cell-type
-)
-```
-
-```{r eval=FALSE}
 # Check results
 global_results[, c("padj", "ESV")]
 ```
@@ -68,7 +58,18 @@ global_results[, c("padj", "ESV")]
 ## Gene_10 8.466960e-01 0.00000000
 ```
 
+## Cell-Type Spacelink
+
 ```{r eval=FALSE}
+# Run cell-type-specific Spacelink
+cell_type_results <- spacelink_ctSVG(
+  normalized_counts = normalized_counts,         # Gene x Spot log-transformed normalized count matrix
+  spatial_coords = spatial_coords,               # Spot x 2 spatial coordinates
+  cell_type_proportions = cell_type_proportions, # Spot x Cell-type proportions matrix
+  focal_cell_type = "Cell_type_1"                  # Name of focal cell-type
+)
+
+# Check results
 cell_type_results[, c("padj", "ESV")]
 ```
 
