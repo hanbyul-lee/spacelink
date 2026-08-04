@@ -20,7 +20,7 @@ spacelink_ctSVG(
 )
 }
 \arguments{
-\item{normalized_counts}{Normalized count matrix (genes x spots). Accepts a
+\item{normalized_counts}{Log-transformed normalized count matrix (genes x spots). Accepts a
 numeric matrix, data.frame, or sparse matrix (\code{sparseMatrix}).}
 
 \item{spatial_coords}{Two-dimensional spatial coordinate matrix (spots x 2).

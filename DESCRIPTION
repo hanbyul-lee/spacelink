@@ -12,7 +12,7 @@ Description: Multi-scale spatial gene variability shapes development, degenerati
     and disease. This package provides statistical methods for analyzing spatial 
     gene expression patterns across multiple scales, with applications to 
     understanding developmental processes and disease mechanisms.
-License: MIT + file LICENSE
+License: GPL (>= 3)
 URL: https://hanbyul-lee.github.io/spacelink/, https://github.com/hanbyul-lee/spacelink
 BugReports: https://github.com/hanbyul-lee/spacelink/issues
 Encoding: UTF-8
@@ -32,7 +32,8 @@ Imports:
     grDevices,
     Matrix,
     stats,
-    methods
+    methods,
+    parallel
 LinkingTo:
     Rcpp,
     RcppArmadillo

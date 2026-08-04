@@ -4,6 +4,18 @@
 # **Spacelink**
 
 <!-- badges: start -->
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![R >= 4.0.0](https://img.shields.io/badge/R-%3E%3D%204.0.0-blue.svg)](https://cran.r-project.org/)
+<!-- Uncomment after publishing the GitHub release and Zenodo record,
+     replacing XXXXXXX with the Zenodo record ID:
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.XXXXXXX.svg)](https://doi.org/10.5281/zenodo.XXXXXXX)
+-->
+<!-- Uncomment once the package is available on CRAN:
+[![CRAN status](https://www.r-pkg.org/badges/version/spacelink)](https://CRAN.R-project.org/package=spacelink)
+-->
+<!-- Uncomment after running usethis::use_github_action("check-standard"):
+[![R-CMD-check](https://github.com/hanbyul-lee/spacelink/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/hanbyul-lee/spacelink/actions/workflows/R-CMD-check.yaml)
+-->
 <!-- badges: end -->
 
 **Spacelink** is a unified statistical framework for detecting and
