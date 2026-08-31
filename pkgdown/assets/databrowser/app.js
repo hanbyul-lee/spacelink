@@ -1,9 +1,10 @@
 /* Data browser for the spacelink pkgdown site.
  *
- * Reads the static bundle written by data-raw/build_databrowser_data.R and draws
- * the spatial expression of a gene alongside cell-type abundance, plus the ESV
- * and PoPS readouts for the current selection. Everything runs client-side; the
- * only network traffic is the binary payload under ../databrowser/.
+ * Reads the static bundle written by data-raw/build_databrowser_data.R. Picking a
+ * dataset and a gene draws that gene's spatial expression beside the abundance of
+ * every cell type, and lists the gene's ESV scores and PoPS disease scores.
+ * Everything runs client-side; the only network traffic is the binary payload
+ * under ../databrowser/.
  */
 (function () {
   "use strict";
@@ -28,11 +29,9 @@
     coords: null,
     cellProp: null,
     esv: null,
+    pops: null,
     geneIdx: -1,
-    cellType: "whole",
-    diseaseIdx: -1,
     exprChunks: {},
-    popsCache: {},
     token: 0
   };
 
@@ -109,18 +108,6 @@
     '      role="combobox" aria-autocomplete="list" aria-expanded="false"',
     '      aria-controls="dbx-gene-options" placeholder="Type to search…">',
     '    <div class="dbx-options" id="dbx-gene-options" role="listbox"></div></div>',
-    '  <div class="dbx-field"><label for="dbx-celltype">Cell type</label>',
-    '    <select id="dbx-celltype"></select></div>',
-    '  <div class="dbx-field"><label for="dbx-disease">Disease (PoPS)</label>',
-    '    <select id="dbx-disease"></select></div>',
-    '</div>',
-    '<div class="dbx-scores">',
-    '  <div class="dbx-tile"><div class="dbx-tile-label">ESV score</div>',
-    '    <div class="dbx-tile-value" id="dbx-esv">—</div>',
-    '    <div class="dbx-tile-sub" id="dbx-esv-sub"></div></div>',
-    '  <div class="dbx-tile"><div class="dbx-tile-label">PoPS score</div>',
-    '    <div class="dbx-tile-value" id="dbx-pops">—</div>',
-    '    <div class="dbx-tile-sub" id="dbx-pops-sub">No disease selected</div></div>',
     '</div>',
     '<div class="dbx-status" id="dbx-status">Loading…</div>',
     '<div class="dbx-plots dbx-two" id="dbx-plots">',
@@ -135,17 +122,22 @@
     '    <details class="dbx-details"><summary>Values as a table</summary>',
     '      <div id="dbx-expr-table"></div></details></div>',
     '  <div class="dbx-panel" id="dbx-prop-panel">',
-    '    <h3 id="dbx-prop-title">Cell type proportion</h3>',
+    '    <h3 id="dbx-prop-title">Cell type proportions</h3>',
     '    <div class="dbx-sub" id="dbx-prop-sub"></div>',
-    '    <div id="dbx-prop-single"><div class="dbx-canvas-wrap">',
-    '      <canvas id="dbx-prop-canvas"></canvas>',
-    '      <div class="dbx-tip" id="dbx-prop-tip"></div></div></div>',
     '    <div id="dbx-prop-grid" class="dbx-mini-grid"></div>',
     '    <div class="dbx-legend"><span id="dbx-prop-lo">0</span>',
     '      <div class="dbx-bar" id="dbx-prop-bar"></div>',
     '      <span id="dbx-prop-hi"></span></div>',
     '    <details class="dbx-details"><summary>Values as a table</summary>',
     '      <div id="dbx-prop-table"></div></details></div>',
+    '</div>',
+    '<div class="dbx-tables">',
+    '  <div class="dbx-panel"><h3>ESV scores</h3>',
+    '    <div class="dbx-sub" id="dbx-esv-sub"></div>',
+    '    <div class="dbx-scroll" id="dbx-esv-table"></div></div>',
+    '  <div class="dbx-panel"><h3>PoPS disease scores</h3>',
+    '    <div class="dbx-sub" id="dbx-pops-sub"></div>',
+    '    <div class="dbx-scroll" id="dbx-pops-table"></div></div>',
     '</div>'
   ].join("\n");
 
@@ -160,9 +152,7 @@
   // ---- geometry & painting ----------------------------------------------
 
   /* Projects the spot coordinates into a cssW-wide canvas, preserving aspect
-     ratio. The map is mirrored on both axes: the vertical flip matches the
-     package vignettes (ggplot2 scale_y_reverse) and the horizontal flip puts
-     the section in the requested orientation. */
+     ratio. Both axes run in the same direction as the stored coordinates. */
   function paint(canvas, vals, vmax, rampName, cssW, maxH, minR) {
     var coords = state.coords;
     var n = state.meta.nSpots;
@@ -194,8 +184,8 @@
 
     var px = new Float32Array(n), py = new Float32Array(n);
     for (var j = 0; j < n; j++) {
-      px[j] = ox + (xmax - coords[j * 2]) * s;        // x mirrored
-      py[j] = oy + (ymax - coords[j * 2 + 1]) * s;    // y mirrored
+      px[j] = ox + (coords[j * 2] - xmin) * s;
+      py[j] = oy + (coords[j * 2 + 1] - ymin) * s;
     }
 
     // Radius from the typical spot spacing so dots read as a tissue section
@@ -264,6 +254,24 @@
       }).join("") + "</tbody></table>";
   }
 
+  /* Score table with an inline magnitude bar. The bar is a neutral tint, not a
+     ramp colour - length carries the value, and no hue is spent implying a link
+     to the maps above. */
+  function scoreTable(target, rowsIn, keyHeader, valHeader, decimals) {
+    var vmax = 0;
+    rowsIn.forEach(function (r) { if (isFinite(r[1]) && r[1] > vmax) vmax = r[1]; });
+    target.innerHTML = '<table class="dbx-score-table"><thead><tr><th scope="col">' +
+      esc(keyHeader) + '</th><th scope="col">' + esc(valHeader) +
+      "</th></tr></thead><tbody>" +
+      rowsIn.map(function (r) {
+        var ok = isFinite(r[1]);
+        var pct = ok && vmax > 0 ? (r[1] / vmax) * 100 : 0;
+        return '<tr><th scope="row">' + esc(r[0]) + "</th>" +
+          '<td><span class="dbx-barcell" style="--w:' + pct.toFixed(1) + '%"></span>' +
+          "<span>" + (ok ? r[1].toFixed(decimals) : "—") + "</span></td></tr>";
+      }).join("") + "</tbody></table>";
+  }
+
   // ---- data access ------------------------------------------------------
 
   function geneValues(geneIdx) {
@@ -291,60 +299,13 @@
     return out;
   }
 
-  function popsValue(geneIdx, diseaseIdx) {
-    var row = state.meta.popsRow[geneIdx];
-    if (row === null || row === undefined || row < 0) return Promise.resolve(null);
-    var key = String(diseaseIdx);
-    var p = state.popsCache[key] ||
-      fetchBin(BASE + "/pops/" + diseaseIdx + ".bin", Float32Array);
-    state.popsCache[key] = p;
-    return p.then(function (f32) { return f32[row]; });
-  }
-
   // ---- rendering --------------------------------------------------------
-
-  function renderScores() {
-    var meta = state.meta;
-    var gi = state.geneIdx;
-    var ctIdx = meta.cellTypes.indexOf(state.cellType);
-    var esv = state.esv[ctIdx * meta.nGenes + gi];
-    var esvEl = el("#dbx-esv");
-    var ok = isFinite(esv);
-    esvEl.textContent = ok ? esv.toFixed(4) : "Not available";
-    esvEl.className = "dbx-tile-value" + (ok ? "" : " dbx-na");
-    el("#dbx-esv-sub").textContent = meta.genes[gi] + " · " + state.cellType;
-
-    var popsEl = el("#dbx-pops");
-    var popsSub = el("#dbx-pops-sub");
-    if (state.diseaseIdx < 0) {
-      popsEl.textContent = "—";
-      popsEl.className = "dbx-tile-value dbx-na";
-      popsSub.textContent = "No disease selected";
-      return;
-    }
-    var disease = state.manifest.diseases[state.diseaseIdx];
-    var gene = meta.genes[gi];
-    var want = ++state.token;
-    popsValue(gi, state.diseaseIdx).then(function (v) {
-      if (want !== state.token) return;
-      if (v === null) {
-        popsEl.textContent = "Not in PoPS table";
-        popsEl.className = "dbx-tile-value dbx-na";
-        popsSub.textContent = gene + " has no PoPS score";
-      } else {
-        popsEl.textContent = v.toFixed(3);
-        popsEl.className = "dbx-tile-value";
-        popsSub.textContent = gene + " · " + disease;
-      }
-    });
-  }
 
   function renderExpression() {
     var meta = state.meta;
     var gi = state.geneIdx;
-    var gene = meta.genes[gi];
-    el("#dbx-expr-title").textContent = gene + " expression";
-    el("#dbx-expr-sub").textContent = "Normalised count per spot · " + meta.label;
+    el("#dbx-expr-title").textContent = meta.genes[gi] + " expression";
+    el("#dbx-expr-sub").textContent = "Normalized count per spot · " + meta.label;
 
     var canvas = el("#dbx-expr-canvas");
     var width = canvas.parentNode.clientWidth || 360;
@@ -354,42 +315,18 @@
       var vmax = meta.exprMax[gi] || 1;
       var geom = paint(canvas, vals, vmax, "blue", width, 560);
       setLegend("dbx-expr", vmax, "blue");
-      attachHover(canvas, el("#dbx-expr-tip"), geom, vals, "Normalised count");
-      summaryTable(el("#dbx-expr-table"), vals, "Normalised count");
+      attachHover(canvas, el("#dbx-expr-tip"), geom, vals, "Normalized count");
+      summaryTable(el("#dbx-expr-table"), vals, "Normalized count");
     });
   }
 
-  /* One proportion map for the selected cell type. */
-  function renderSingleProportion() {
-    var meta = state.meta;
-    el("#dbx-prop-single").style.display = "";
-    el("#dbx-prop-grid").style.display = "none";
-
-    var col = meta.cellTypes.indexOf(state.cellType) - 1;
-    var vals = propValues(col);
-    var pmax = 0;
-    for (var i = 0; i < vals.length; i++) if (vals[i] > pmax) pmax = vals[i];
-
-    el("#dbx-prop-title").textContent = state.cellType + " proportion";
-    el("#dbx-prop-sub").textContent = "Estimated proportion per spot · " + meta.label;
-
-    var canvas = el("#dbx-prop-canvas");
-    var width = canvas.parentNode.clientWidth || 360;
-    var geom = paint(canvas, vals, pmax || 1, "orange", width, 560);
-    setLegend("dbx-prop", pmax || 1, "orange");
-    attachHover(canvas, el("#dbx-prop-tip"), geom, vals, "Proportion");
-    summaryTable(el("#dbx-prop-table"), vals, "Proportion");
-  }
-
-  /* Small multiples: every cell type at once, on one shared colour scale so the
-     panels are comparable - a per-panel maximum would make a cell type that
+  /* Small multiples: every cell type at once. They share one colour scale so the
+     panels stay comparable - a per-panel maximum would make a cell type that
      never exceeds 0.37 look as abundant as one that reaches 0.97. */
   function renderProportionGrid() {
     var meta = state.meta;
     var types = meta.cellTypes.slice(1);
     var grid = el("#dbx-prop-grid");
-    el("#dbx-prop-single").style.display = "none";
-    grid.style.display = "";
 
     var cols = types.map(function (_, i) { return propValues(i); });
     var shared = 0;
@@ -397,9 +334,7 @@
       for (var i = 0; i < v.length; i++) if (v[i] > shared) shared = v[i];
     });
 
-    el("#dbx-prop-title").textContent = "Cell type proportions";
-    el("#dbx-prop-sub").textContent =
-      types.length + " cell types · shared colour scale · " + meta.label;
+    el("#dbx-prop-sub").textContent = types.length + " cell types · " + meta.label;
 
     if (grid.childElementCount !== types.length) {
       grid.innerHTML = types.map(function (t, i) {
@@ -423,7 +358,6 @@
 
     setLegend("dbx-prop", shared || 1, "orange");
 
-    // Table view: one row per cell type, so the grid is readable without colour.
     el("#dbx-prop-table").innerHTML =
       '<table><thead><tr><th scope="col">Cell type</th><th scope="col">Median</th>' +
       '<th scope="col">Maximum</th></tr></thead><tbody>' +
@@ -434,18 +368,51 @@
       }).join("") + "</tbody></table>";
   }
 
-  function renderPlots() {
+  /* Every ESV score for this gene: the whole-tissue score first, then each
+     cell type, in the order the dataset stores them. */
+  function renderEsvTable() {
+    var meta = state.meta;
+    var gi = state.geneIdx;
+    el("#dbx-esv-sub").textContent = meta.genes[gi] + " · " + meta.label;
+    var rows = meta.cellTypes.map(function (ct, i) {
+      return [ct, state.esv[i * meta.nGenes + gi]];
+    });
+    scoreTable(el("#dbx-esv-table"), rows, "Cell type", "ESV", 4);
+  }
+
+  /* Every PoPS score for this gene, strongest first - the useful read is which
+     traits the gene is prioritised for. */
+  function renderPopsTable() {
+    var meta = state.meta;
+    var gi = state.geneIdx;
+    var gene = meta.genes[gi];
+    var target = el("#dbx-pops-table");
+    var row = meta.popsRow[gi];
+
+    if (row === null || row === undefined || row < 0 || !state.pops) {
+      el("#dbx-pops-sub").textContent = gene + " is not in the PoPS tables";
+      target.innerHTML = '<p class="dbx-empty-note">No PoPS scores are available for ' +
+        esc(gene) + ".</p>";
+      return;
+    }
+    var diseases = state.manifest.diseases;
+    var nD = diseases.length;
+    var rows = diseases.map(function (d, k) { return [d, state.pops[row * nD + k]]; });
+    rows.sort(function (a, b) { return b[1] - a[1]; });
+    el("#dbx-pops-sub").textContent =
+      gene + " · " + nD + " traits, highest first";
+    scoreTable(target, rows, "Trait", "PoPS", 3);
+  }
+
+  function renderAll() {
     if (!state.meta || state.geneIdx < 0) return;
     state.token++;
-
-    if (state.cellType === "whole") renderProportionGrid();
-    else renderSingleProportion();
-
+    renderProportionGrid();
+    renderEsvTable();
+    renderPopsTable();
     renderExpression().then(function () { setStatus(""); }).catch(function (e) {
       setStatus("Could not load expression data: " + e.message, true);
     });
-
-    renderScores();
   }
 
   // ---- gene combobox ----------------------------------------------------
@@ -508,7 +475,7 @@
     state.geneIdx = i;
     geneInput.value = name;
     closeOptions();
-    renderPlots();
+    renderAll();
     return true;
   }
 
@@ -548,28 +515,16 @@
 
   // ---- selection wiring -------------------------------------------------
 
-  el("#dbx-celltype").addEventListener("change", function () {
-    state.cellType = this.value;
-    renderPlots();
-  });
-
-  el("#dbx-disease").addEventListener("change", function () {
-    state.diseaseIdx = +this.value;
-    renderScores();
-  });
-
-  el("#dbx-dataset").addEventListener("change", function () {
-    loadDataset(this.value);
-  });
+  el("#dbx-dataset").addEventListener("change", function () { loadDataset(this.value); });
 
   // Redraw on theme flip so the ramps re-anchor for the new surface.
-  new MutationObserver(renderPlots)
+  new MutationObserver(renderAll)
     .observe(document.documentElement, { attributes: true, attributeFilter: ["data-bs-theme"] });
 
   var resizeTimer;
   window.addEventListener("resize", function () {
     clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(renderPlots, 150);
+    resizeTimer = setTimeout(renderAll, 150);
   });
 
   // ---- boot -------------------------------------------------------------
@@ -589,14 +544,6 @@
       state.cellProp = res[2];
       state.esv = res[3];
       state.exprChunks = {};
-
-      var ctSel = el("#dbx-celltype");
-      ctSel.innerHTML = state.meta.cellTypes.map(function (c) {
-        return '<option value="' + esc(c) + '">' + esc(c) + "</option>";
-      }).join("");
-      if (state.meta.cellTypes.indexOf(state.cellType) < 0) state.cellType = "whole";
-      ctSel.value = state.cellType;
-
       el("#dbx-prop-grid").innerHTML = "";   // cell types may differ per dataset
 
       var genes = state.meta.genes;
@@ -608,25 +555,25 @@
       }
       state.geneIdx = start;
       geneInput.value = genes[start];
-      renderPlots();
+      renderAll();
     }).catch(function (e) {
       setStatus("Could not load dataset: " + e.message, true);
     });
   }
 
-  Promise.all([fetchJson(BASE + "/manifest.json")]).then(function (res) {
-    state.manifest = res[0];
-
-    el("#dbx-dataset").innerHTML = state.manifest.datasets.map(function (d) {
+  fetchJson(BASE + "/manifest.json").then(function (manifest) {
+    state.manifest = manifest;
+    el("#dbx-dataset").innerHTML = manifest.datasets.map(function (d) {
       return '<option value="' + esc(d.id) + '">' + esc(d.label) + "</option>";
     }).join("");
 
-    el("#dbx-disease").innerHTML = '<option value="-1">None</option>' +
-      state.manifest.diseases.map(function (d, i) {
-        return '<option value="' + i + '">' + esc(d) + "</option>";
-      }).join("");
+    // PoPS is shared across datasets and small enough to fetch once up front.
+    fetchBin(BASE + "/pops.bin", Float32Array).then(function (p) {
+      state.pops = p;
+      if (state.meta) renderPopsTable();
+    }).catch(function () { state.pops = null; });
 
-    return loadDataset(state.manifest.datasets[0].id);
+    return loadDataset(manifest.datasets[0].id);
   }).catch(function (e) {
     setStatus("Could not load the data browser: " + e.message, true);
   });

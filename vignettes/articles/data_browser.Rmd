@@ -5,11 +5,10 @@ description: >
   disease scores interactively.
 ---
 
-Select a dataset, a gene and a cell type to view the spatial expression of that
-gene alongside the spatial abundance of that cell type, together with the ESV
-score for the pair. Choosing `whole` shows every cell type at once as a grid of
-small maps beside the expression map. Selecting a disease additionally reports
-the PoPS score of the selected gene for that disease.
+Select a dataset and a gene to view the spatial expression of that gene beside
+the spatial abundance of every cell type. The tables below list the gene's ESV
+score for the whole tissue and for each cell type, and its PoPS score for every
+trait.
 
 <link href="../databrowser/app.css" rel="stylesheet">
 <div id="spacelink-databrowser">Loading the data browser…</div>
@@ -17,22 +16,20 @@ the PoPS score of the selected gene for that disease.
 
 ## Notes
 
-- **Normalised count** is the log-normalised expression stored with each dataset.
+- **Normalized count** is the log-normalized expression stored with each dataset.
   Values are transferred as 8-bit quantities scaled to each gene's own maximum,
   so plotted values are accurate to roughly 0.2% of that maximum — ample for the
-  colour map, but read the tiles rather than the plot when you need exact numbers.
-- **Cell type proportion** is the estimated proportion of the selected cell type
-  at each spot; the proportions across all cell types sum to one at every spot.
-  When `whole` is selected, the grid of small maps shares a single colour scale
-  so the cell types can be compared with one another; a single selected cell
-  type is instead scaled to its own maximum to bring out its spatial detail.
-- **ESV** is the expression-based spatial variability score for the selected
-  gene within the selected cell type, as reported by `spacelink()` and
-  `spacelink_ctSVG()`.
+  colour map, but read the tables when you need exact numbers.
+- **Cell type proportion** is the estimated proportion of a cell type at each
+  spot; the proportions across all cell types sum to one at every spot. The maps
+  are drawn on one common scale so that cell types can be compared with each
+  other.
+- **ESV** is the expression-based spatial variability score for the gene within
+  each cell type, as reported by `spacelink()` and `spacelink_ctSVG()`; `whole`
+  is the score across the whole tissue.
 - **PoPS** scores come from the Polygenic Priority Score tables and are defined
   per gene and per trait; they do not depend on the dataset or the cell type.
-  Genes absent from the PoPS tables are reported as such.
-- Spatial plots are drawn with an equal aspect ratio and are mirrored on both
-  axes relative to the raw coordinates: the vertical flip matches the package
-  vignettes, and the horizontal flip puts the section in the orientation used
-  here.
+  Traits are listed strongest first. Genes absent from the PoPS tables are
+  reported as such.
+- Spatial plots are drawn with an equal aspect ratio, with both axes running in
+  the same direction as the stored spot coordinates.

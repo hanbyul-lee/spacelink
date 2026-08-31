@@ -9,8 +9,8 @@
 ##
 ## Layout written:
 ##   databrowser/manifest.json          dataset list + disease list
-##   databrowser/pops/<k>.bin           float32[nPopsGenes], one file per disease
-##   databrowser/pops_genes.json        gene order for the pops/*.bin files
+##   databrowser/pops.bin               float32[nPopsGenes*nDiseases], gene-major
+##   databrowser/pops_genes.json        gene order for pops.bin
 ##   databrowser/<id>/meta.json         genes, cell types, per-gene max, pops row map
 ##   databrowser/<id>/coords.bin        float32[nSpots*2], x,y interleaved
 ##   databrowser/<id>/celltype.bin      float32[nSpots*nCellTypes], spot-major
@@ -75,7 +75,8 @@ pops <- as.data.frame(readRDS(pops_file))
 stopifnot(!anyDuplicated(pops$GeneName))
 diseases <- setdiff(colnames(pops), "GeneName")
 
-dir.create(file.path(OUT, "pops"), recursive = TRUE, showWarnings = FALSE)
+dir.create(OUT, recursive = TRUE, showWarnings = FALSE)
+unlink(file.path(OUT, "pops"), recursive = TRUE)   # superseded by pops.bin
 
 # ---- per-dataset ------------------------------------------------------------
 
@@ -121,10 +122,10 @@ for (p in prepared) pops_gene_union <- union(pops_gene_union, p$genes)
 pops_gene_union <- sort(intersect(pops_gene_union, pops$GeneName))
 message("PoPS covers ", length(pops_gene_union), " gene(s) across all datasets")
 
-pops_sub <- pops[match(pops_gene_union, pops$GeneName), , drop = FALSE]
-for (k in seq_along(diseases)) {
-  write_f32(pops_sub[[diseases[k]]], file.path(OUT, "pops", sprintf("%d.bin", k - 1L)))
-}
+pops_sub <- pops[match(pops_gene_union, pops$GeneName), diseases, drop = FALSE]
+# t() so the column-major dump lands gene-major: all diseases of gene 1, then
+# gene 2 - the browser reads one gene's whole row to fill the disease table.
+write_f32(as.vector(t(as.matrix(pops_sub))), file.path(OUT, "pops.bin"))
 json(pops_gene_union, file.path(OUT, "pops_genes.json"))
 
 for (p in prepared) {

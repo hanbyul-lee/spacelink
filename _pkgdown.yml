@@ -31,12 +31,14 @@ navbar:
         href: reference/index.html
     technical_vignettes:
       text: Technical vignettes
-      menu: Simulation examples
+      menu:
+      - text: Simulation examples
       - text: Spacelink global SVG
         href: articles/spacelink_vignette.html
       - text: Spacelink ctSVG
         href: articles/spacelink_ctSVG_vignette.html
-      menu: Benchmarks
+      - text: "-------"
+      - text: Benchmarks
       - text: Lengthscale estimation
         href: articles/lengthscale_estimation.html
       - text: Runtime and memory usage

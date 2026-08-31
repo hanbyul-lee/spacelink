@@ -10,6 +10,7 @@
   --dbx-text-2: #52514e;
   --dbx-text-3: #78776f;
   --dbx-accent: #2a78d6;
+  --dbx-bar: rgba(120, 119, 111, 0.22);
   --dbx-radius: 8px;
   color: var(--dbx-text);
   margin-bottom: 2rem;
@@ -23,6 +24,7 @@
   --dbx-text-2: #c3c2b7;
   --dbx-text-3: #94938a;
   --dbx-accent: #3987e5;
+  --dbx-bar: rgba(148, 147, 138, 0.28);
 }
 
 /* ---- controls -------------------------------------------------------- */
@@ -101,41 +103,6 @@
 
 .dbx-options .dbx-empty { color: var(--dbx-text-3); cursor: default; }
 .dbx-options .dbx-empty:hover { background: transparent; color: var(--dbx-text-3); }
-
-/* ---- score tiles ----------------------------------------------------- */
-
-.dbx-scores {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1.25rem;
-}
-
-.dbx-tile {
-  padding: 0.85rem 1rem;
-  background: var(--dbx-surface-2);
-  border: 1px solid var(--dbx-border);
-  border-radius: var(--dbx-radius);
-}
-
-.dbx-tile .dbx-tile-label {
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-  color: var(--dbx-text-3);
-}
-
-.dbx-tile .dbx-tile-value {
-  font-size: 1.75rem;
-  font-weight: 600;
-  line-height: 1.2;
-  font-variant-numeric: tabular-nums;
-  margin-top: 0.15rem;
-}
-
-.dbx-tile .dbx-tile-value.dbx-na { font-size: 1.05rem; color: var(--dbx-text-3); font-weight: 500; }
-.dbx-tile .dbx-tile-sub { font-size: 0.78rem; color: var(--dbx-text-2); margin-top: 0.2rem; }
 
 /* ---- plots ----------------------------------------------------------- */
 
@@ -220,6 +187,76 @@
 .dbx-details th, .dbx-details td { text-align: right; padding: 0.22rem 0.4rem; border-bottom: 1px solid var(--dbx-border); }
 .dbx-details th:first-child, .dbx-details td:first-child { text-align: left; }
 .dbx-details td { font-variant-numeric: tabular-nums; }
+
+/* ---- score tables ---------------------------------------------------- */
+
+.dbx-tables {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1.25rem;
+}
+
+.dbx-scroll { max-height: 340px; overflow-y: auto; }
+
+table.dbx-score-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+table.dbx-score-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--dbx-surface);
+  text-align: left;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--dbx-text-3);
+  padding: 0.3rem 0.4rem;
+  border-bottom: 1px solid var(--dbx-border);
+}
+
+table.dbx-score-table thead th:last-child { text-align: right; }
+
+table.dbx-score-table th[scope="row"] {
+  font-weight: 400;
+  text-align: left;
+  color: var(--dbx-text);
+  padding: 0.28rem 0.4rem;
+  border-bottom: 1px solid var(--dbx-border);
+}
+
+table.dbx-score-table td {
+  position: relative;
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  padding: 0.28rem 0.4rem;
+  border-bottom: 1px solid var(--dbx-border);
+  min-width: 5.5rem;
+}
+
+/* Magnitude bar behind the number: length carries the value, and the tint is
+   neutral so no hue implies a link to the maps above. */
+.dbx-barcell {
+  position: absolute;
+  right: 0.4rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: var(--w, 0%);
+  max-width: calc(100% - 0.8rem);
+  height: 1.05em;
+  border-radius: 2px;
+  background: var(--dbx-bar);
+}
+
+.dbx-barcell + span { position: relative; }
+
+.dbx-empty-note { font-size: 0.85rem; color: var(--dbx-text-3); margin: 0.3rem 0 0; }
 
 /* ---- status ---------------------------------------------------------- */
 
