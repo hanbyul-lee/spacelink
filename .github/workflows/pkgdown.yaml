@@ -1,5 +1,13 @@
 # Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
 # Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
+#
+# The data browser bundle (pkgdown/assets/databrowser/*, ~640 MB) is NOT stored
+# in this repository. It is published as the `databrowser-v1` release asset and
+# downloaded here before the site is built. Rebuild it with
+# data-raw/build_databrowser_data.R and upload a new asset when the data changes.
+#
+# The site is published straight from an Actions artifact rather than a gh-pages
+# branch, so the built site is never committed to git history.
 on:
   push:
     branches: [main, master]
@@ -13,17 +21,33 @@ name: pkgdown.yaml
 permissions: read-all
 
 jobs:
-  pkgdown:
+  build:
     runs-on: ubuntu-latest
     # Only restrict concurrency for non-PR jobs
     concurrency:
       group: pkgdown-${{ github.event_name != 'pull_request' || github.run_id }}
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      # Release tag holding databrowser.tar.gz; bump when the data is rebuilt.
+      BUNDLE_TAG: databrowser-v1
     permissions:
-      contents: write
+      contents: read
     steps:
       - uses: actions/checkout@v4
+
+      - name: Download data browser bundle
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          gh release download "$BUNDLE_TAG" \
+            --repo "$GITHUB_REPOSITORY" \
+            --pattern databrowser.tar.gz \
+            --dir "$RUNNER_TEMP"
+          mkdir -p pkgdown/assets
+          tar -xzf "$RUNNER_TEMP/databrowser.tar.gz" -C pkgdown/assets
+          echo "Datasets restored:"
+          ls -1 pkgdown/assets/databrowser
 
       - uses: r-lib/actions/setup-pandoc@v2
 
@@ -40,10 +64,22 @@ jobs:
         run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
         shell: Rscript {0}
 
-      - name: Deploy to GitHub pages 🚀
-        if: github.event_name != 'pull_request'
-        uses: JamesIves/github-pages-deploy-action@v4.5.0
+      - name: Upload site artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          clean: false
-          branch: gh-pages
-          folder: docs
+          path: docs
+
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages 🚀
+        id: deployment
+        uses: actions/deploy-pages@v4
