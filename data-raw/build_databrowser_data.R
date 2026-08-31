@@ -33,7 +33,7 @@ datasets <- list(
     ct     = file.path(DL, "Visium_human_DLPFC_cell_type_data.rds")
   )
 )
-pops_file <- file.path(DL, "pops_score.rds")
+pops_file <- file.path(DL, "pops_score-2.rds")
 
 # ---- helpers ----------------------------------------------------------------
 

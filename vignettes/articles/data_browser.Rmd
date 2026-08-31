@@ -7,9 +7,9 @@ description: >
 
 Select a dataset, a gene and a cell type to view the spatial expression of that
 gene alongside the spatial abundance of that cell type, together with the ESV
-score for the pair. Choosing `whole` shows the expression map on its own.
-Selecting a disease additionally reports the PoPS score of the selected gene for
-that disease.
+score for the pair. Choosing `whole` shows every cell type at once as a grid of
+small maps beside the expression map. Selecting a disease additionally reports
+the PoPS score of the selected gene for that disease.
 
 <link href="../databrowser/app.css" rel="stylesheet">
 <div id="spacelink-databrowser">Loading the data browser…</div>
@@ -23,11 +23,16 @@ that disease.
   colour map, but read the tiles rather than the plot when you need exact numbers.
 - **Cell type proportion** is the estimated proportion of the selected cell type
   at each spot; the proportions across all cell types sum to one at every spot.
+  When `whole` is selected, the grid of small maps shares a single colour scale
+  so the cell types can be compared with one another; a single selected cell
+  type is instead scaled to its own maximum to bring out its spatial detail.
 - **ESV** is the expression-based spatial variability score for the selected
   gene within the selected cell type, as reported by `spacelink()` and
   `spacelink_ctSVG()`.
 - **PoPS** scores come from the Polygenic Priority Score tables and are defined
   per gene and per trait; they do not depend on the dataset or the cell type.
   Genes absent from the PoPS tables are reported as such.
-- Spatial plots use the same orientation as the package vignettes (the vertical
-  axis is reversed) and are drawn with an equal aspect ratio.
+- Spatial plots are drawn with an equal aspect ratio and are mirrored on both
+  axes relative to the raw coordinates: the vertical flip matches the package
+  vignettes, and the horizontal flip puts the section in the orientation used
+  here.

@@ -180,6 +180,33 @@
 
 .dbx-tip b { font-variant-numeric: tabular-nums; }
 
+/* small multiples: every cell type at once, one shared colour scale */
+.dbx-mini-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem 0.45rem;
+}
+
+.dbx-mini { margin: 0; min-width: 0; }
+
+/* Two fixed lines so long cell-type names stay readable and every mini in a
+   row still starts at the same height. */
+.dbx-mini figcaption {
+  font-size: 0.68rem;
+  line-height: 1.2;
+  height: 2.4em;
+  color: var(--dbx-text-2);
+  margin-bottom: 0.15rem;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+
+.dbx-mini canvas { border-radius: 3px; }
+
+@media (max-width: 420px) {
+  .dbx-mini-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
 /* colour bar */
 .dbx-legend { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.65rem; }
 .dbx-legend .dbx-bar { flex: 1; height: 10px; border-radius: 5px; border: 1px solid var(--dbx-border); }
