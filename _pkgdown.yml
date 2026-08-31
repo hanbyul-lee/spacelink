@@ -12,7 +12,7 @@ home:
 
 navbar:
   structure:
-    left:  [home, reference, getting_started, simulations, real_data, benchmarks, tutorials, news]
+    left:  [home, reference, getting_started, simulations, real_data, benchmarks, data_browser, tutorials, news]
     right: [search, github]
   components:
     home:
@@ -55,6 +55,9 @@ navbar:
         href: articles/lengthscale_estimation.html
       - text: Runtime and memory usage
         href: articles/runtime_memory_usage.html
+    data_browser:
+      text: Data browser
+      href: articles/data_browser.html
     github:
       icon: fab fa-github fa-lg
       href: https://github.com/hanbyul-lee/spacelink
@@ -99,6 +102,11 @@ articles:
   contents:
   - lengthscale_estimation
   - runtime_memory_usage
+
+- title: "Data browser"
+  desc: "Interactive exploration of the example datasets"
+  contents:
+  - articles/data_browser
 
 footer:
   structure:

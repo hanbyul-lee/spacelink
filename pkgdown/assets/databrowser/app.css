@@ -1,0 +1,204 @@
+/* Data browser - spacelink pkgdown site.
+   Colour roles follow the project data-viz palette; sequential ramps are defined
+   in app.js (blue = expression, orange = cell-type proportion). */
+
+#spacelink-databrowser {
+  --dbx-surface: #fcfcfb;
+  --dbx-surface-2: #f4f4f1;
+  --dbx-border: #dcdcd6;
+  --dbx-text: #0b0b0b;
+  --dbx-text-2: #52514e;
+  --dbx-text-3: #78776f;
+  --dbx-accent: #2a78d6;
+  --dbx-radius: 8px;
+  color: var(--dbx-text);
+  margin-bottom: 2rem;
+}
+
+[data-bs-theme="dark"] #spacelink-databrowser {
+  --dbx-surface: #1a1a19;
+  --dbx-surface-2: #242422;
+  --dbx-border: #3a3a36;
+  --dbx-text: #ffffff;
+  --dbx-text-2: #c3c2b7;
+  --dbx-text-3: #94938a;
+  --dbx-accent: #3987e5;
+}
+
+/* ---- controls -------------------------------------------------------- */
+
+.dbx-controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 0.75rem 1rem;
+  padding: 1rem;
+  background: var(--dbx-surface-2);
+  border: 1px solid var(--dbx-border);
+  border-radius: var(--dbx-radius);
+  margin-bottom: 1rem;
+}
+
+.dbx-field { display: flex; flex-direction: column; gap: 0.3rem; min-width: 0; }
+
+.dbx-field label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--dbx-text-3);
+  margin: 0;
+}
+
+.dbx-field select,
+.dbx-field input {
+  width: 100%;
+  padding: 0.4rem 0.55rem;
+  font-size: 0.9rem;
+  font-family: inherit;
+  color: var(--dbx-text);
+  background: var(--dbx-surface);
+  border: 1px solid var(--dbx-border);
+  border-radius: 6px;
+}
+
+.dbx-field select:focus-visible,
+.dbx-field input:focus-visible {
+  outline: 2px solid var(--dbx-accent);
+  outline-offset: 1px;
+}
+
+/* gene combobox */
+.dbx-combo { position: relative; }
+
+.dbx-options {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 2px);
+  left: 0;
+  right: 0;
+  max-height: 260px;
+  overflow-y: auto;
+  background: var(--dbx-surface);
+  border: 1px solid var(--dbx-border);
+  border-radius: 6px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.16);
+  display: none;
+}
+
+.dbx-options.open { display: block; }
+
+.dbx-options div {
+  padding: 0.32rem 0.55rem;
+  font-size: 0.87rem;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dbx-options div[aria-selected="true"],
+.dbx-options div:hover { background: var(--dbx-accent); color: #fff; }
+
+.dbx-options .dbx-empty { color: var(--dbx-text-3); cursor: default; }
+.dbx-options .dbx-empty:hover { background: transparent; color: var(--dbx-text-3); }
+
+/* ---- score tiles ----------------------------------------------------- */
+
+.dbx-scores {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.dbx-tile {
+  padding: 0.85rem 1rem;
+  background: var(--dbx-surface-2);
+  border: 1px solid var(--dbx-border);
+  border-radius: var(--dbx-radius);
+}
+
+.dbx-tile .dbx-tile-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--dbx-text-3);
+}
+
+.dbx-tile .dbx-tile-value {
+  font-size: 1.75rem;
+  font-weight: 600;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+  margin-top: 0.15rem;
+}
+
+.dbx-tile .dbx-tile-value.dbx-na { font-size: 1.05rem; color: var(--dbx-text-3); font-weight: 500; }
+.dbx-tile .dbx-tile-sub { font-size: 0.78rem; color: var(--dbx-text-2); margin-top: 0.2rem; }
+
+/* ---- plots ----------------------------------------------------------- */
+
+.dbx-plots { display: grid; gap: 1.25rem; }
+.dbx-plots.dbx-two { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+
+.dbx-panel {
+  border: 1px solid var(--dbx-border);
+  border-radius: var(--dbx-radius);
+  padding: 0.9rem 1rem 1rem;
+  background: var(--dbx-surface);
+  min-width: 0;
+}
+
+.dbx-panel h3 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0 0 0.1rem;
+  color: var(--dbx-text);
+}
+
+.dbx-panel .dbx-sub { font-size: 0.78rem; color: var(--dbx-text-2); margin-bottom: 0.6rem; }
+
+.dbx-canvas-wrap { position: relative; width: 100%; }
+.dbx-canvas-wrap canvas { display: block; width: 100%; height: auto; border-radius: 4px; }
+
+.dbx-tip {
+  position: absolute;
+  z-index: 20;
+  pointer-events: none;
+  display: none;
+  padding: 0.4rem 0.55rem;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  white-space: nowrap;
+  color: var(--dbx-text);
+  background: var(--dbx-surface);
+  border: 1px solid var(--dbx-border);
+  border-radius: 6px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+}
+
+.dbx-tip b { font-variant-numeric: tabular-nums; }
+
+/* colour bar */
+.dbx-legend { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.65rem; }
+.dbx-legend .dbx-bar { flex: 1; height: 10px; border-radius: 5px; border: 1px solid var(--dbx-border); }
+.dbx-legend span { font-size: 0.72rem; color: var(--dbx-text-2); font-variant-numeric: tabular-nums; }
+
+/* ---- table view ------------------------------------------------------ */
+
+.dbx-details { margin-top: 0.7rem; }
+.dbx-details summary { font-size: 0.78rem; color: var(--dbx-text-2); cursor: pointer; }
+.dbx-details table { width: 100%; margin-top: 0.5rem; font-size: 0.78rem; border-collapse: collapse; }
+.dbx-details th, .dbx-details td { text-align: right; padding: 0.22rem 0.4rem; border-bottom: 1px solid var(--dbx-border); }
+.dbx-details th:first-child, .dbx-details td:first-child { text-align: left; }
+.dbx-details td { font-variant-numeric: tabular-nums; }
+
+/* ---- status ---------------------------------------------------------- */
+
+.dbx-status { font-size: 0.85rem; color: var(--dbx-text-2); padding: 0.6rem 0; }
+.dbx-status.dbx-error { color: #d03b3b; }
+
+@media (max-width: 560px) {
+  .dbx-plots.dbx-two { grid-template-columns: 1fr; }
+}
