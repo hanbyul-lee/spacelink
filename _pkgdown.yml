@@ -69,7 +69,6 @@ articles:
   - installation
   - quick_start
   - overview
-  - index
 
 - title: "Technical vignettes"
   desc: "Simulation examples"
