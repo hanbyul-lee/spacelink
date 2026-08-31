@@ -12,7 +12,7 @@ home:
 
 navbar:
   structure:
-    left:  [home, getting_started, technical_vignettes, real_data, data_browser, tutorials, news]
+    left:  [home, getting_started, simulation_studies, real_data, data_browser, tutorials, news]
     right: [search, github]
   components:
     home:
@@ -29,8 +29,8 @@ navbar:
         href: articles/overview.html
       - text: Package index
         href: reference/index.html
-    technical_vignettes:
-      text: Technical vignettes
+    simulation_studies:
+      text: Simulation studies
       menu:
       - text: Simulation examples
       - text: Spacelink global SVG
@@ -70,7 +70,7 @@ articles:
   - quick_start
   - overview
 
-- title: "Technical vignettes"
+- title: "Simulation studies"
   desc: "Simulation examples"
   contents:
   - spacelink_vignette

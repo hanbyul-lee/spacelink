@@ -16,10 +16,12 @@ trait.
 
 ## Notes
 
-- **Normalized count** is the log-normalized expression stored with each dataset.
-  Values are transferred as 8-bit quantities scaled to each gene's own maximum,
-  so plotted values are accurate to roughly 0.2% of that maximum — ample for the
-  colour map, but read the tables when you need exact numbers.
+- **Count** is the raw UMI count for that gene at that spot, exactly as stored in
+  the dataset — no normalization or transformation is applied to the numbers you
+  see. The *colour* is mapped on a log scale, because raw counts are steep
+  enough that a linear ramp would put most spots in the lightest band and hide
+  the tissue structure; the colour bar is labelled at its midpoint so the
+  non-linearity is visible.
 - **Cell type proportion** is the estimated proportion of a cell type at each
   spot; the proportions across all cell types sum to one at every spot. The maps
   are drawn on one common scale so that cell types can be compared with each

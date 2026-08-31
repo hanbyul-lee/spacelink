@@ -72,6 +72,13 @@
     return v.toFixed(d === undefined ? 3 : d);
   }
 
+  /* Counts are integers, but quantiles and means of them are not; show a whole
+     number when the value is one and a single decimal otherwise. */
+  function fmtCount(v) {
+    if (v === null || v === undefined || !isFinite(v)) return "—";
+    return Number.isInteger(v) ? String(v) : v.toFixed(1);
+  }
+
   function fetchBin(url, ctor) {
     return fetch(url).then(function (r) {
       if (!r.ok) throw new Error(url + " (" + r.status + ")");
@@ -116,18 +123,19 @@
     '    <div class="dbx-sub" id="dbx-expr-sub"></div>',
     '    <div class="dbx-canvas-wrap"><canvas id="dbx-expr-canvas"></canvas>',
     '      <div class="dbx-tip" id="dbx-expr-tip"></div></div>',
-    '    <div class="dbx-legend"><span id="dbx-expr-lo">0</span>',
-    '      <div class="dbx-bar" id="dbx-expr-bar"></div>',
-    '      <span id="dbx-expr-hi"></span></div>',
+    '    <div class="dbx-legend"><div class="dbx-bar" id="dbx-expr-bar"></div></div>',
+    '    <div class="dbx-ticks"><span id="dbx-expr-lo">0</span>',
+    '      <span id="dbx-expr-mid"></span><span id="dbx-expr-hi"></span></div>',
+    '    <div class="dbx-legend-note" id="dbx-expr-note"></div>',
     '    <details class="dbx-details"><summary>Values as a table</summary>',
     '      <div id="dbx-expr-table"></div></details></div>',
     '  <div class="dbx-panel" id="dbx-prop-panel">',
     '    <h3 id="dbx-prop-title">Cell type proportions</h3>',
     '    <div class="dbx-sub" id="dbx-prop-sub"></div>',
     '    <div id="dbx-prop-grid" class="dbx-mini-grid"></div>',
-    '    <div class="dbx-legend"><span id="dbx-prop-lo">0</span>',
-    '      <div class="dbx-bar" id="dbx-prop-bar"></div>',
-    '      <span id="dbx-prop-hi"></span></div>',
+    '    <div class="dbx-legend"><div class="dbx-bar" id="dbx-prop-bar"></div></div>',
+    '    <div class="dbx-ticks"><span id="dbx-prop-lo">0</span>',
+    '      <span id="dbx-prop-mid"></span><span id="dbx-prop-hi"></span></div>',
     '    <details class="dbx-details"><summary>Values as a table</summary>',
     '      <div id="dbx-prop-table"></div></details></div>',
     '</div>',
@@ -152,8 +160,11 @@
   // ---- geometry & painting ----------------------------------------------
 
   /* Projects the spot coordinates into a cssW-wide canvas, preserving aspect
-     ratio. Both axes run in the same direction as the stored coordinates. */
-  function paint(canvas, vals, vmax, rampName, cssW, maxH, minR) {
+     ratio. Both axes run in the same direction as the stored coordinates.
+     `logScale` maps colour by log1p, which raw counts need: their distribution
+     is steep enough that a linear ramp puts ~85% of spots in the lowest band
+     and the tissue structure disappears. */
+  function paint(canvas, vals, vmax, rampName, cssW, maxH, minR, logScale) {
     var coords = state.coords;
     var n = state.meta.nSpots;
 
@@ -194,9 +205,11 @@
       Math.min(6, 0.45 * Math.sqrt((dx * s) * (dy * s) / n)));
 
     var lut = buildLut(rampFor(rampName));
-    var scale = vmax > 0 ? 255 / vmax : 0;
+    var denom = logScale ? Math.log1p(vmax) : vmax;
+    var scale = denom > 0 ? 255 / denom : 0;
     for (var k = 0; k < n; k++) {
-      var q = Math.max(0, Math.min(255, Math.round(vals[k] * scale)));
+      var t = logScale ? Math.log1p(vals[k]) : vals[k];
+      var q = Math.max(0, Math.min(255, Math.round(t * scale)));
       ctx.fillStyle = "rgb(" + lut[q * 3] + "," + lut[q * 3 + 1] + "," + lut[q * 3 + 2] + ")";
       ctx.beginPath();
       ctx.arc(px[k], py[k], r, 0, 6.283185307179586);
@@ -205,14 +218,25 @@
     return { px: px, py: py, r: r };
   }
 
-  function setLegend(prefix, vmax, rampName) {
+  /* On a log ramp the bar's midpoint is not vmax/2, so label it explicitly -
+     without that tick the gradient reads as linear and overstates the low end. */
+  function setLegend(prefix, vmax, rampName, logScale) {
     el("#" + prefix + "-bar").style.background =
       "linear-gradient(to right," + rampFor(rampName).join(",") + ")";
     el("#" + prefix + "-lo").textContent = "0";
-    el("#" + prefix + "-hi").textContent = fmt(vmax, vmax < 1 ? 3 : 2);
+    el("#" + prefix + "-hi").textContent = logScale ? String(vmax) : fmt(vmax, vmax < 1 ? 3 : 2);
+    var mid = el("#" + prefix + "-mid");
+    if (mid) {
+      if (logScale) {
+        mid.textContent = String(Math.round(Math.expm1(0.5 * Math.log1p(vmax))));
+        mid.style.display = "";
+      } else {
+        mid.style.display = "none";
+      }
+    }
   }
 
-  function attachHover(canvas, tip, geom, vals, unitLabel, prefixLabel) {
+  function attachHover(canvas, tip, geom, vals, unitLabel, prefixLabel, isCount) {
     var hitR = Math.max(geom.r + 3, 6);
     canvas.onmousemove = function (ev) {
       var rect = canvas.getBoundingClientRect();
@@ -225,7 +249,7 @@
       }
       if (best < 0) { tip.style.display = "none"; return; }
       tip.innerHTML = (prefixLabel ? esc(prefixLabel) + "<br>" : "") +
-        unitLabel + ": <b>" + fmt(vals[best], 3) + "</b>";
+        unitLabel + ": <b>" + (isCount ? String(vals[best]) : fmt(vals[best], 3)) + "</b>";
       tip.style.display = "block";
       var tw = tip.offsetWidth, th = tip.offsetHeight;
       tip.style.left = Math.max(0, Math.min(geom.px[best] + 12, canvas.clientWidth - tw)) + "px";
@@ -234,17 +258,18 @@
     canvas.onmouseleave = function () { tip.style.display = "none"; };
   }
 
-  function summaryTable(target, vals, unitLabel) {
+  function summaryTable(target, vals, unitLabel, isCount) {
     var arr = Array.prototype.slice.call(vals).sort(function (a, b) { return a - b; });
     var sum = 0, nz = 0;
     for (var i = 0; i < vals.length; i++) { sum += vals[i]; if (vals[i] > 0) nz++; }
+    var f = isCount ? fmtCount : function (v) { return fmt(v, 3); };
     var rows = [
-      ["Minimum", fmt(arr[0], 3)],
-      ["25th percentile", fmt(quantile(arr, 0.25), 3)],
-      ["Median", fmt(quantile(arr, 0.5), 3)],
-      ["75th percentile", fmt(quantile(arr, 0.75), 3)],
-      ["Maximum", fmt(arr[arr.length - 1], 3)],
-      ["Mean", fmt(sum / vals.length, 3)],
+      ["Minimum", f(arr[0])],
+      ["25th percentile", f(quantile(arr, 0.25))],
+      ["Median", f(quantile(arr, 0.5))],
+      ["75th percentile", f(quantile(arr, 0.75))],
+      ["Maximum", f(arr[arr.length - 1])],
+      ["Mean", isCount ? (sum / vals.length).toFixed(2) : fmt(sum / vals.length, 3)],
       ["Spots above zero", nz + " of " + vals.length]
     ];
     target.innerHTML = "<table><thead><tr><th scope=\"col\">Statistic</th><th scope=\"col\">" +
@@ -279,14 +304,12 @@
     var chunk = Math.floor(geneIdx / meta.chunkSize);
     var key = state.datasetId + ":" + chunk;
     var p = state.exprChunks[key] || fetchBin(BASE + "/" + state.datasetId +
-      "/expr_" + String(chunk).padStart(3, "0") + ".bin", Uint8Array);
+      "/expr_" + String(chunk).padStart(3, "0") + ".bin", Uint16Array);
     state.exprChunks[key] = p;
-    return p.then(function (u8) {
+    return p.then(function (u16) {
+      // Raw counts are stored exactly, so this is a plain slice - no rescaling.
       var off = (geneIdx - chunk * meta.chunkSize) * meta.nSpots;
-      var vmax = meta.exprMax[geneIdx];
-      var out = new Float32Array(meta.nSpots);
-      for (var i = 0; i < meta.nSpots; i++) out[i] = (u8[off + i] / 255) * vmax;
-      return out;
+      return u16.subarray(off, off + meta.nSpots);
     });
   }
 
@@ -305,7 +328,7 @@
     var meta = state.meta;
     var gi = state.geneIdx;
     el("#dbx-expr-title").textContent = meta.genes[gi] + " expression";
-    el("#dbx-expr-sub").textContent = "Normalized count per spot · " + meta.label;
+    el("#dbx-expr-sub").textContent = "Raw count per spot · " + meta.label;
 
     var canvas = el("#dbx-expr-canvas");
     var width = canvas.parentNode.clientWidth || 360;
@@ -313,10 +336,12 @@
     return geneValues(gi).then(function (vals) {
       if (want !== state.token) return;
       var vmax = meta.exprMax[gi] || 1;
-      var geom = paint(canvas, vals, vmax, "blue", width, 560);
-      setLegend("dbx-expr", vmax, "blue");
-      attachHover(canvas, el("#dbx-expr-tip"), geom, vals, "Normalized count");
-      summaryTable(el("#dbx-expr-table"), vals, "Normalized count");
+      var geom = paint(canvas, vals, vmax, "blue", width, 560, undefined, true);
+      setLegend("dbx-expr", vmax, "blue", true);
+      el("#dbx-expr-note").textContent =
+        "Colour on a log scale; counts are exact.";
+      attachHover(canvas, el("#dbx-expr-tip"), geom, vals, "Count", null, true);
+      summaryTable(el("#dbx-expr-table"), vals, "Count", true);
     });
   }
 

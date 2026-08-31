@@ -175,9 +175,20 @@
 }
 
 /* colour bar */
-.dbx-legend { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.65rem; }
+.dbx-legend { display: flex; align-items: center; margin-top: 0.65rem; }
 .dbx-legend .dbx-bar { flex: 1; height: 10px; border-radius: 5px; border: 1px solid var(--dbx-border); }
-.dbx-legend span { font-size: 0.72rem; color: var(--dbx-text-2); font-variant-numeric: tabular-nums; }
+
+/* Ticks sit under the bar: first left, last right, middle centred. The middle
+   tick is what keeps a log ramp from being read as linear. */
+.dbx-ticks { display: flex; justify-content: space-between; margin-top: 0.2rem; }
+.dbx-ticks span { font-size: 0.72rem; color: var(--dbx-text-2); font-variant-numeric: tabular-nums; }
+
+.dbx-legend-note {
+  font-size: 0.7rem;
+  color: var(--dbx-text-3);
+  margin-top: 0.15rem;
+}
+.dbx-legend-note:empty { display: none; }
 
 /* ---- table view ------------------------------------------------------ */
 
@@ -197,10 +208,15 @@
   margin-top: 1.25rem;
 }
 
-.dbx-scroll { max-height: 340px; overflow-y: auto; }
+.dbx-scroll { max-height: 340px; overflow-y: auto; overflow-x: hidden; }
 
+/* Fixed layout pins the score column to a known width so the name column takes
+   whatever is left and wraps into it - long trait names like
+   "HIGH_LIGHT_SCATTER_RETICULOCYTE_COUNT (UKBB, 460K)" would otherwise push the
+   score off the right edge. */
 table.dbx-score-table {
   width: 100%;
+  table-layout: fixed;
   border-collapse: collapse;
   font-size: 0.82rem;
 }
@@ -228,6 +244,16 @@ table.dbx-score-table th[scope="row"] {
   color: var(--dbx-text);
   padding: 0.28rem 0.4rem;
   border-bottom: 1px solid var(--dbx-border);
+  /* wrap long names instead of widening the table; anywhere is needed because
+     UKBB trait names are single underscore-joined tokens with no break points */
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.3;
+}
+
+table.dbx-score-table thead th:last-child,
+table.dbx-score-table td {
+  width: 5.5rem;
 }
 
 table.dbx-score-table td {
@@ -237,7 +263,7 @@ table.dbx-score-table td {
   font-variant-numeric: tabular-nums;
   padding: 0.28rem 0.4rem;
   border-bottom: 1px solid var(--dbx-border);
-  min-width: 5.5rem;
+  vertical-align: middle;
 }
 
 /* Magnitude bar behind the number: length carries the value, and the tint is

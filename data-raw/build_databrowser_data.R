@@ -15,7 +15,7 @@
 ##   databrowser/<id>/coords.bin        float32[nSpots*2], x,y interleaved
 ##   databrowser/<id>/celltype.bin      float32[nSpots*nCellTypes], spot-major
 ##   databrowser/<id>/esv.bin           float32[nCellTypes*nGenes], cell-type-major
-##   databrowser/<id>/expr_NNN.bin      uint8[chunk*nSpots], gene-major, per-gene scaled
+##   databrowser/<id>/expr_NNN.bin      uint16[chunk*nSpots], gene-major, raw counts
 
 suppressMessages(library(Matrix))
 
@@ -33,7 +33,7 @@ datasets <- list(
     ct     = file.path(DL, "Visium_human_DLPFC_cell_type_data.rds")
   )
 )
-pops_file <- file.path(DL, "pops_score-2.rds")
+pops_file <- file.path(DL, "pops_score.rds")
 
 # ---- helpers ----------------------------------------------------------------
 
@@ -42,9 +42,10 @@ write_f32 <- function(x, path) {
   writeBin(as.double(x), con, size = 4L, endian = "little")
 }
 
-write_u8 <- function(x, path) {
+write_u16 <- function(x, path) {
+  stopifnot(all(x >= 0), max(x) <= 65535L)
   con <- file(path, "wb"); on.exit(close(con))
-  writeBin(as.raw(x), con)
+  writeBin(as.integer(x), con, size = 2L, endian = "little")
 }
 
 json <- function(x, path) {
@@ -85,7 +86,9 @@ pops_gene_union <- character()
 
 prepared <- lapply(datasets, function(ds) {
   message("Reading ", ds$label, " ...")
-  counts <- readRDS(ds$counts)
+  # Sources ship either dgC or dgT sparse matrices; column-wise slicing below
+  # wants the compressed-column form.
+  counts <- as(readRDS(ds$counts), "CsparseMatrix")
   coords <- readRDS(ds$coords)
   esv <- readRDS(ds$esv)
   ct <- readRDS(ds$ct)
@@ -141,20 +144,18 @@ for (p in prepared) {
   write_f32(as.vector(t(as.matrix(p$ct))), file.path(dir, "celltype.bin"))
   write_f32(as.vector(t(p$esv_mat)), file.path(dir, "esv.bin"))
 
-  # Expression, quantised to uint8 against each gene's own maximum. The colour
-  # ramp has ~7 stops, so 8-bit is well past what the plot can resolve.
+  # Raw counts, stored exactly as uint16 - no quantisation, so the browser
+  # reports the same integers the matrix holds.
+  stopifnot(all(p$counts@x == round(p$counts@x)))
   gmax <- numeric(n_genes)
   n_chunks <- ceiling(n_genes / CHUNK)
   for (k in seq_len(n_chunks)) {
     lo <- (k - 1L) * CHUNK + 1L
     hi <- min(k * CHUNK, n_genes)
     block <- as.matrix(p$counts[lo:hi, , drop = FALSE])
-    mx <- apply(block, 1L, max)
-    gmax[lo:hi] <- mx
-    scaled <- block / ifelse(mx > 0, mx, 1)
+    gmax[lo:hi] <- apply(block, 1L, max)
     # t() so the column-major dump lands gene-major: all spots of gene 1, then gene 2
-    write_u8(round(pmin(pmax(t(scaled), 0), 1) * 255),
-             file.path(dir, sprintf("expr_%03d.bin", k - 1L)))
+    write_u16(t(block), file.path(dir, sprintf("expr_%03d.bin", k - 1L)))
   }
 
   json(list(
@@ -166,7 +167,7 @@ for (p in prepared) {
     nChunks = n_chunks,
     genes = p$genes,
     cellTypes = p$cell_types,
-    exprMax = round(gmax, 5),
+    exprMax = as.integer(gmax),
     popsRow = match(p$genes, pops_gene_union) - 1L   # -1L -> NA -> null in JSON
   ), file.path(dir, "meta.json"))
 
