@@ -16,19 +16,27 @@ trait.
 
 ## Notes
 
-- **Count** is the raw UMI count for that gene at that spot, exactly as stored in
-  the dataset — no normalization or transformation is applied to the numbers you
-  see. The *colour* is mapped on a log scale, because raw counts are steep
-  enough that a linear ramp would put most spots in the lightest band and hide
-  the tissue structure; the colour bar is labelled at its midpoint so the
-  non-linearity is visible.
+- **Count** is the raw UMI count for that gene, exactly as stored in the dataset
+  — no normalization or transformation is applied to the numbers you see. The
+  *colour* is mapped on a log scale, because raw counts are steep enough that a
+  linear ramp would put most positions in the lightest band and hide the tissue
+  structure; the colour bar is labelled at its midpoint so the non-linearity is
+  visible.
+- **Visium and CosMx datasets are shown at different resolutions.** The Visium
+  sets have a few thousand spots each and are shown per spot. The CosMx sets
+  hold between 181,000 and 1.55 million cells — far more than a plot this size
+  can resolve — so their cells are aggregated onto a spatial grid of roughly
+  20,000 bins, and each bin reports the **mean** raw count of the cells falling
+  in it. Every cell contributes; nothing is discarded. The panel caption states
+  which resolution is in use.
 - **Cell type proportion** is the estimated proportion of a cell type at each
-  spot; the proportions across all cell types sum to one at every spot. The maps
-  are drawn on one common scale so that cell types can be compared with each
-  other.
+  position; the proportions across all cell types sum to one. For the binned
+  CosMx datasets, each bin shows the mean proportion of its cells. The maps are
+  drawn on one common scale so that cell types can be compared with each other.
 - **ESV** is the expression-based spatial variability score for the gene within
   each cell type, as reported by `spacelink()` and `spacelink_ctSVG()`; `whole`
-  is the score across the whole tissue.
+  is the score across the whole tissue. A few gene and cell type combinations
+  have no score and are shown as not available.
 - **PoPS** scores come from the Polygenic Priority Score tables and are defined
   per gene and per trait; they do not depend on the dataset or the cell type.
   Traits are listed strongest first. Genes absent from the PoPS tables are

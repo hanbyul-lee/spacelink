@@ -79,6 +79,20 @@
     return Number.isInteger(v) ? String(v) : v.toFixed(1);
   }
 
+  function fmtInt(v) {
+    return String(v).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  }
+
+  /* Colour-bar ticks span exact counts in the hundreds and binned means below
+     one, so pick the precision from the magnitude rather than fixing it. */
+  function fmtScale(v) {
+    if (v === null || v === undefined || !isFinite(v)) return "—";
+    if (Number.isInteger(v)) return String(v);
+    if (v >= 10) return v.toFixed(1);
+    if (v >= 1) return v.toFixed(2);
+    return v.toFixed(3);
+  }
+
   function fetchBin(url, ctor) {
     return fetch(url).then(function (r) {
       if (!r.ok) throw new Error(url + " (" + r.status + ")");
@@ -207,13 +221,32 @@
     var lut = buildLut(rampFor(rampName));
     var denom = logScale ? Math.log1p(vmax) : vmax;
     var scale = denom > 0 ? 255 / denom : 0;
+
+    // Bucket the points by colour first. A binned CosMx panel draws ~20k marks
+    // across 14 canvases, and changing fillStyle per mark dominates the cost;
+    // this caps it at 256 style changes and one path per colour.
+    var buckets = new Array(256);
     for (var k = 0; k < n; k++) {
       var t = logScale ? Math.log1p(vals[k]) : vals[k];
       var q = Math.max(0, Math.min(255, Math.round(t * scale)));
-      ctx.fillStyle = "rgb(" + lut[q * 3] + "," + lut[q * 3 + 1] + "," + lut[q * 3 + 2] + ")";
-      ctx.beginPath();
-      ctx.arc(px[k], py[k], r, 0, 6.283185307179586);
-      ctx.fill();
+      (buckets[q] || (buckets[q] = [])).push(k);
+    }
+    var square = r < 2;          // below ~2px a rect and a disc are identical
+    var d = r * 2;
+    for (var qi = 0; qi < 256; qi++) {
+      var b = buckets[qi];
+      if (!b) continue;
+      ctx.fillStyle = "rgb(" + lut[qi * 3] + "," + lut[qi * 3 + 1] + "," + lut[qi * 3 + 2] + ")";
+      if (square) {
+        for (var j = 0; j < b.length; j++) ctx.fillRect(px[b[j]] - r, py[b[j]] - r, d, d);
+      } else {
+        ctx.beginPath();
+        for (var j2 = 0; j2 < b.length; j2++) {
+          ctx.moveTo(px[b[j2]] + r, py[b[j2]]);
+          ctx.arc(px[b[j2]], py[b[j2]], r, 0, 6.283185307179586);
+        }
+        ctx.fill();
+      }
     }
     return { px: px, py: py, r: r };
   }
@@ -224,11 +257,13 @@
     el("#" + prefix + "-bar").style.background =
       "linear-gradient(to right," + rampFor(rampName).join(",") + ")";
     el("#" + prefix + "-lo").textContent = "0";
-    el("#" + prefix + "-hi").textContent = logScale ? String(vmax) : fmt(vmax, vmax < 1 ? 3 : 2);
+    el("#" + prefix + "-hi").textContent = logScale ? fmtScale(vmax) : fmt(vmax, vmax < 1 ? 3 : 2);
     var mid = el("#" + prefix + "-mid");
     if (mid) {
       if (logScale) {
-        mid.textContent = String(Math.round(Math.expm1(0.5 * Math.log1p(vmax))));
+        var midVal = Math.expm1(0.5 * Math.log1p(vmax));
+        // Whole counts read better rounded; sub-unit bin means need decimals.
+        mid.textContent = vmax >= 10 ? String(Math.round(midVal)) : fmtScale(midVal);
         mid.style.display = "";
       } else {
         mid.style.display = "none";
@@ -307,9 +342,14 @@
       "/expr_" + String(chunk).padStart(3, "0") + ".bin", Uint16Array);
     state.exprChunks[key] = p;
     return p.then(function (u16) {
-      // Raw counts are stored exactly, so this is a plain slice - no rescaling.
       var off = (geneIdx - chunk * meta.chunkSize) * meta.nSpots;
-      return u16.subarray(off, off + meta.nSpots);
+      var scale = meta.exprScale ? meta.exprScale[geneIdx] : 1;
+      // Per-spot datasets store exact integers (scale 1); binned datasets store
+      // fractional bin means scaled to each gene's own maximum.
+      if (scale === 1) return u16.subarray(off, off + meta.nSpots);
+      var out = new Float32Array(meta.nSpots);
+      for (var i = 0; i < meta.nSpots; i++) out[i] = u16[off + i] * scale;
+      return out;
     });
   }
 
@@ -327,8 +367,11 @@
   function renderExpression() {
     var meta = state.meta;
     var gi = state.geneIdx;
+    var unit = meta.binned ? "Mean count" : "Count";
     el("#dbx-expr-title").textContent = meta.genes[gi] + " expression";
-    el("#dbx-expr-sub").textContent = "Raw count per spot · " + meta.label;
+    el("#dbx-expr-sub").textContent = meta.binned
+      ? "Mean raw count per binned cell · " + meta.label
+      : "Raw count per spot · " + meta.label;
 
     var canvas = el("#dbx-expr-canvas");
     var width = canvas.parentNode.clientWidth || 360;
@@ -338,10 +381,12 @@
       var vmax = meta.exprMax[gi] || 1;
       var geom = paint(canvas, vals, vmax, "blue", width, 560, undefined, true);
       setLegend("dbx-expr", vmax, "blue", true);
-      el("#dbx-expr-note").textContent =
-        "Colour on a log scale; counts are exact.";
-      attachHover(canvas, el("#dbx-expr-tip"), geom, vals, "Count", null, true);
-      summaryTable(el("#dbx-expr-table"), vals, "Count", true);
+      el("#dbx-expr-note").textContent = meta.binned
+        ? "Colour on a log scale. " + fmtInt(meta.nSource) + " cells aggregated into " +
+          fmtInt(meta.nSpots) + " spatial bins; each bin shows the mean of its cells."
+        : "Colour on a log scale; counts are exact.";
+      attachHover(canvas, el("#dbx-expr-tip"), geom, vals, unit, null, !meta.binned);
+      summaryTable(el("#dbx-expr-table"), vals, unit, !meta.binned);
     });
   }
 
@@ -359,7 +404,8 @@
       for (var i = 0; i < v.length; i++) if (v[i] > shared) shared = v[i];
     });
 
-    el("#dbx-prop-sub").textContent = types.length + " cell types · " + meta.label;
+    el("#dbx-prop-sub").textContent = types.length + " cell types · " +
+      (meta.binned ? "mean over each bin · " : "") + meta.label;
 
     if (grid.childElementCount !== types.length) {
       grid.innerHTML = types.map(function (t, i) {
