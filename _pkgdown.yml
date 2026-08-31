@@ -12,15 +12,12 @@ home:
 
 navbar:
   structure:
-    left:  [home, reference, getting_started, simulations, real_data, benchmarks, data_browser, tutorials, news]
+    left:  [home, getting_started, technical_vignettes, real_data, data_browser, tutorials, news]
     right: [search, github]
   components:
     home:
       icon: fas fa-home fa-lg
       href: index.html
-    reference:
-      text: Reference
-      href: reference/index.html
     getting_started:
       text: Getting started
       menu:
@@ -30,13 +27,20 @@ navbar:
         href: articles/quick_start.html
       - text: Overview of Spacelink main functions
         href: articles/overview.html
-    simulations:
-      text: Simulations
-      menu:
+      - text: Package index
+        href: reference/index.html
+    technical_vignettes:
+      text: Technical vignettes
+      menu: Simulation examples
       - text: Spacelink global SVG
         href: articles/spacelink_vignette.html
       - text: Spacelink ctSVG
         href: articles/spacelink_ctSVG_vignette.html
+      menu: Benchmarks
+      - text: Lengthscale estimation
+        href: articles/lengthscale_estimation.html
+      - text: Runtime and memory usage
+        href: articles/runtime_memory_usage.html
     real_data:
       text: Real data analyses
       menu:
@@ -48,13 +52,6 @@ navbar:
         href: articles/disease_informativeness_evaluation.html
       - text: Alzheimer’s disease data analysis
         href: articles/AD_data_analysis.html
-    benchmarks:
-      text: Benchmarks
-      menu:
-      - text: Lengthscale estimation
-        href: articles/lengthscale_estimation.html
-      - text: Runtime and memory usage
-        href: articles/runtime_memory_usage.html
     data_browser:
       text: Data browser
       href: articles/data_browser.html
@@ -63,18 +60,6 @@ navbar:
       href: https://github.com/hanbyul-lee/spacelink
       aria-label: GitHub
 
-reference:
-- title: "Main Functions"
-  desc: "Core functions for spatial gene variability analysis"
-  contents:
-  - spacelink
-  - spacelink_ctSVG
-
-- title: "Example Data"
-  desc: "Visium human DLPFC data as example data"
-  contents:
-  - Visium_human_DLPFC
-
 articles:
 - title: "Getting Started"
   desc: "Installation and overview of the package"
@@ -82,12 +67,15 @@ articles:
   - installation
   - quick_start
   - overview
+  - index
 
-- title: "Simulations"
-  desc: "Step-by-step illustration"
+- title: "Technical vignettes"
+  desc: "Simulation examples"
   contents:
   - spacelink_vignette
   - spacelink_ctSVG_vignette
+  - lengthscale_estimation
+  - runtime_memory_usage
 
 - title: "Real data analyses"
   desc: "Detailed example analyses on real datasets"
@@ -96,12 +84,6 @@ articles:
   - illustration_on_visium_data
   - disease_informativeness_evaluation
   - AD_data_analysis
-
-- title: "Benchmarks"
-  desc: "Lengthscale Estimation"
-  contents:
-  - lengthscale_estimation
-  - runtime_memory_usage
 
 - title: "Data browser"
   desc: "Interactive exploration of the example datasets"
