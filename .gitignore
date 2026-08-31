@@ -7,3 +7,10 @@
 docs
 *.Rproj
 .RDataTmp
+
+# Data browser payload (~640 MB): built by data-raw/build_databrowser_data.R and
+# published as the databrowser-v1 release asset, which the pkgdown workflow
+# downloads at build time. Only the app source belongs in the repository.
+pkgdown/assets/databrowser/*
+!pkgdown/assets/databrowser/app.js
+!pkgdown/assets/databrowser/app.css
