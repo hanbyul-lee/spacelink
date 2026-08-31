@@ -12,7 +12,7 @@ home:
 
 navbar:
   structure:
-    left:  [home, reference, articles, tutorials, news]
+    left:  [home, reference, getting_started, simulations, real_data, benchmarks, tutorials, news]
     right: [search, github]
   components:
     home:
@@ -21,24 +21,25 @@ navbar:
     reference:
       text: Reference
       href: reference/index.html
-    articles:
-      text: Articles
+    getting_started:
+      text: Getting started
       menu:
-      - text: "Getting Started"
       - text: Installation
         href: articles/installation.html
       - text: Quick start
         href: articles/quick_start.html
       - text: Overview of Spacelink main functions
         href: articles/overview.html
-      - text: "-------"
-      - text: "Illustration"
-      - text: Spacelink global SVG vignette
+    simulations:
+      text: Simulations
+      menu:
+      - text: Spacelink global SVG
         href: articles/spacelink_vignette.html
-      - text: Spacelink ctSVG vignette
+      - text: Spacelink ctSVG
         href: articles/spacelink_ctSVG_vignette.html
-      - text: "-------"
-      - text: "Analyses"
+    real_data:
+      text: Real data analyses
+      menu:
       - text: CosMx human frontal cortex analysis
         href: articles/illustration_on_cosmx_data.html
       - text: Visium human DLPFC analysis
@@ -47,8 +48,9 @@ navbar:
         href: articles/disease_informativeness_evaluation.html
       - text: Alzheimer’s disease data analysis
         href: articles/AD_data_analysis.html
-      - text: "-------"
-      - text: "Benchmarks"
+    benchmarks:
+      text: Benchmarks
+      menu:
       - text: Lengthscale estimation
         href: articles/lengthscale_estimation.html
       - text: Runtime and memory usage
@@ -78,13 +80,13 @@ articles:
   - quick_start
   - overview
 
-- title: "Illustration"
+- title: "Simulations"
   desc: "Step-by-step illustration"
   contents:
   - spacelink_vignette
   - spacelink_ctSVG_vignette
 
-- title: "Analyses"
+- title: "Real data analyses"
   desc: "Detailed example analyses on real datasets"
   contents:
   - illustration_on_cosmx_data
