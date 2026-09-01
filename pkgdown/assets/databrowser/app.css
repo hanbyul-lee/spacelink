@@ -132,8 +132,8 @@
   grid-template-columns:
     minmax(220px, 0.95fr)   /* expression map   */
     minmax(280px, 1.25fr)   /* proportion tiles */
-    minmax(190px, 0.9fr)    /* ESV table        */
-    minmax(210px, 1.05fr);  /* PoPS table       */
+    minmax(200px, 1fr)      /* ESV table        */
+    minmax(200px, 1fr);     /* PoPS table  - same width as ESV */
   gap: 1rem;
   /* stretch, so every panel ends up the height of the tallest one. The row
      height itself is left to the content: the tables are capped below, which
@@ -256,10 +256,12 @@
 /* ---- score tables ---------------------------------------------------- */
 
 .dbx-scroll {
-  flex: 1 1 auto;
-  min-height: 0;       /* required, or a flex child refuses to shrink and scroll */
-  max-height: 380px;   /* caps the panel's natural height so the 61-row PoPS
-                          table cannot dictate the height of the whole row */
+  /* flex-basis 0, so the table contributes only its min-height to the panel's
+     natural size - that is what stops the 61-row PoPS table from dictating the
+     row height. Once the row height is settled by the map panels, flex-grow
+     lets the table expand into all of it rather than stopping at a fixed cap. */
+  flex: 1 1 0;
+  min-height: 180px;
   overflow-y: auto;
   overflow-x: hidden;
 }
