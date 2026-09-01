@@ -6,8 +6,8 @@ description: >
 ---
 
 Select a dataset and a gene to view the spatial expression of that gene beside
-the spatial abundance of every cell type. The tables below list the gene's ESV
-score for the whole tissue and for each cell type, and its PoPS score for every
+the cell type distribution. The tables below list the gene's ESV
+score for the whole tissue and for each cell type, and its PoPS score for each
 trait.
 
 <link href="../databrowser/app.css" rel="stylesheet">
@@ -17,30 +17,12 @@ trait.
 ## Notes
 
 - **Count** is the raw UMI count for that gene, exactly as stored in the dataset
-  — no normalization or transformation is applied to the numbers you see. The
-  *colour* is mapped on a log scale, because raw counts are steep enough that a
-  linear ramp would put most positions in the lightest band and hide the tissue
-  structure; the colour bar is labelled at its midpoint so the non-linearity is
-  visible.
+  — no normalization or transformation is applied to the numbers you see.
 - **Visium and CosMx datasets are shown at different resolutions.** The Visium
   sets have a few thousand spots each and are shown per spot. The CosMx sets
   hold between 181,000 and 1.55 million cells — far more than a plot this size
   can resolve — so their cells are aggregated onto a spatial grid of roughly
   20,000 bins, and each bin reports the **mean** raw count of the cells falling
-  in it. Every cell contributes; nothing is discarded. The panel caption states
+  in it. The panel caption states
   which resolution is in use.
-- **Cell type proportion** is the estimated proportion of a cell type at each
-  position; the proportions across all cell types sum to one. For the binned
-  CosMx datasets, each bin shows the mean proportion of its cells. The maps are
-  drawn on one common scale so that cell types can be compared with each other.
-- **ESV** is the expression-based spatial variability score for the gene within
-  each cell type, as reported by `spacelink()` and `spacelink_ctSVG()`; `whole`
-  is the score across the whole tissue. A few gene and cell type combinations
-  have no score and are shown as not available.
-- **PoPS** scores come from the Polygenic Priority Score tables and are defined
-  per gene and per trait; they do not depend on the dataset or the cell type.
-  Traits are listed strongest first. Genes absent from the PoPS tables are
-  reported as such.
-- Spatial plots are drawn with an equal aspect ratio. Visium sections use the
-  stored coordinates as they are; CosMx sections are mirrored vertically,
-  because that platform records its y axis in the opposite direction.
+- **Cell type proportion**: For each Visium dataset, cell type proportions were estimated with RCTD, using the CosMx dataset from the corresponding tissue as the reference (e.g., Visium human DLPFC paired with CosMx human frontal cortex). For the binned CosMx datasets, each bin shows the mean proportion across the cells it contains.
