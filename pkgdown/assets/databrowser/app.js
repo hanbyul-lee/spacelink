@@ -255,7 +255,12 @@
       var q = Math.max(0, Math.min(255, Math.round(t * scale)));
       (buckets[q] || (buckets[q] = [])).push(k);
     }
-    var square = r < 2;          // below ~2px a rect and a disc are identical
+    // Rects are cheaper than arcs, but at 1.5-2px the difference between a
+    // square and a disc is plainly visible and made otherwise-identical
+    // datasets look inconsistent. Keep the shortcut only for the sub-pixel
+    // marks in the cell-type tiles, where it cannot be seen and where the mark
+    // count (14 canvases x up to 20k points) actually makes it worth having.
+    var square = r < 1;
     var d = r * 2;
     for (var qi = 0; qi < 256; qi++) {
       var b = buckets[qi];

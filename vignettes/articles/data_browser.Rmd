@@ -24,7 +24,3 @@ The tables below list the gene's ESV score for the whole tissue and for each cel
   in it. The panel caption states
   which resolution is in use.
 - **Cell type proportion**: For each Visium dataset, cell type proportions were estimated with RCTD, using the CosMx dataset from the corresponding tissue as the reference (e.g., Visium human DLPFC paired with CosMx human frontal cortex). For the binned CosMx datasets, each bin shows the mean proportion across the cells it contains.
-- **Ordering.** The ESV table lists cell types by the selected gene's ESV,
-  highest first, with `whole` — the whole-tissue score — pinned at the top. The
-  proportion maps keep a fixed order instead, so a given cell type stays in the
-  same position as you move between genes.
