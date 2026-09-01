@@ -207,10 +207,17 @@
     var s = Math.min((cssW - 2 * pad) / dx, (cssH - 2 * pad) / dy);
     var ox = (cssW - dx * s) / 2, oy = (cssH - dy * s) / 2;
 
+    // CosMx stores its y axis in the opposite direction to Visium, so those
+    // sections are mirrored vertically to match the orientation used elsewhere.
+    var flipY = state.meta.flipY !== undefined
+      ? state.meta.flipY
+      : /^cosmx_/.test(state.datasetId);   // fallback for bundles predating flipY
+
     var px = new Float32Array(n), py = new Float32Array(n);
     for (var j = 0; j < n; j++) {
       px[j] = ox + (coords[j * 2] - xmin) * s;
-      py[j] = oy + (coords[j * 2 + 1] - ymin) * s;
+      py[j] = flipY ? oy + (ymax - coords[j * 2 + 1]) * s
+                    : oy + (coords[j * 2 + 1] - ymin) * s;
     }
 
     // Radius from the typical spot spacing so dots read as a tissue section

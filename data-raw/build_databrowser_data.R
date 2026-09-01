@@ -32,17 +32,17 @@ BYTES_PER_CHUNK <- 700000    # aim for a ~0.7 MB per-gene fetch
 
 datasets <- list(
   list(id = "visium_human_dlpfc",         label = "Visium human DLPFC",
-       prefix = "Visium_human_DLPFC",         bin = FALSE),
+       prefix = "Visium_human_DLPFC",         bin = FALSE, flip_y = FALSE),
   list(id = "visium_human_liver",         label = "Visium human liver",
-       prefix = "Visium_human_liver",         bin = FALSE),
+       prefix = "Visium_human_liver",         bin = FALSE, flip_y = FALSE),
   list(id = "visium_human_lymph_node",    label = "Visium human lymph node",
-       prefix = "Visium_human_lymph_node",    bin = FALSE),
+       prefix = "Visium_human_lymph_node",    bin = FALSE, flip_y = FALSE),
   list(id = "cosmx_human_frontal_cortex", label = "CosMx human frontal cortex",
-       prefix = "CosMx_human_frontal_cortex", bin = TRUE),
+       prefix = "CosMx_human_frontal_cortex", bin = TRUE,  flip_y = TRUE),
   list(id = "cosmx_human_liver",          label = "CosMx human liver",
-       prefix = "CosMx_human_liver",          bin = TRUE),
+       prefix = "CosMx_human_liver",          bin = TRUE,  flip_y = TRUE),
   list(id = "cosmx_human_lymph",          label = "CosMx human lymph node",
-       prefix = "CosMx_human_lymph",          bin = TRUE)
+       prefix = "CosMx_human_lymph",          bin = TRUE,  flip_y = TRUE)
 )
 
 sel <- commandArgs(trailingOnly = TRUE)
@@ -286,7 +286,7 @@ for (ds in datasets) {
   }
 
   info[[ds$id]] <- list(
-    id = ds$id, label = ds$label, binned = ds$bin,
+    id = ds$id, label = ds$label, binned = ds$bin, flipY = ds$flip_y,
     nSpots = n_pos, nGenes = n_genes, nSource = length(cells),
     chunkSize = chunk, nChunks = n_chunks,
     genes = genes, cellTypes = cell_types,
@@ -316,7 +316,7 @@ json(pops_genes, file.path(OUT, "pops_genes.json"))
 for (nm in names(info)) {
   d <- info[[nm]]
   json(list(
-    id = d$id, label = d$label, binned = d$binned,
+    id = d$id, label = d$label, binned = d$binned, flipY = d$flipY,
     nSpots = d$nSpots, nGenes = d$nGenes, nSource = d$nSource,
     chunkSize = d$chunkSize, nChunks = d$nChunks,
     genes = d$genes, cellTypes = d$cellTypes,

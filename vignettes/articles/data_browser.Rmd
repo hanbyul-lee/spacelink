@@ -41,5 +41,6 @@ trait.
   per gene and per trait; they do not depend on the dataset or the cell type.
   Traits are listed strongest first. Genes absent from the PoPS tables are
   reported as such.
-- Spatial plots are drawn with an equal aspect ratio, with both axes running in
-  the same direction as the stored spot coordinates.
+- Spatial plots are drawn with an equal aspect ratio. Visium sections use the
+  stored coordinates as they are; CosMx sections are mirrored vertically,
+  because that platform records its y axis in the opposite direction.

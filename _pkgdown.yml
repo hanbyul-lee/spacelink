@@ -12,7 +12,7 @@ home:
 
 navbar:
   structure:
-    left:  [home, getting_started, simulation_studies, real_data, data_browser, tutorials, news]
+    left:  [home, getting_started, simulation_studies, real_data, data_browser, tutorials]
     right: [search, github]
   components:
     home:
