@@ -22,6 +22,18 @@
     orange: ["#ffd5c6", "#ffa98a", "#ff743e", "#e05104", "#b43f02", "#8a2e00", "#611e01"]
   };
 
+  // Gene each dataset opens on: a marker whose spatial pattern reads clearly in
+  // that tissue. A dataset missing from this map, or naming a gene its panel
+  // does not carry, falls back to the first gene alphabetically.
+  var DEFAULT_GENE = {
+    visium_human_dlpfc: "SNAP25",
+    cosmx_human_frontal_cortex: "SNAP25",
+    visium_human_liver: "APOA1",
+    cosmx_human_liver: "APOA1",
+    visium_human_lymph_node: "IL7R",
+    cosmx_human_lymph: "IL7R"
+  };
+
   var state = {
     manifest: null,
     datasetId: null,
@@ -402,9 +414,12 @@
      never exceeds 0.37 look as abundant as one that reaches 0.97. */
   function renderProportionGrid() {
     var meta = state.meta;
-    var types = meta.cellTypes.slice(1);
     var grid = el("#dbx-prop-grid");
 
+    // Fixed dataset order, deliberately not the ESV ranking used by the table:
+    // a tile keeps its position as the gene changes, so a cell type can be
+    // followed across genes.
+    var types = meta.cellTypes.slice(1);
     var cols = types.map(function (_, i) { return propValues(i); });
     var shared = 0;
     cols.forEach(function (v) {
@@ -448,12 +463,36 @@
 
   /* Every ESV score for this gene: the whole-tissue score first, then each
      cell type, in the order the dataset stores them. */
+  /* Cell types ranked by the selected gene's ESV, strongest first, as indices
+     into meta.cellTypes. Index 0 ("whole") is excluded - it is the whole-tissue
+     score, not a cell type. Pairs without a score sort last, keeping their
+     dataset order among themselves. Used by the ESV table only; the proportion
+     maps stay in dataset order so tiles do not move between genes. */
+  function cellTypeOrder() {
+    var meta = state.meta, gi = state.geneIdx;
+    var idx = [];
+    for (var i = 1; i < meta.cellTypes.length; i++) idx.push(i);
+    idx.sort(function (a, b) {
+      var va = state.esv[a * meta.nGenes + gi];
+      var vb = state.esv[b * meta.nGenes + gi];
+      var na = !isFinite(va), nb = !isFinite(vb);
+      if (na && nb) return a - b;
+      if (na) return 1;
+      if (nb) return -1;
+      if (vb !== va) return vb - va;
+      return a - b;
+    });
+    return idx;
+  }
+
   function renderEsvTable() {
     var meta = state.meta;
     var gi = state.geneIdx;
     el("#dbx-esv-sub").textContent = meta.genes[gi] + " · " + meta.label;
-    var rows = meta.cellTypes.map(function (ct, i) {
-      return [ct, state.esv[i * meta.nGenes + gi]];
+    // "whole" stays pinned at the top; the cell types follow in ESV order.
+    var rows = [["whole", state.esv[gi]]];
+    cellTypeOrder().forEach(function (i) {
+      rows.push([meta.cellTypes[i], state.esv[i * meta.nGenes + gi]]);
     });
     scoreTable(el("#dbx-esv-table"), rows, "Cell type", "ESV", 4);
   }
@@ -625,12 +664,8 @@
       el("#dbx-prop-grid").innerHTML = "";   // cell types may differ per dataset
 
       var genes = state.meta.genes;
-      var preferred = ["SNAP25", "MBP", "PLP1", "GFAP"];
-      var start = 0;
-      for (var i = 0; i < preferred.length; i++) {
-        var at = genes.indexOf(preferred[i]);
-        if (at >= 0) { start = at; break; }
-      }
+      var start = genes.indexOf(DEFAULT_GENE[id] || "");
+      if (start < 0) start = 0;      // unknown dataset, or gene absent from it
       state.geneIdx = start;
       geneInput.value = genes[start];
       renderAll();
