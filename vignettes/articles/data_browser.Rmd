@@ -5,10 +5,8 @@ description: >
   disease scores interactively.
 ---
 
-Select a dataset and a gene to view the spatial expression of that gene beside
-the cell type distribution. The tables below list the gene's ESV
-score for the whole tissue and for each cell type, and its PoPS score for each
-trait.
+Select a dataset and a gene to view the spatial expression of that gene beside the cell type distribution. 
+The tables below list the gene's ESV score for the whole tissue and for each cell type, and its PoPS score for each trait.
 
 <link href="../databrowser/app.css" rel="stylesheet">
 <div id="spacelink-databrowser">Loading the data browser…</div>

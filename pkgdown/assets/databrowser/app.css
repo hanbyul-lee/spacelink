@@ -2,6 +2,22 @@
    Colour roles follow the project data-viz palette; sequential ramps are defined
    in app.js (blue = expression, orange = cell-type proportion). */
 
+/* ---- page width ------------------------------------------------------
+   This stylesheet is linked only from the Data browser article, so these
+   layout overrides apply to that page alone. pkgdown caps an article at
+   `.row > main { max-width: 50rem }` and reserves 3 of 12 columns for a
+   sidebar that this page never renders - together that leaves ~40% of the
+   container empty. The maps are the point of this page, so the column takes
+   the full container, and the prose runs to the same width - capping only the
+   intro paragraph left it wrapping short while the Notes list, which pkgdown
+   nests inside a section wrapper, ran full width. */
+
+.template-article main#main {
+  max-width: none;
+  flex: 0 0 100%;
+  width: 100%;
+}
+
 #spacelink-databrowser {
   --dbx-surface: #fcfcfb;
   --dbx-surface-2: #f4f4f1;
@@ -33,7 +49,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
   gap: 0.75rem 1rem;
-  padding: 1rem;
+  padding: 0.7rem 0.8rem;
   background: var(--dbx-surface-2);
   border: 1px solid var(--dbx-border);
   border-radius: var(--dbx-radius);
@@ -106,13 +122,47 @@
 
 /* ---- plots ----------------------------------------------------------- */
 
-.dbx-plots { display: grid; gap: 1.25rem; }
-.dbx-plots.dbx-two { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+/* All four panels sit in one row so nothing needs scrolling to reach. The
+   columns are deliberately unequal: the expression map is a single square-ish
+   section and only needs enough width to read, the proportion panel turns width
+   directly into fewer tile rows, and the PoPS table needs room for long trait
+   names. An even split would starve the two that need width. */
+.dbx-grid {
+  display: grid;
+  grid-template-columns:
+    minmax(220px, 0.95fr)   /* expression map   */
+    minmax(280px, 1.25fr)   /* proportion tiles */
+    minmax(190px, 0.9fr)    /* ESV table        */
+    minmax(210px, 1.05fr);  /* PoPS table       */
+  gap: 1rem;
+  /* stretch, so every panel ends up the height of the tallest one. The row
+     height itself is left to the content: the tables are capped below, which
+     is what stops the PoPS table's 61 rows from defining it, and the tile grid
+     then sets the height it actually needs for this dataset. */
+  align-items: stretch;
+}
+
+/* Panels lay out as columns so the scrolling region inside can absorb whatever
+   height is left after the headings. */
+.dbx-grid > .dbx-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+
+
+/* Below the four-across threshold, fall back to 2x2 and then a single column. */
+@media (max-width: 1150px) {
+  .dbx-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .dbx-grid { grid-template-columns: 1fr; }
+}
 
 .dbx-panel {
   border: 1px solid var(--dbx-border);
   border-radius: var(--dbx-radius);
-  padding: 0.9rem 1rem 1rem;
+  padding: 0.7rem 0.8rem 0.8rem;
   background: var(--dbx-surface);
   min-width: 0;
 }
@@ -124,10 +174,10 @@
   color: var(--dbx-text);
 }
 
-.dbx-panel .dbx-sub { font-size: 0.78rem; color: var(--dbx-text-2); margin-bottom: 0.6rem; }
+.dbx-panel .dbx-sub { font-size: 0.78rem; color: var(--dbx-text-2); margin-bottom: 0.4rem; }
 
 .dbx-canvas-wrap { position: relative; width: 100%; }
-.dbx-canvas-wrap canvas { display: block; width: 100%; height: auto; border-radius: 4px; }
+.dbx-canvas-wrap canvas { display: block; width: 100%; height: auto; margin: 0 auto; border-radius: 4px; }
 
 .dbx-tip {
   position: absolute;
@@ -147,11 +197,15 @@
 
 .dbx-tip b { font-variant-numeric: tabular-nums; }
 
-/* small multiples: every cell type at once, one shared colour scale */
+/* small multiples: every cell type at once, one shared colour scale.
+   Auto-fill rather than a fixed 3 columns: on the full-width layout this packs
+   9-14 tiles into 2-3 rows instead of 3-5, which is where most of the vertical
+   space for the tables below comes from. */
 .dbx-mini-grid {
+  align-content: start;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.5rem 0.45rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.45rem 0.45rem;
 }
 
 .dbx-mini { margin: 0; min-width: 0; }
@@ -175,7 +229,7 @@
 }
 
 /* colour bar */
-.dbx-legend { display: flex; align-items: center; margin-top: 0.65rem; }
+.dbx-legend { display: flex; align-items: center; margin-top: 0.45rem; }
 .dbx-legend .dbx-bar { flex: 1; height: 10px; border-radius: 5px; border: 1px solid var(--dbx-border); }
 
 /* Ticks sit under the bar: first left, last right, middle centred. The middle
@@ -192,7 +246,7 @@
 
 /* ---- table view ------------------------------------------------------ */
 
-.dbx-details { margin-top: 0.7rem; }
+.dbx-details { margin-top: 0.45rem; }
 .dbx-details summary { font-size: 0.78rem; color: var(--dbx-text-2); cursor: pointer; }
 .dbx-details table { width: 100%; margin-top: 0.5rem; font-size: 0.78rem; border-collapse: collapse; }
 .dbx-details th, .dbx-details td { text-align: right; padding: 0.22rem 0.4rem; border-bottom: 1px solid var(--dbx-border); }
@@ -201,14 +255,14 @@
 
 /* ---- score tables ---------------------------------------------------- */
 
-.dbx-tables {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.25rem;
-  margin-top: 1.25rem;
+.dbx-scroll {
+  flex: 1 1 auto;
+  min-height: 0;       /* required, or a flex child refuses to shrink and scroll */
+  max-height: 380px;   /* caps the panel's natural height so the 61-row PoPS
+                          table cannot dictate the height of the whole row */
+  overflow-y: auto;
+  overflow-x: hidden;
 }
-
-.dbx-scroll { max-height: 340px; overflow-y: auto; overflow-x: hidden; }
 
 /* Fixed layout pins the score column to a known width so the name column takes
    whatever is left and wraps into it - long trait names like
@@ -288,7 +342,3 @@ table.dbx-score-table td {
 
 .dbx-status { font-size: 0.85rem; color: var(--dbx-text-2); padding: 0.6rem 0; }
 .dbx-status.dbx-error { color: #d03b3b; }
-
-@media (max-width: 560px) {
-  .dbx-plots.dbx-two { grid-template-columns: 1fr; }
-}

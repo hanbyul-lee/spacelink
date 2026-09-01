@@ -143,7 +143,7 @@
     '    <div class="dbx-options" id="dbx-gene-options" role="listbox"></div></div>',
     '</div>',
     '<div class="dbx-status" id="dbx-status">Loading…</div>',
-    '<div class="dbx-plots dbx-two" id="dbx-plots">',
+    '<div class="dbx-grid" id="dbx-plots">',
     '  <div class="dbx-panel" id="dbx-expr-panel">',
     '    <h3 id="dbx-expr-title">Gene expression</h3>',
     '    <div class="dbx-sub" id="dbx-expr-sub"></div>',
@@ -164,8 +164,6 @@
     '      <span id="dbx-prop-mid"></span><span id="dbx-prop-hi"></span></div>',
     '    <details class="dbx-details"><summary>Values as a table</summary>',
     '      <div id="dbx-prop-table"></div></details></div>',
-    '</div>',
-    '<div class="dbx-tables">',
     '  <div class="dbx-panel"><h3>ESV scores</h3>',
     '    <div class="dbx-sub" id="dbx-esv-sub"></div>',
     '    <div class="dbx-scroll" id="dbx-esv-table"></div></div>',
@@ -204,7 +202,14 @@
     var pad = Math.max(3, Math.round(cssW * 0.025));
 
     var cssH = Math.round((cssW - 2 * pad) * (dy / dx)) + 2 * pad;
-    cssH = Math.max(60, Math.min(cssH, maxH));
+    if (cssH > maxH) {
+      // Height-bound: narrow the canvas to match, rather than keeping it wide
+      // and padding the section out with blank margins on either side.
+      cssH = maxH;
+      cssW = Math.min(cssW, Math.round((maxH - 2 * pad) * (dx / dy)) + 2 * pad);
+    }
+    cssH = Math.max(60, cssH);
+    cssW = Math.max(60, cssW);
 
     var dpr = window.devicePixelRatio || 1;
     canvas.width = Math.round(cssW * dpr);
@@ -306,7 +311,11 @@
         unitLabel + ": <b>" + (isCount ? String(vals[best]) : fmt(vals[best], 3)) + "</b>";
       tip.style.display = "block";
       var tw = tip.offsetWidth, th = tip.offsetHeight;
-      tip.style.left = Math.max(0, Math.min(geom.px[best] + 12, canvas.clientWidth - tw)) + "px";
+      // The canvas can be narrower than its wrapper and centred in it, so the
+      // tip has to be offset by however far the canvas sits from the edge.
+      var offL = canvas.offsetLeft;
+      var maxL = canvas.parentNode.clientWidth - tw;
+      tip.style.left = Math.max(0, Math.min(offL + geom.px[best] + 12, maxL)) + "px";
       tip.style.top = Math.max(0, geom.py[best] - th - 8) + "px";
     };
     canvas.onmouseleave = function () { tip.style.display = "none"; };
@@ -398,7 +407,7 @@
     return geneValues(gi).then(function (vals) {
       if (want !== state.token) return;
       var vmax = meta.exprMax[gi] || 1;
-      var geom = paint(canvas, vals, vmax, "blue", width, 560, undefined, true);
+      var geom = paint(canvas, vals, vmax, "blue", width, 330, undefined, true);
       setLegend("dbx-expr", vmax, "blue", true);
       el("#dbx-expr-note").textContent = meta.binned
         ? "Colour on a log scale. " + fmtInt(meta.nSource) + " cells aggregated into " +
@@ -445,7 +454,7 @@
 
     types.forEach(function (t, i) {
       var canvas = el("#dbx-mini-" + i);
-      var geom = paint(canvas, cols[i], shared || 1, "orange", cellW, 260, 0.8);
+      var geom = paint(canvas, cols[i], shared || 1, "orange", cellW, 130, 0.8);
       attachHover(canvas, el("#dbx-mini-tip-" + i), geom, cols[i], "Proportion", t);
     });
 
