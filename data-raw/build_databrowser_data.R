@@ -14,7 +14,9 @@
 ##
 ## Layout written:
 ##   databrowser/manifest.json          dataset list + disease list
-##   databrowser/pops.bin               float32[nPopsGenes*nDiseases], gene-major
+##   databrowser/pops.bin               uint16[nPopsGenes*nDiseases], gene-major;
+##                                      rank of the gene within each trait, over all
+##                                      genes in the PoPS table (1 = highest score)
 ##   databrowser/pops_genes.json        gene order for pops.bin
 ##   databrowser/<id>/meta.json         genes, cell types, per-gene max/scale, pops map
 ##   databrowser/<id>/coords.bin        float32[nSpots*2], x,y interleaved
@@ -308,9 +310,18 @@ gene_union <- sort(unique(unlist(lapply(info, `[[`, "genes"), use.names = FALSE)
 pops_genes <- sort(intersect(gene_union, pops$GeneName))
 message("  ", length(pops_genes), " of ", length(gene_union), " gene(s) have PoPS scores")
 
-pops_sub <- pops[match(pops_genes, pops$GeneName), diseases, drop = FALSE]
+# The browser shows each gene's RANK within a trait rather than the raw score,
+# and the rank is over every gene in the PoPS table - all 17k of them - not just
+# the subset that appears in these datasets. So rank first, subset second.
+# Ranks are competition-style ("min"): the ~53% of genes scoring exactly 0 in a
+# typical trait all share the best rank of that tied block.
+pops_rank <- apply(as.matrix(pops[, diseases, drop = FALSE]), 2L, function(v) {
+  rank(-v, ties.method = "min")
+})
+stopifnot(max(pops_rank) <= 65535L, min(pops_rank) >= 1L)
+pops_rank <- pops_rank[match(pops_genes, pops$GeneName), , drop = FALSE]
 # t() so the column-major dump lands gene-major: all diseases of gene 1, then gene 2
-write_f32(as.vector(t(as.matrix(pops_sub))), file.path(OUT, "pops.bin"))
+write_u16(as.vector(t(pops_rank)), file.path(OUT, "pops.bin"))
 json(pops_genes, file.path(OUT, "pops_genes.json"))
 
 for (nm in names(info)) {
@@ -341,6 +352,7 @@ for (nm in names(info)) {
 all_ids <- vapply(datasets, `[[`, "", "id")
 known <- c(all_ids, setdiff(names(entries), all_ids))
 manifest_ds <- unname(entries[intersect(known, names(entries))])
-json(list(datasets = manifest_ds, diseases = diseases), manifest_path)
+json(list(datasets = manifest_ds, diseases = diseases,
+          popsTotalGenes = nrow(pops)), manifest_path)
 
 message("Done -> ", OUT)

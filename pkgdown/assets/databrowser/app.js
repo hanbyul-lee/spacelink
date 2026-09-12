@@ -2,7 +2,7 @@
  *
  * Reads the static bundle written by data-raw/build_databrowser_data.R. Picking a
  * dataset and a gene draws that gene's spatial expression beside the abundance of
- * every cell type, and lists the gene's ESV scores and PoPS disease scores.
+ * every cell type, and lists the gene's ESV scores and its PoPS rank per trait.
  * Everything runs client-side; the only network traffic is the binary payload
  * under ../databrowser/.
  */
@@ -167,7 +167,7 @@
     '  <div class="dbx-panel"><h3>ESV scores</h3>',
     '    <div class="dbx-sub" id="dbx-esv-sub"></div>',
     '    <div class="dbx-scroll" id="dbx-esv-table"></div></div>',
-    '  <div class="dbx-panel"><h3>PoPS disease scores</h3>',
+    '  <div class="dbx-panel"><h3>PoPS disease ranks</h3>',
     '    <div class="dbx-sub" id="dbx-pops-sub"></div>',
     '    <div class="dbx-scroll" id="dbx-pops-table"></div></div>',
     '</div>'
@@ -350,7 +350,11 @@
   /* Score table with an inline magnitude bar. The bar is a neutral tint, not a
      ramp colour - length carries the value, and no hue is spent implying a link
      to the maps above. */
-  function scoreTable(target, rowsIn, keyHeader, valHeader, decimals) {
+  /* `opts.rankOf` switches the value column to ranks: the number is shown as a
+     whole number and the bar is inverted, since rank 1 is the best result and
+     would otherwise draw the shortest bar. */
+  function scoreTable(target, rowsIn, keyHeader, valHeader, decimals, opts) {
+    var rankOf = opts && opts.rankOf;
     var vmax = 0;
     rowsIn.forEach(function (r) { if (isFinite(r[1]) && r[1] > vmax) vmax = r[1]; });
     target.innerHTML = '<table class="dbx-score-table"><thead><tr><th scope="col">' +
@@ -358,10 +362,15 @@
       "</th></tr></thead><tbody>" +
       rowsIn.map(function (r) {
         var ok = isFinite(r[1]);
-        var pct = ok && vmax > 0 ? (r[1] / vmax) * 100 : 0;
+        var pct = 0;
+        if (ok) {
+          pct = rankOf ? (1 - (r[1] - 1) / Math.max(1, rankOf - 1)) * 100
+                       : (vmax > 0 ? (r[1] / vmax) * 100 : 0);
+        }
+        var shown = !ok ? "—" : (rankOf ? fmtInt(r[1]) : r[1].toFixed(decimals));
         return '<tr><th scope="row">' + esc(r[0]) + "</th>" +
           '<td><span class="dbx-barcell" style="--w:' + pct.toFixed(1) + '%"></span>' +
-          "<span>" + (ok ? r[1].toFixed(decimals) : "—") + "</span></td></tr>";
+          "<span>" + shown + "</span></td></tr>";
       }).join("") + "</tbody></table>";
   }
 
@@ -528,11 +537,12 @@
     }
     var diseases = state.manifest.diseases;
     var nD = diseases.length;
+    var total = state.manifest.popsTotalGenes;
+    // Stored values are ranks within each trait, so best first is ascending.
     var rows = diseases.map(function (d, k) { return [d, state.pops[row * nD + k]]; });
-    rows.sort(function (a, b) { return b[1] - a[1]; });
-    el("#dbx-pops-sub").textContent =
-      gene + " · " + nD + " traits, highest first";
-    scoreTable(target, rows, "Trait", "PoPS", 3);
+    rows.sort(function (a, b) { return a[1] - b[1]; });
+    el("#dbx-pops-sub").textContent = gene + " · rank among " + fmtInt(total) + " genes";
+    scoreTable(target, rows, "Trait", "Rank", 0, { rankOf: total });
   }
 
   function renderAll() {
@@ -694,8 +704,8 @@
       return '<option value="' + esc(d.id) + '">' + esc(d.label) + "</option>";
     }).join("");
 
-    // PoPS is shared across datasets and small enough to fetch once up front.
-    fetchBin(BASE + "/pops.bin", Float32Array).then(function (p) {
+    // PoPS ranks are shared across datasets and small enough to fetch once up front.
+    fetchBin(BASE + "/pops.bin", Uint16Array).then(function (p) {
       state.pops = p;
       if (state.meta) renderPopsTable();
     }).catch(function () { state.pops = null; });
