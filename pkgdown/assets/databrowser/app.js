@@ -31,7 +31,7 @@
   // that tissue. A dataset missing from this map, or naming a gene its panel
   // does not carry, falls back to the first gene alphabetically.
   var DEFAULT_GENE = {
-    visium_human_dlpfc: "SNAP25",
+    visium_human_dlpfc: "QDPR",
     cosmx_human_frontal_cortex: "SNAP25",
     visium_human_liver: "APOA1",
     cosmx_human_liver: "APOA1",
