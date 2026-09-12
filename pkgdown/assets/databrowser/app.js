@@ -21,8 +21,8 @@
   // Dark mode reverses each ramp so the low end still recedes into the dark
   // surface and the high end still carries the contrast.
   var RAMPS = {
-    red: ["#fff5f2", "#fdddd4", "#f9b9ac", "#f38d7e",
-          "#e34948", "#c22733", "#94141f", "#630711"],
+    red: ["#fdf7f6", "#ffdfd9", "#ffc8bf", "#feb0a3",
+          "#fe9586", "#ff7867", "#ff5443", "#ff0000"],
     blue: ["#f6f9fd", "#d0def1", "#acc4e2", "#8aaad2",
            "#6a90c0", "#4a76ae", "#2a5d9b", "#004488"]
   };
