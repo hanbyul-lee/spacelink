@@ -13,13 +13,18 @@
   var mount = document.getElementById("spacelink-databrowser");
   if (!mount) return;
 
-  // Sequential ramps: one hue each, light -> dark (project palette, blue steps
-  // 100-700). Expression takes blue; the second sequential context on screen
-  // takes orange. Dark mode flips the anchor so "near zero" recedes into the
-  // dark surface instead of glowing against it.
+  // Sequential ramps: one hue each, white -> dark. Expression takes red, cell
+  // type proportion takes blue, each as its own one-hue ramp. Both start at the
+  // chart surface, so "near zero" recedes into the panel instead of drawing a
+  // tinted mark - which also means a zero-valued spot is invisible rather than
+  // faint, and the tissue silhouette is carried by the non-zero spots.
+  // Dark mode reverses each ramp so the low end still recedes into the dark
+  // surface and the high end still carries the contrast.
   var RAMPS = {
-    blue: ["#cde2fb", "#9ec5f4", "#6da7ec", "#3987e5", "#256abf", "#184f95", "#0d366b"],
-    orange: ["#ffd5c6", "#ffa98a", "#ff743e", "#e05104", "#b43f02", "#8a2e00", "#611e01"]
+    red: ["#fff5f2", "#fdddd4", "#f9b9ac", "#f38d7e",
+          "#e34948", "#c22733", "#94141f", "#630711"],
+    blue: ["#f6f9fd", "#d0def1", "#acc4e2", "#8aaad2",
+           "#6a90c0", "#4a76ae", "#2a5d9b", "#004488"]
   };
 
   // Gene each dataset opens on: a marker whose spatial pattern reads clearly in
@@ -421,8 +426,8 @@
     return geneValues(gi).then(function (vals) {
       if (want !== state.token) return;
       var vmax = meta.exprMax[gi] || 1;
-      var geom = paint(canvas, vals, vmax, "blue", width, 330, undefined, true);
-      setLegend("dbx-expr", vmax, "blue", true);
+      var geom = paint(canvas, vals, vmax, "red", width, 330, undefined, true);
+      setLegend("dbx-expr", vmax, "red", true);
       el("#dbx-expr-note").textContent = meta.binned
         ? "Colour on a log scale. " + fmtInt(meta.nSource) + " cells aggregated into " +
           fmtInt(meta.nSpots) + " spatial bins; each bin shows the mean of its cells."
@@ -468,11 +473,11 @@
 
     types.forEach(function (t, i) {
       var canvas = el("#dbx-mini-" + i);
-      var geom = paint(canvas, cols[i], shared || 1, "orange", cellW, 130, 0.8);
+      var geom = paint(canvas, cols[i], shared || 1, "blue", cellW, 130, 0.8);
       attachHover(canvas, el("#dbx-mini-tip-" + i), geom, cols[i], "Proportion", t);
     });
 
-    setLegend("dbx-prop", shared || 1, "orange");
+    setLegend("dbx-prop", shared || 1, "blue");
 
     el("#dbx-prop-table").innerHTML =
       '<table><thead><tr><th scope="col">Cell type</th><th scope="col">Median</th>' +
